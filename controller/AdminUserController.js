@@ -13,33 +13,31 @@ exports.loginVerification = (request, response) => {
         where: {mobileNumber: username, userType: 4}
     }).then(User => {
         if (!User) {
-            return response.status(200).json({
+            response.status(200).json({
                 status: 201,
                 body: "User Not Found"
             })
-        }
-        return User;
-    }).then(User => {
-        bcrypt.compare(password, User.password).then(async isMatch => {
-            if (isMatch) {
+        }else{
+            bcrypt.compare(password, User.password).then(async isMatch => {
+                if (isMatch) {
+                    response.status(200).json({
+                        status: 200,
+                        body: await AdminUser.findByPk(User.AdminUserId)
+                    })
+                } else {
+                    response.status(200).json({
+                        status: 201,
+                        body: "incorrect password"
+                    })
+                }
+            }).catch(error => {
                 response.status(200).json({
                     status: 201,
-                    body: await AdminUser.findByPk(User.AdminUserId)
+                    body: "Something went wrong",
+                    error: error
                 })
-            } else {
-                response.status(200).json({
-                    status: 201,
-                    body: "incorrect password"
-                })
-            }
-        }).catch(error => {
-            console.error(error)
-            response.status(200).json({
-                status: 202,
-                body: "Something went wrong",
-                error: error
             })
-        });
+        }
     }).catch(error => {
         response.status(200).json({
             status: 201,

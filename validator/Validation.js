@@ -11,7 +11,7 @@ const Validation = (schema, property) => {
             next();
         } else {
             const {details} = error;
-            const message = details.map(i => i.message).join(',');
+            const message = details.map(i => i.message);
             res.status(422).json({error: message})
         }
     }

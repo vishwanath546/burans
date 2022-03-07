@@ -36,6 +36,6 @@ app.use(function (err, req, res, next) {
     res.render('error');
 });
 
-// createDatabase(()=>{
+createDatabase(false,()=>{
     app.listen(3000, () => console.log("Burans Application Running on Port 3000"));
-// });
+});

@@ -8,7 +8,7 @@ const Schemas = {
     adminRegistration:Joi.object({
         name: Joi.string().required(),
         email: Joi.string().email().required(),
-        mobileNumber: Joi.number().integer().min(10).required(),
+        mobileNumber: Joi.number().integer().min(10).label("min").required().label("req"),
         password: Joi.string().required()
     })
 };
