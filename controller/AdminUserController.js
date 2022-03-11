@@ -20,9 +20,14 @@ exports.loginVerification = (request, response) => {
         }else{
             bcrypt.compare(password, User.password).then(async isMatch => {
                 if (isMatch) {
+                    User.loginAt = Date.now();
+                    User.save({fields:["loginAt"]});
                     response.status(200).json({
                         status: 200,
-                        body: await AdminUser.findByPk(User.AdminUserId)
+                        body: await AdminUser.findByPk(User.AdminUserId,{
+                            include: [{model:UserAuth,attributes:["userType","rememberToken"]}],
+                            attributes: ["id","name","email","mobileNumber","avatar"]
+                        })
                     })
                 } else {
                     response.status(200).json({
@@ -47,17 +52,16 @@ exports.loginVerification = (request, response) => {
     });
 }
 
-
 exports.saveAdmin = (request, response) => {
-    let {name, email, mobileNumber, password} = request.body;
+    let {name, email, mobileNumber, password,user_id} = request.body;
     Connection.transaction(async (trans) => {
+        const hashPassword = await bcrypt.hash(password, 12);
         const User = await AdminUser.create({
             name: name,
             email: email,
             mobileNumber: mobileNumber,
             settings: "1"
         }, {transaction: trans});
-        const hashPassword = await bcrypt.hash(password, 12);
         await User.createUserAuth({
             userType: 4,
             mobileNumber: mobileNumber,
