@@ -56,18 +56,20 @@ exports.saveAdmin = (request, response) => {
     let {name, email, mobileNumber, password,user_id} = request.body;
     Connection.transaction(async (trans) => {
         const hashPassword = await bcrypt.hash(password, 12);
-        const User = await AdminUser.create({
+        await AdminUser.create({
             name: name,
             email: email,
             mobileNumber: mobileNumber,
             settings: "1"
         }, {transaction: trans});
+
         await User.createUserAuth({
             userType: 4,
             mobileNumber: mobileNumber,
             password: hashPassword,
         }, {transaction: trans});
     }).then(result => {
+
         response.status(200).json({
             status: 200,
             body: "User create successfully!"

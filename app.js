@@ -6,7 +6,7 @@ const logger = require("morgan");
 
 const adminRouter = require("./routes/admin");
 const vendor = require("./routes/vendor");
-// const usersRouter = require('./routes/users');
+
 const app = express();
 const { createDatabase } = require("./model/CreateStructure");
 // view engine setup
