@@ -1,10 +1,10 @@
 const {Connection} = require("../model/Database");
 const {Vendor} = require("../model/Vendor");
 const bcrypt = require("bcryptjs");
-// const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 
 exports.login_vendor = async (request, response) => {
-    var {username: email, password} = request.body;
+    let {username: email, password} = request.body;
     Vendor.findOne({
         where: {email},
     })
@@ -23,8 +23,15 @@ exports.login_vendor = async (request, response) => {
                 .compare(password, vendordata.password)
                 .then(async (isMatch) => {
                     if (isMatch) {
+
+                        let token = jwt.sign({
+                            username:email,
+                            userId:vendordata.id
+                        },process.env.JWT_SECRET,{expiresIn: '1h'})
+
                         response.status(200).json({
                             status: 200,
+                            token:token,
                             body: await Vendor.findByPk(vendordata.id),
                         });
                     } else {

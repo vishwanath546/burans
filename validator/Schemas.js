@@ -11,6 +11,11 @@ const Schemas = {
     mobileNumber: Joi.number().integer().min(10).required(),
     password: Joi.string().required(),
   }),
+  adminUpdate :Joi.object({
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    mobileNumber: Joi.number().integer().min(10).required(),
+  }),
   vendorRegistration: Joi.object({
     name: Joi.string().required(),
     password: Joi.string().required(),
