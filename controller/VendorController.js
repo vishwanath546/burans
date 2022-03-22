@@ -1,92 +1,248 @@
 const {Connection} = require("../model/Database");
 const {Vendor} = require("../model/Vendor");
+const {UserAuth} = require('../model/UserAuth');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require('path');
+const fs = require('fs');
 
-exports.login_vendor = async (request, response) => {
-    let {username: email, password} = request.body;
-    Vendor.findOne({
-        where: {email},
+const clearImage = imagePath => {
+    let filePath = path.join(__dirname, '..', imagePath);
+    fs.unlink(filePath, error => {
+        if (error) console.log("Failed to delete image at update", error)
     })
-        .then((vendordata) => {
-            console.log(vendordata);
-            if (!vendordata) {
-                return response.status(200).json({
-                    status: 201,
-                    body: "User Not Found",
-                });
-            }
-            return vendordata;
-        })
-        .then((vendordata) => {
-            bcrypt
-                .compare(password, vendordata.password)
+}
+
+exports.login_vendor = async (request, response, next) => {
+    let {username, password} = request.body;
+    UserAuth.findOne({
+        where: {mobileNumber: username, userType: 2},
+    }).then((User) => {
+        if (!User) {
+            let error = new Error("User Not Found");
+            error.statusCode = 404;
+            throw  error;
+        }
+        return User;
+    })
+        .then((User) => {
+            bcrypt.compare(password, User.password)
                 .then(async (isMatch) => {
                     if (isMatch) {
-
+                        User.loginAt = Date.now();
+                        User.save({fields: ["loginAt"]});
                         let token = jwt.sign({
-                            username:email,
-                            userId:vendordata.id
-                        },process.env.JWT_SECRET,{expiresIn: '1h'})
+                            username: username,
+                            userId: User.VendorId
+                        }, process.env.JWT_SECRET, {expiresIn: '1h'})
 
                         response.status(200).json({
-                            status: 200,
-                            token:token,
-                            body: await Vendor.findByPk(vendordata.id),
+                            token: token,
+                            body: await Vendor.findByPk(User.VendorId, {
+                                include: [{model: UserAuth, attributes: ["userType", "rememberToken"]}],
+                                attributes: ["id", "name", "email", "mobileNumber", "avatar", "shopName",
+                                    "gstNumber", "foodLicense", "area", "accountStatus"]
+                            }),
                         });
                     } else {
-                        response.status(200).json({
-                            status: 201,
+                        response.status(401).json({
                             body: "incorrect password",
                         });
                     }
                 })
                 .catch((error) => {
-                    response.status(200).json({
+                    response.status(500).json({
                         status: 202,
                         body: "Something went wrong",
-                        error: error,
+                        error: error.message,
                     });
                 });
         })
         .catch((error) => {
-            response.status(200).json({
-                status: 201,
-                body: "Something went wrong",
-                error: error,
-            });
+            next(error)
         });
 };
 
-exports.vendorRegistration = (request, response) => {
-    let {name, shopName, mobileNumber, password, gstNumber, foodLicense, area, user_id} = request.body;
+exports.vendorRegistration = (request, response, next) => {
+    let {name, shopName, email, mobileNumber, password, gstNumber, foodLicense, area} = request.body;
+
     Connection.transaction(async (trans) => {
         const hashPassword = await bcrypt.hash(password, 12);
-        const newVendor = await Vendor.create({
+
+        if (!request.files) {
+            return response.status(401).json({
+                status: 401,
+                body: "no image provided"
+            })
+        }
+        const avatar = request.files.profileImage[0].path;
+        let newVendor = await Vendor.create({
             name: name,
             shopName: shopName,
             mobileNumber: mobileNumber,
             gstNumber: gstNumber,
+            email: email,
             foodLicense: foodLicense,
-            area: area
+            area: area,
+            avatar: avatar,
         }, {transaction: trans});
-        await newVendor.createUserAuth({
+        return await newVendor.createUserAuth({
             userType: 2,
             mobileNumber: mobileNumber,
             password: hashPassword,
         }, {transaction: trans});
-    }).then((result) => {
-
-        res.status(200).json({
+    }).then(() => {
+        response.status(200).json({
             status: 200,
             body: "Vendor Register successfully!",
         });
-    })
-        .catch((error) => {
-            console.error(error);
-            res.status(200).json({
-                status: 201,
-                body: error,
-            });
-        });
+    }).catch(error => {
+        next(error)
+    });
 };
+
+exports.vendorUpdate = (request, response, next) => {
+    let userId = request.params.userId;
+    let updateBy = request.userId;
+    let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
+    let avatar;
+    if (request.files) {
+        avatar = request.files.profileImage[0].path;
+    }
+    UserAuth.findOne({where: {VendorId: updateBy}}).then(requestUser => {
+        if (!requestUser) {
+            let error = new Error("Unauthorized access");
+            error.statusCode = 401;
+            throw error;
+        }
+        Connection.transaction(async (trans) => {
+            return Vendor.findByPk(userId, {
+                include: [{model: UserAuth}]
+            }).then(user => {
+                if (!user) {
+                    let error = new Error("User Not Found");
+                    error.statusCode = 404;
+                    throw error;
+                }
+                let updateObject = {columns: [], values: []};
+                if (user.updateOnColumn != null && user.updateOnColumn !=="") {
+                    updateObject = JSON.parse(user.updateOnColumn);
+                }
+                user.name = name;
+                user.email = email;
+                if (user.mobileNumber !== mobileNumber) {
+                    if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
+                        updateObject.columns.push('mobileNumber');
+                        updateObject.values.push(mobileNumber);
+                    }
+                }
+                if (user.shopName !== shopName) {
+                    if (updateObject.columns.findIndex(i => i === 'shopName') === -1) {
+                        updateObject.columns.push('shopName');
+                        updateObject.values.push(shopName);
+                    }
+                }
+                if (user.gstNumber !== gstNumber) {
+                    if (updateObject.columns.findIndex(i => i === 'gstNumber') === -1) {
+                        updateObject.columns.push('gstNumber');
+                        updateObject.values.push(gstNumber);
+                    }
+                }
+                if (user.foodLicense !== foodLicense) {
+                    if (updateObject.columns.findIndex(i => i === 'foodLicense') === -1) {
+                        updateObject.columns.push('foodLicense');
+                        updateObject.values.push(foodLicense);
+                    }
+                }
+                if (user.area !== area) {
+                    if (updateObject.columns.findIndex(i => i === 'area') === -1) {
+                        updateObject.columns.push('area');
+                        updateObject.values.push(area);
+                    }
+                }
+                if (avatar) {
+                    clearImage(user.avatar);
+                    user.avatar = avatar;
+                }
+                if (updateObject.columns.length > 0) {
+                    user.adminConfirmOn = 0;
+                    user.updateOnColumn = JSON.stringify(updateObject);
+                }
+
+                user.updateBy = requestUser.id;
+                return user.save({transaction: trans});
+            }).then(user => {
+                if (user.UserAuth.mobileNumber !== mobileNumber) {
+                    user.UserAuth.mobileNumber = mobileNumber
+                }
+                return user.UserAuth.save({transaction: trans})
+            }).catch(error => {
+                throw error;
+            })
+        }).then(result => {
+            response.status(200).json({
+                status: 200,
+                body: "Vendor create successfully!"
+            })
+        }).catch(error => {
+            if (avatar) clearImage(avatar);
+            next(error);
+        })
+    }).catch(error => {
+        next(error);
+    })
+
+}
+
+
+exports.deleteVendor = (request, response,next) => {
+
+    let userId = request.params.userId;
+
+    UserAuth.findOne({ where :{VendorId:userId}}).then(user => {
+        if (!user) {
+            let error = new Error("User Not Found");
+            error.statusCode =404;
+            throw error;
+        }
+        clearImage(user.avatar);
+        return Vendor.destroy({
+            where: {
+                id: userId
+            }
+        })
+    }).then(count => {
+        if (!count) {
+            let error = new Error("Failed to delete vendor")
+            error.statusCode = 500;
+            throw error;
+        }
+        response.status(200).json({
+            body: "Successfully delete user"
+        })
+    }).catch(error => {
+       next(error)
+    })
+}
+
+
+exports.getVendor=(request,response,next)=>{
+    let userId = request.params.userId;
+    Vendor.findOne(userId,{
+        attributes:["id","name","email","mobileNumber","avatar","shopName","gstNumber","foodLicense",
+        "area","accountStatus"],
+        include:[{
+            model:UserAuth,
+            attributes:["userType","loginAt"]
+        }]
+    }).then(user=>{
+        if(!user){
+            let error = new Error("User Not Found")
+            error.statusCode = 404;
+            throw error;
+        }
+        return response.status(200).json(user);
+    }).catch(error=>{
+        next(error)
+    })
+}

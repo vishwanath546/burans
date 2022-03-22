@@ -9,6 +9,14 @@ const {Connection} = require('../model/Database');
 const {AdminUser} = require('../model/AdminUser');
 const {UserAuth} = require('../model/UserAuth');
 
+
+const clearImage = imagePath => {
+    let filePath = path.join(__dirname, '..', imagePath);
+    fs.unlink(filePath, error => {
+        if(error) console.log("Failed to delete image at update",error)
+    })
+}
+
 exports.loginVerification = (request, response) => {
     let {username, password} = request.body;
 
@@ -16,8 +24,7 @@ exports.loginVerification = (request, response) => {
         where: {mobileNumber: username, userType: 4}
     }).then(User => {
         if (!User) {
-            response.status(200).json({
-                status: 201,
+            response.status(401).json({
                 body: "User Not Found"
             })
         } else {
@@ -28,7 +35,7 @@ exports.loginVerification = (request, response) => {
 
                     let token = jwt.sign({
                         username: username,
-                        userId: User.id
+                        userId: User.AdminUserId
                     }, process.env.JWT_SECRET, {expiresIn: '1h'})
 
                     response.status(200).json({
@@ -40,13 +47,11 @@ exports.loginVerification = (request, response) => {
                         })
                     })
                 } else {
-                    response.status(200).json({
-                        status: 201,
+                    response.status(401).json({
                         body: "incorrect password"
                     })
                 }
             }).catch(error => {
-                console.log("login api",error)
                 response.status(200).json({
                     status: 201,
                     body: "Something went wrong",
@@ -63,7 +68,7 @@ exports.loginVerification = (request, response) => {
     });
 }
 
-exports.updateAdmin = (request, response) => {
+exports.updateAdmin = (request, response,next) => {
     let userId = request.params.userId;
     let updateBy = request.userId;
     let {name, email, mobileNumber, setting} = request.body;
@@ -74,43 +79,51 @@ exports.updateAdmin = (request, response) => {
         })
     }
     const avatar = request.files.profileImage[0].path;
-    Connection.transaction(async (trans) => {
-        return AdminUser.findByPk(userId,{
-            include:[{model:UserAuth}]
-        }).then(user => {
-            if (!user) {
-                return response.status(404).json({
-                    body: "User Not Found"
-                });
-            }
-            user.name = name;
-            user.email = email;
-            user.mobileNumber = mobileNumber;
-            user.settings = setting;
-            user.updateBy = updateBy;
-            if (user.avatar !== avatar) {
-                clearImage(user.avatar);
-                user.avatar = avatar;
-            }
-            return user.save({transaction: trans});
-        }).then(user => {
-            if(user.UserAuth.mobileNumber !== mobileNumber) {
-                user.UserAuth.mobileNumber = mobileNumber
-            }
-            return user.UserAuth.save({transaction: trans})
-        })
-    }).then(result => {
-        response.status(200).json({
-            status: 200,
-            body: "User create successfully!"
-        })
-    }).catch(error => {
-        clearImage(avatar);
-        response.status(500).json({
-            body: error.message
-        })
-    })
 
+    AdminUser.findByPk(updateBy).then(requestUser=>{
+        if(!requestUser){
+            let error=new Error("Unauthorized access");
+            error.statusCode=401;
+            throw error;
+        }
+        Connection.transaction(async (trans) => {
+            return AdminUser.findByPk(userId,{
+                include:[{model:UserAuth}]
+            }).then(user => {
+                if (!user) {
+                    return response.status(404).json({
+                        body: "User Not Found"
+                    });
+                }
+                user.name = name;
+                user.email = email;
+                user.mobileNumber = mobileNumber;
+                user.settings = setting;
+                user.updateBy = requestUser.id;
+                if (user.avatar !== avatar) {
+                    clearImage(user.avatar);
+                    user.avatar = avatar;
+                }
+                return user.save({transaction: trans});
+            }).then(user => {
+                if(user.UserAuth.mobileNumber !== mobileNumber) {
+                    user.UserAuth.mobileNumber = mobileNumber
+                }
+                return user.UserAuth.save({transaction: trans})
+            })
+        }).then(result => {
+            response.status(200).json({
+                status: 200,
+                body: "User create successfully!"
+            })
+        }).catch(error => {
+            clearImage(avatar);
+            error.statusCode=500;
+            next(error);
+        })
+    }).catch(error=>{
+        next(error);
+    })
 }
 
 exports.saveAdmin = (request, response) => {
@@ -131,7 +144,6 @@ exports.saveAdmin = (request, response) => {
             mobileNumber: mobileNumber,
             settings: "1",
             avatar: avatar,
-            createBy: request.userId
         }, {transaction: trans});
 
         await AdminUserObject.createUserAuth({
@@ -139,11 +151,10 @@ exports.saveAdmin = (request, response) => {
             mobileNumber: mobileNumber,
             password: hashPassword,
         }, {transaction: trans});
-    }).then(result => {
-
+    }).then(() => {
         response.status(200).json({
             status: 200,
-            body: "User create successfully!"
+            body: "User Register successfully!"
         })
     }).catch(error => {
         response.status(500).json({
@@ -186,12 +197,6 @@ exports.deleteAdminUser = (request, response) => {
     })
 }
 
-const clearImage = imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath);
-    fs.unlink(filePath, error => {
-        if(error) console.log("Failed to delete image at update",error)
-    })
-}
 
 exports.getUser=(request,response)=>{
     let userId = request.params.userId;

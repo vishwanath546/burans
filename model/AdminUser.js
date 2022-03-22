@@ -21,5 +21,6 @@ module.exports.AdminUser=Connection.define("AdminUser",{
         comment:"0.inactive 1.active"
     },
 },{
-    tableName:"admin_user"
+    tableName:"admin_user",
+    paranoid: true,
 });
