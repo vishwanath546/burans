@@ -1,0 +1,100 @@
+<div class="main-sidebar sidebar-style-2">
+    <aside id="sidebar-wrapper">
+        <div class="sidebar-brand">
+            <a href="/">Burans</a>
+        </div>
+        <div class="sidebar-brand sidebar-brand-sm">
+            <a href="/">BU</a>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="<%= url == 'dashboard' ? 'active' : ''; %>">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-fire"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-header">Setting</li>
+
+            <li class="<%= url == 'customer' ? 'active' : ''; %>">
+                <a class="nav-link" href="/customer">
+                    <i class="fas fa-user-astronaut"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="dropdown
+             <%= url == 'categories' || url == 'products' || url == 'vendor' || url == 'delveryboy' || url == 'advertise'
+                    ? 'active' : ''
+            %>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-store"></i><span>Master</span></a>
+                <ul class="dropdown-menu">
+                    <li class="<%= url == 'products' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="<%=  url == 'categories' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/categories">Categories</a>
+                    </li>
+                    <li class="<%= url == 'vendor' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/vendor">Vendor</a>
+                    </li>
+                    <li class="<%= url == 'delveryboy' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/delveryboy">Delivery Boy</a>
+                    </li>
+                    <li class="<%= url == 'advertise'? 'active' : ''; %>">
+                        <a class="nav-link" href="/advertise">Advertise</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown
+             <%= url == 'offers' || url == 'coupon' || url == 'discount-rules' ? 'active' : ''
+            %>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-ticket-alt"></i><span>Discount</span></a>
+                <ul class="dropdown-menu">
+                    <li class="<%= url == 'offers' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/offers">Offers</a>
+                    </li>
+                    <li class="<%=  url == 'coupon' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/coupon">Coupon code</a>
+                    </li>
+                    <li class="<%=  url == 'discount-rules' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/discount-rules">Discount Rules</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown
+             <%= url == 'track_order' || url == 'vendor_report' || url == 'delivery_report' ? 'active' : ''
+            %>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
+                <ul class="dropdown-menu">
+                    <li class="<%= url == 'track_order' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/track_order">Track Order</a>
+                    </li>
+                    <li class="<%= url == 'vendor_report' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/vendor_report">Vendor Report</a>
+                    </li>
+                    <li class="<%= url == 'delivery_report' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/delivery_report">Delivery Report</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown
+             <%= url == 'notification' || url == 'app_update'  ? 'active' : ''
+            %>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i><span>App Setting</span></a>
+                <ul class="dropdown-menu">
+                    <li class="<%= url == 'notification' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/notification">Notification</a>
+                    </li>
+                    <li class="<%= url == 'app_update' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/app_update">App updates</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="<%= url == 'burans_setting' ? 'active' : ''; %>">
+                <a class="nav-link" href="/burans_setting">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Burans Setting</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+</div>

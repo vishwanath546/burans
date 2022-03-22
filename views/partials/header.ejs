@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title><%= title %> &mdash; Burans</title>
+
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="/modules/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/modules/fontawesome/css/all.min.css">
+
+    <!-- CSS Libraries -->
+    <% if (url == "" || url == "index") { %>
+
+    <% } %>
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+
+    <% if (url != "auth_login") { %>
+        <%- include("layout") %>
+        <%- include("sidebar") %>
+    <% } %>
