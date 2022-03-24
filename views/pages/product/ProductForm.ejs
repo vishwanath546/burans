@@ -1,0 +1,83 @@
+<%- include("../../partials/header") %>
+
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add Product Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="txt_product_name" id="txt_product_name">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea type="text" class="form-control" cols="5"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Category</label>
+                        <select class="form-control">
+                            <option>category-1</option>
+                            <option>category-2</option>
+                            <option>category-3</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Sub Category</label>
+                        <select class="form-control">
+                            <option>sub-category-1</option>
+                            <option>sub-category-2</option>
+                            <option>sub-category-3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Price</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    &#8377;
+                                </div>
+                            </div>
+                            <input type="text" class="form-control currency">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Sale Price</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    &#8377;
+                                </div>
+                            </div>
+                            <input type="text" class="form-control currency">
+                        </div>
+                        <small id="passwordHelpBlock" class="form-text text-muted">
+                            Note: Display to customer
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Price Quantity</label>
+                        <input type="text" class="form-control currency"/>
+                    </div>
+                    <div class="form-group  col-md-6">
+                        <label>Photos</label>
+                        <input type="file" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%- include("../../partials/footer") %>

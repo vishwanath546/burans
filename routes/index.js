@@ -14,11 +14,19 @@ router.get('/customer', function (req, res, next) {
 });
 
 router.get('/products', function (req, res, next) {
-    res.render('pages/product/view_products', {title: 'View product',url:req.url});
+    res.render('pages/product/ViewProducts', {title: 'View product',url:req.url});
+});
+
+router.get('/create-product', function (req, res, next) {
+    res.render('pages/product/ProductForm', {title: 'Create Product',url:req.url});
 });
 
 router.get('/categories', function (req, res, next) {
     res.render('pages/product/category', {title: 'View product',url:req.url});
+});
+
+router.get('/create-categories', function (req, res, next) {
+    res.render('pages/product/CategoryForm', {title: 'View product',url:req.url});
 });
 
 module.exports = router;
