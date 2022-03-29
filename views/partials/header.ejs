@@ -8,11 +8,17 @@
     <!-- General CSS Files -->
     <link rel="stylesheet" href="/modules/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/modules/fontawesome/css/all.min.css">
-
+    <link rel="stylesheet" href="/modules/izitoast/css/iziToast.css">
     <!-- CSS Libraries -->
-    <% if (url == "" || url == "index") { %>
-
+    <% if (url == "/create-product" || url == "/update-product" ) { %>
+        <link rel="stylesheet" href="/modules/dropzonejs/dropzone.css">
+        <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
     <% } %>
+
+    <% if (url == "/create-categories" ) { %>
+        <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
+    <% } %>
+
 
     <!-- Template CSS -->
     <link rel="stylesheet" href="/css/style.css">

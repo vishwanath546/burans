@@ -1,7 +1,6 @@
-const bcrypt = require('bcryptjs');
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
+const {clearImage} = require('../util/helpers');
+const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
 const {Connection} = require('../model/Database');
@@ -10,12 +9,6 @@ const {AdminUser} = require('../model/AdminUser');
 const {UserAuth} = require('../model/UserAuth');
 
 
-const clearImage = imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath);
-    fs.unlink(filePath, error => {
-        if(error) console.log("Failed to delete image at update",error)
-    })
-}
 
 exports.loginVerification = (request, response) => {
     let {username, password} = request.body;

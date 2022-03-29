@@ -24,34 +24,6 @@ if(window.Dropzone) {
   Dropzone.autoDiscover = false;
 }
 
-// Basic confirm box
-$('[data-confirm]').each(function() {
-  var me = $(this),
-      me_data = me.data('confirm');
-
-  me_data = me_data.split("|");
-  me.fireModal({
-    title: me_data[0],
-    body: me_data[1],
-    buttons: [
-      {
-        text: me.data('confirm-text-yes') || 'Yes',
-        class: 'btn btn-danger btn-shadow',
-        handler: function() {
-          eval(me.data('confirm-yes'));
-        }
-      },
-      {
-        text: me.data('confirm-text-cancel') || 'Cancel',
-        class: 'btn btn-secondary',
-        handler: function(modal) {
-          $.destroyModal(modal);
-          eval(me.data('confirm-no'));
-        }
-      }
-    ]
-  })
-});
 
 // Global
 $(function() {
@@ -94,23 +66,23 @@ $(function() {
         if(me.parent().hasClass("active")){
           active = true;
         }
-        
+
         $('.main-sidebar .sidebar-menu li.active > .dropdown-menu').slideUp(500, function() {
-          update_sidebar_nicescroll();          
+          update_sidebar_nicescroll();
           return false;
         });
-        
+
         $('.main-sidebar .sidebar-menu li.active').removeClass('active');
 
         if(active==true) {
-          me.parent().removeClass('active');          
-          me.parent().find('> .dropdown-menu').slideUp(500, function() {            
+          me.parent().removeClass('active');
+          me.parent().find('> .dropdown-menu').slideUp(500, function() {
             update_sidebar_nicescroll();
             return false;
           });
         }else{
-          me.parent().addClass('active');          
-          me.parent().find('> .dropdown-menu').slideDown(500, function() {            
+          me.parent().addClass('active');
+          me.parent().find('> .dropdown-menu').slideDown(500, function() {
             update_sidebar_nicescroll();
             return false;
           });
@@ -120,7 +92,7 @@ $(function() {
       });
 
       $('.main-sidebar .sidebar-menu li.active > .dropdown-menu').slideDown(500, function() {
-        update_sidebar_nicescroll();        
+        update_sidebar_nicescroll();
         return false;
       });
     }

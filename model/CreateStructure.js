@@ -1,6 +1,8 @@
 const {Connection} = require('./Database');
 // models
 const {Products} = require('./Products');
+const {ProductImages} = require('./ProductImages');
+
 const {Category} = require('./Category');
 
 const {DeliveryBoy} = require('./DeliveryBoy');
@@ -20,7 +22,10 @@ const {OrderItems} = require('./OrderItems');
 const {CouponCode} = require('./CouponCode');
 module.exports.createDatabase = (isForce, callback) => {
 
-    Products.belongsTo(Category);
+    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'categoryId'});
+    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'subCategoryId'});
+    Products.hasMany(ProductImages);
+    Category.belongsTo(Category);
 
     Users.hasMany(UserAddress);
     Users.hasOne(UserAuth, {onDelete: "CASCADE"});

@@ -33,5 +33,9 @@ const Schemas = {
     gstNumber: Joi.string().required(),
     area: Joi.string().required(),
   }),
+//      Category form schemas
+  categoryValidation: Joi.object({
+    name: Joi.string().required(),
+  }),
 };
 module.exports = Schemas;

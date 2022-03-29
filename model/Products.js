@@ -13,7 +13,6 @@ module.exports.Products=Connection.define("products",{
     salePrice:DataTypes.DOUBLE,
     description:DataTypes.STRING,
     detail:DataTypes.STRING,
-    photo:DataTypes.STRING,
     priceQuantity:DataTypes.DOUBLE,
     status:{
         type:DataTypes.INTEGER,

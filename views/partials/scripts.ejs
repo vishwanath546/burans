@@ -6,15 +6,49 @@
 <script src="/modules/nicescroll/jquery.nicescroll.min.js"></script>
 <script src="/modules/moment.min.js"></script>
 <script src="/js/stisla.js"></script>
-
+<script src="/modules/izitoast/js/iziToast.js"></script>
 <!-- JS Libraies -->
-<% if (url == "" || url == "index") {  %>
-
+<% if (url === "/create-product" || url === "/update-product") {  %>
+    <script src="/modules/dropzonejs/min/dropzone.min.js"></script>
+    <script src="/modules/select2/dist/js/select2.js"></script>
+    <script src="/modules/select2/dist/js/select2.full.js"></script>
+    <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
+<% } %>
+<% if (url === "/create-categories" || url=="/update-product") {  %>
+    <script src="/modules/select2/dist/js/select2.js"></script>
+    <script src="/modules/select2/dist/js/select2.full.js"></script>
+    <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
+    <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
 <% } %>
 
+<% if (url === "/categories") {  %>
+<script src="/modules/datatables/datatables.min.js"></script>
+<script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+<% } %>
 
+<% if (url === "/create-vendor" ) {  %>
+    <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
+    <script src="/js/page/vendors.js"></script>
+<% } %>
 <!-- Template JS File -->
+<script>
+    const baseURL = '<%= process.env.BASE_URL %>';
+</script>
 <script src="/js/scripts.js"></script>
 <script src="/js/custom.js"></script>
+
+<!--page js-->
+
+<% if (url === "/create-categories" || url=="/update-categories") {  %>
+    <script src="/js/page/category-form.js"></script>
+<% } %>
+<% if (url === "/create-product" || url=="/update-product") {  %>
+    <script src="/js/page/product-form.js"></script>
+<% } %>
+<% if (url === "/categories") {  %>
+    <script src="/js/page/category.js"></script>
+<% } %>
+
 </body>
 </html>

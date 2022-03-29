@@ -2,58 +2,74 @@
 
 <div class="row">
     <div class="col-12 col-md-6 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4>Categories Details</h4>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-control" name="txt_product_name" id="txt_product_name">
+        <form id="category_form" method="post" data-form-valid="saveCategorySubCategoryDetails">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Categories Details</h4>
                 </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea type="text" class="form-control" cols="5"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Photos</label>
-                    <input type="file" class="form-control"/>
-                </div>
-                <div class="form-group">
-                    <label class="custom-switch mt-2">
-                        <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input">
-                        <span class="custom-switch-indicator"></span>
-                        <span class="custom-switch-description">is Subcategory</span>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>Category</label>
-                    <select class="form-control">
-                        <option>sub-category-1</option>
-                        <option>sub-category-2</option>
-                        <option>sub-category-3</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Icon input</label>
-                    <div class="selectgroup selectgroup-pills">
-                        <label class="selectgroup-item">
-                            <input type="radio" name="icon-input" value="1" class="selectgroup-input" checked="">
-                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-sun"></i></span>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="hidden" name="updateCategoryId" id="updateCategoryId" value="<% categoryId%>" />
+                        <input type="text" class="form-control" name="name"
+                               id="name"
+                               data-valid="required" data-msg="Please enter name"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control form-control-sm" name="description"
+                                  id="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Photos</label>
+                        <div id="category-image-preview" class="image-preview">
+                            <label for="category-image" id="category-image-label">Choose File</label>
+                            <input type="file" name="categoryImage" id="category-image" data-valid="required"
+                                   data-msg="Please select category image">
+                        </div>
+                    </div>
+                    <div class="gallery gallery-fw" data-item-height="100" id="alreadyUploadImage">
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="custom-switch mt-2">
+                            <input type="checkbox" name="custom-switch-checkbox" onchange="isSubcategory(this)"
+                                   class="custom-switch-input">
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">is Subcategory</span>
                         </label>
-                        Active
-                        <label class="selectgroup- pl-2">
-                            <input type="radio" name="icon-input" value="2" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
-                        </label>
-                        Inactive
+                    </div>
+                    <div class="form-group d-none" id="subcategorySelectionBox">
+                        <label>Category</label>
+                        <select  id="category_id" name="category_id">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div class="selectgroup selectgroup-pills">
+                            <label class="selectgroup-item">
+                                <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-sun"></i></span>
+                            </label>
+                            Active
+                            <label class="selectgroup- pl-2">
+                                <input type="radio" name="status" value="0" class="selectgroup-input">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-moon"></i></span>
+                            </label>
+                            Inactive
+                        </div>
                     </div>
                 </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-        </div>
+        </form>
+
     </div>
     <div class="col-12 col-md-6 col-lg-6">
         <div class="card">
@@ -62,39 +78,6 @@
             </div>
             <div class="card-body">
                 <div id="accordion">
-                    <div class="accordion">
-                        <div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-1" aria-expanded="true">
-                           <div class="d-flex align-items-center justify-content-between">
-                                <h4>Panel 1</h4>
-                                <span class="badge badge-white">5</span>
-                           </div>
-                        </div>
-                        <div class="accordion-body collapse show" id="panel-body-1" data-parent="#accordion">
-                            <ul class="list-group">
-                                <li class="list-group-item">Cras justo odio</li>
-                                <li class="list-group-item">Dapibus ac facilisis in</li>
-                                <li class="list-group-item">Morbi leo risus</li>
-                                <li class="list-group-item">Porta ac consectetur ac</li>
-                                <li class="list-group-item">Vestibulum at eros</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="accordion">
-                        <div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-2">
-                            <h4>Panel 2</h4>
-                        </div>
-                        <div class="accordion-body collapse" id="panel-body-2" data-parent="#accordion">
-
-                        </div>
-                    </div>
-                    <div class="accordion">
-                        <div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-3">
-                            <h4>Panel 3</h4>
-                        </div>
-                        <div class="accordion-body collapse" id="panel-body-3" data-parent="#accordion">
-
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
