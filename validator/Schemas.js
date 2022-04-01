@@ -37,5 +37,13 @@ const Schemas = {
   categoryValidation: Joi.object({
     name: Joi.string().required(),
   }),
+  productValidation: Joi.object({
+    product_name: Joi.string().required(),
+    category: Joi.string().required(),
+    price: Joi.number().required(),
+    sale_price: Joi.number().required(),
+    price_quantity: Joi.string().required()    
+  }),
+
 };
 module.exports = Schemas;

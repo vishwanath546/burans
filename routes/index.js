@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const CategoryController = require('../controller/CategoryController');
+const ProductController = require('../controller/ProductController');
+
 const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
 
@@ -56,8 +58,12 @@ router.get('/update-product/:updateID', function (req, res) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/product/ProductForm', {title: 'Create Product',url:'/'+segments[1],productId:productId});
+    res.render('pages/product/ProductForm', { title: 'Create Product', url: '/' + segments[1], productId: productId});
 });
+
+
+router.post("/saveProductDetails", Validator(Schemas.productValidation), ProductController.saveProductDetails);
+router.post('/getProductById', ProductController.getProductById);
 
 
 

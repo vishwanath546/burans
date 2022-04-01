@@ -1,7 +1,7 @@
 const {DataTypes} = require('sequelize');
 const {Connection} = require('./Database');
 
-module.exports.Products=Connection.define("products",{
+module.exports.Products=Connection.define("Products",{
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -12,8 +12,10 @@ module.exports.Products=Connection.define("products",{
     price:DataTypes.DOUBLE,
     salePrice:DataTypes.DOUBLE,
     description:DataTypes.STRING,
-    detail:DataTypes.STRING,
-    priceQuantity:DataTypes.DOUBLE,
+    priceQuantity:DataTypes.STRING,
+    specialDeliveryCharges:DataTypes.STRING,
+    metaTitle:DataTypes.STRING,
+    metaDescription:DataTypes.STRING,
     status:{
         type:DataTypes.INTEGER,
         defaultValue:0,
