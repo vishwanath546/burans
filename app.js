@@ -75,6 +75,6 @@ app.use(function (err, req, res, next) {
   res.status(err.statusCode || 500).json({message:err.message});
 });
 
-createDatabase(false,()=>{
+createDatabase(true,()=>{
     app.listen(3000, () => console.log("Burans Application Running on Port 3000"));
 });

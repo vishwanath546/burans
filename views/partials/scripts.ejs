@@ -28,9 +28,17 @@
 <% } %>
 
 <% if (url === "/create-vendor" ) {  %>
+    <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
     <script src="/js/page/vendors.js"></script>
 <% } %>
+
+<% if (url === "/create-offers" ) {  %>
+    <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
+    <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
+    <script src="/js/page/offers.js"></script>
+<% } %>
+
 <!-- Template JS File -->
 <script>
     const baseURL = '<%= process.env.BASE_URL %>';
