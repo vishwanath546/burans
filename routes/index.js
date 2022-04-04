@@ -83,7 +83,13 @@ router.get('/create-delivery-boy', function(req, res, next) {
     res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'View product', url: req.url });
 });
 
+
+// --------------------------- offers ------------------------------------------
+
 router.get('/create-offer', function(req, res, next) {
     res.render('pages/offers/offers', { title: 'View product', url: req.url });
+});
+router.get('/create-coupons', function(req, res, next) {
+    res.render('pages/offers/coupon', { title: 'View product', url: req.url });
 });
 module.exports = router;

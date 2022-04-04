@@ -1,0 +1,112 @@
+<%- include("../../partials/header") %>
+    <style>
+        .form-group {
+            /* margin-bottom: 5px;s */
+        }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+        
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+         ::-webkit-scrollbar {
+            display: none;
+            /* Safari and Chrome */
+        }
+    </style>
+
+    <div class="row">
+        <div class="col-12 col-md-8 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Offers</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Coupon Heading</label>
+                                <input type="text" class="form-control" name="Offer_Heading" id="txt_product_name">
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <!-- <div class="col-md-6"> -->
+                            <label for="">Discount</label>
+                            <div class="border d-flex Expiration rounded">
+                                <input type="number" name="Expiration" id="Expiration" class="border-0 form-control">
+                                <select name="offerType" id="offerType">
+                                    <option value="select" >select</option>
+                                    <option value="percent">Percent</option>
+                                    <option value="amount">amount</option>
+                                   
+                                </select>
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Offer prise</label>
+                                <input type="text" class="form-control" name="Offer_Name" id="txt_product_name">
+                                <small><b>Note:</b> upto amount</small>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Offer Roule 1</label>
+                        <textarea type="text" class="form-control" cols="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Offer Roule 2</label>
+                        <textarea type="text" class="form-control" cols="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Offer Roule 3</label>
+                        <textarea type="text" class="form-control" cols="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Offer Roule 4</label>
+                        <textarea type="text" class="form-control" cols="5"></textarea>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label">Status</label>
+                        <div class="selectgroup selectgroup-pills">
+                            <label class="selectgroup-item">
+                            <input type="radio" name="icon-input" value="1" class="selectgroup-input" checked="">
+                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-sun"></i></span>
+                        </label> Active
+                            <label class="selectgroup- pl-2">
+                            <input type="radio" name="icon-input" value="2" class="selectgroup-input">
+                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
+                        </label> Inactive
+                            <label class="selectgroup- pl-2">
+                            <input type="radio" name="icon-input" value="2" class="selectgroup-input">
+                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
+                        </label> expiry
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer pt-0">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <%- include("../../partials/footer") %>
