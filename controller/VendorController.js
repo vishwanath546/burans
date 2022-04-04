@@ -103,13 +103,16 @@ exports.vendorRegistration = (request, response, next) => {
 };
 
 exports.vendorUpdate = (request, response, next) => {
+
+    console.log("hii");
     let userId = request.params.userId;
-    let updateBy = request.userId;
+    let updateBy =1; //request.userId;
     let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
     let avatar;
     if (request.files) {
-        avatar = request.files.profileImage[0].path;
+        avatar = request.files.shopImage[0].path;
     }
+
     UserAuth.findOne({where: {VendorId: updateBy}}).then(requestUser => {
         if (!requestUser) {
             let error = new Error("Unauthorized access");

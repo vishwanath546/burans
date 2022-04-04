@@ -27,7 +27,14 @@ function getAreas() {
 }
 
 function saveVendorDetails(form) {
-    app.request("vendor/saveVendorDetails", new FormData(form)).then(response => {
+    let vendor = parseInt($("#updateVendorId").val());
+    let requestUrl = "vendor/saveVendorDetails"
+    let type="post";
+    if(vendor!==0){
+        requestUrl = "vendor/saveUpdateVendorDetails/"+vendor;
+      
+    }
+    app.request(requestUrl, new FormData(form),type).then(response => {
         app.successToast(response.body)
         $("#vendorDetailsForm").trigger('reset');
     }).catch(error => {
@@ -45,7 +52,7 @@ function getVendorDetails(vendor) {
 
         let form = new FormData();
         form.set("vendorId",vendor);
-        app.request("/vendor/getVendorDetails", form).then(response => {
+        app.request("vendor/getVendorDetails", form).then(response => {
 
             $("#name").val(response.name);
             $("#mobileNumber").val(response.mobileNumber);

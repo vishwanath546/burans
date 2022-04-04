@@ -15,9 +15,8 @@ router.post(
   Validator(Schemas.loginValidation),
     vendorController.login_vendor
 );
-router.put("/update-vendor/:userId",
-    isAuth,
-    Validator(Schemas.adminUpdate),
+router.post("/saveUpdateVendorDetails/:userId",
+    Validator(Schemas.vendorRegistration),
     vendorController.vendorUpdate);
 
 router.post("/getAllVendors",
