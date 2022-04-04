@@ -72,12 +72,23 @@ router.post('/getProductById', ProductController.getProductById);
 
 // --------------------------- vendor ------------------------------------------
 router.get('/view-vendor', function (req, res, next) {
-    res.render('pages/vendor/VendorForm', {title: 'View vendor',url:req.url});
+    res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
 });
 
 router.get('/create-vendor', function (req, res, next) {
-    res.render('pages/vendor/VendorForm', {title: 'View product',url:req.url});
+    res.render('pages/vendor/VendorForm', {title: 'create vendor',url:req.url,vendorId:0});
 });
+router.get('/update-vendor/:updateId', function (req, res, next) {
+    let vendorId= req.params.updateId;
+    if(!vendorId){
+        let error = new Error('Not Found');
+        error.statusCode=404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/vendor/VendorForm', {title: 'View product',url:'/' + segments[1],vendorId:vendorId});
+});
+
 
 router.get('/create-delivery-boy', function (req, res, next) {
     res.render('pages/DeliveryBoy/DeliveryBoy', {title: 'View product',url:req.url});

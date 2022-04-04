@@ -30,7 +30,10 @@ const diskStorage = multer.diskStorage({
         destinationPath+="images/category"
         break;
       case "productImages":
-          destinationPath+="image/products"
+          destinationPath+="images/products";
+          break;
+      case "shopImage":
+          destinationPath+="images/vendor";
     }
     callback(null,destinationPath)
   },
@@ -52,6 +55,7 @@ const fileFilter = (request,file,callback)=>{
 }
 app.use(multer({storage:diskStorage,fileFilter:fileFilter}).
 fields([{name:"profileImage",maxCount:1},{name:"categoryImage",maxCount:4},
+  {name:"shopImage",maxCount:4},
   { name: "productImages", maxCount: 4 }]))
 
 app.use(cookieParser());
@@ -75,6 +79,6 @@ app.use(function (err, req, res, next) {
   res.status(err.statusCode || 500).json({message:err.message});
 });
 
-createDatabase(true,()=>{
+createDatabase(false,()=>{
     app.listen(3000, () => console.log("Burans Application Running on Port 3000"));
 });

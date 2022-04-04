@@ -6,7 +6,7 @@ const Validator = require("../validator/Validation");
 const Schemas = require("../validator/Schemas");
 /* GET users listing. */
 router.post(
-  "/register_vendor",
+  "/saveVendorDetails",
   Validator(Schemas.vendorRegistration),
   vendorController.vendorRegistration
 );
@@ -19,5 +19,13 @@ router.put("/update-vendor/:userId",
     isAuth,
     Validator(Schemas.adminUpdate),
     vendorController.vendorUpdate);
+
+router.post("/getAllVendors",
+    vendorController.getAllVendorsTables);
+router.post("/getVendorDetails",
+    vendorController.getVendor);
+
+router.delete("/deleteVendor/:vendorId",vendorController.deleteVendor)
+
 
 module.exports = router;

@@ -27,10 +27,16 @@
 <script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
 <% } %>
 
-<% if (url === "/create-vendor" ) {  %>
+<% if (url === "/view-vendor") {  %>
+    <script src="/modules/datatables/datatables.min.js"></script>
+    <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+<% } %>
+<% if (url === "/create-vendor" || url === "/update-vendor") {  %>
+    <script src="/modules/select2/dist/js/select2.js"></script>
+    <script src="/modules/select2/dist/js/select2.full.js"></script>
     <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
-    <script src="/js/page/vendors.js"></script>
 <% } %>
 
 <% if (url === "/create-offers" ) {  %>
@@ -54,9 +60,16 @@
 <% if (url === "/create-product" || url=="/update-product") {  %>
     <script src="/js/page/product-form.js"></script>
 <% } %>
+<% if (url === "/create-vendor" || url === "/update-vendor") {  %>
+    <script src="/js/page/vendor-form.js"></script>
+<% } %>
 <% if (url === "/categories") {  %>
     <script src="/js/page/category.js"></script>
 <% } %>
+<% if (url === "/view-vendor") {  %>
+    <script src="/js/page/vendors.js"></script>
+<% } %>
+
 
 </body>
 </html>
