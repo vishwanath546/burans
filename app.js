@@ -18,7 +18,6 @@ app.use(express.urlencoded({extended: false}));
 
 const diskStorage = multer.diskStorage({
     destination: (request, file, callback) => {
-
         let destinationPath = "public/";
         switch (file.fieldname) {
             case "profileImage":
@@ -28,11 +27,13 @@ const diskStorage = multer.diskStorage({
                 destinationPath += "images/avatar"
                 break;
             case "categoryImage":
-                destinationPath += "images/category"
+                destinationPath += "images/category";
                 break;
             case "productImages":
-                destinationPath += "images/products"
+                destinationPath += "images/products";
                 break;
+            case "shopImage":
+                destinationPath += "images/vendor";
         }
         callback(null, destinationPath)
     },
@@ -52,13 +53,14 @@ const fileFilter = (request, file, callback) => {
         callback(null, false)
     }
 }
-// app.use(multer({storage: diskStorage, fileFilter: fileFilter}).fields([{
-//     name: "profileImage",
-//     maxCount: 1
-// }, {name: "productImages", maxCount: 4}, {name: "categoryImage", maxCount: 4},
-// ]))
-app.use(multer({storage: diskStorage, fileFilter: fileFilter})
-    .array("productImages",4));
+
+app.use(multer({storage: diskStorage, fileFilter: fileFilter}).fields([{
+    name: "profileImage",
+    maxCount: 1
+}, {name: "categoryImage", maxCount: 4},
+    {name: "shopImage", maxCount: 4},
+    {name: "productImages", maxCount: 4}]))
+
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));

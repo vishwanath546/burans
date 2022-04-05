@@ -8,8 +8,8 @@ const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-    res.render('login', {title: 'Burans Login'});
+router.get('/', function(req, res, next) {
+    res.render('login', { title: 'Burans Login' });
 });
 
 router.get('/dashboard', function (req, res, next) {
@@ -50,7 +50,8 @@ router.get('/products', function (req, res, next) {
 router.get('/create-product', function (req, res) {
     res.render('pages/product/ProductForm', {title: 'Create Product', url: req.url, productId: 0});
 });
-router.get('/update-product/:updateID', function (req, res) {
+
+router.get('/update-product/:updateID', function(req, res) {
     let productId = req.params.updateID;
     if (!productId) {
         let error = new Error('Not Found');
@@ -67,16 +68,41 @@ router.post('/getProductById', ProductController.getProductById);
 
 
 // --------------------------- vendor ------------------------------------------
+
 router.get('/view-vendor', function (req, res, next) {
-    res.render('pages/vendor/VendorForm', {title: 'View vendor', url: req.url});
+    res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
 });
 
 router.get('/create-vendor', function (req, res, next) {
-    res.render('pages/vendor/VendorForm', {title: 'View product', url: req.url});
+    res.render('pages/vendor/VendorForm', {title: 'create vendor',url:req.url,vendorId:0});
 });
 
-router.get('/create-delivery-boy', function (req, res, next) {
-    res.render('pages/DeliveryBoy/DeliveryBoy', {title: 'View product', url: req.url});
+router.get('/create-vendor', function(req, res, next) {
+    res.render('pages/vendor/VendorForm', { title: 'View product', url: req.url });
+});
+router.get('/update-vendor/:updateId', function (req, res, next) {
+    let vendorId= req.params.updateId;
+    if(!vendorId){
+        let error = new Error('Not Found');
+        error.statusCode=404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/vendor/VendorForm', {title: 'View product',url:'/' + segments[1],vendorId:vendorId});
 });
 
+
+router.get('/create-delivery-boy', function(req, res, next) {
+    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'View product', url: req.url });
+});
+
+
+// --------------------------- offers ------------------------------------------
+
+router.get('/create-offer', function(req, res, next) {
+    res.render('pages/offers/offers', { title: 'View product', url: req.url });
+});
+router.get('/create-coupons', function(req, res, next) {
+    res.render('pages/offers/coupon', { title: 'View product', url: req.url });
+});
 module.exports = router;

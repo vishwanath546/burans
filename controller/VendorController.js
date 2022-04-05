@@ -13,7 +13,7 @@ const clearImage = imagePath => {
     })
 }
 
-exports.login_vendor = async (request, response, next) => {
+exports.login_vendor =  (request, response, next) => {
     let {username, password} = request.body;
     UserAuth.findOne({
         where: {mobileNumber: username, userType: 2},
@@ -64,10 +64,10 @@ exports.login_vendor = async (request, response, next) => {
 };
 
 exports.vendorRegistration = (request, response, next) => {
-    let {name, shopName, email, mobileNumber, password, gstNumber, foodLicense, area} = request.body;
+    let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
 
     Connection.transaction(async (trans) => {
-        const hashPassword = await bcrypt.hash(password, 12);
+        const hashPassword = await bcrypt.hash("123456", 12);
 
         if (!request.files) {
             return response.status(401).json({
@@ -75,7 +75,7 @@ exports.vendorRegistration = (request, response, next) => {
                 body: "no image provided"
             })
         }
-        const avatar = request.files.profileImage[0].path;
+        const avatar = request.files.shopImage[0].path;
         let newVendor = await Vendor.create({
             name: name,
             shopName: shopName,
@@ -83,6 +83,7 @@ exports.vendorRegistration = (request, response, next) => {
             gstNumber: gstNumber,
             email: email,
             foodLicense: foodLicense,
+            accountStatus:2,
             area: area,
             avatar: avatar,
         }, {transaction: trans});
@@ -102,13 +103,16 @@ exports.vendorRegistration = (request, response, next) => {
 };
 
 exports.vendorUpdate = (request, response, next) => {
+
+    console.log("hii");
     let userId = request.params.userId;
-    let updateBy = request.userId;
+    let updateBy =1; //request.userId;
     let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
     let avatar;
     if (request.files) {
-        avatar = request.files.profileImage[0].path;
+        avatar = request.files.shopImage[0].path;
     }
+
     UserAuth.findOne({where: {VendorId: updateBy}}).then(requestUser => {
         if (!requestUser) {
             let error = new Error("Unauthorized access");
@@ -197,7 +201,7 @@ exports.vendorUpdate = (request, response, next) => {
 
 exports.deleteVendor = (request, response,next) => {
 
-    let userId = request.params.userId;
+    let userId = request.params.vendorId;
 
     UserAuth.findOne({ where :{VendorId:userId}}).then(user => {
         if (!user) {
@@ -227,8 +231,8 @@ exports.deleteVendor = (request, response,next) => {
 
 
 exports.getVendor=(request,response,next)=>{
-    let userId = request.params.userId;
-    Vendor.findOne(userId,{
+    let userId = request.body.vendorId;
+    Vendor.findByPk(userId,{
         attributes:["id","name","email","mobileNumber","avatar","shopName","gstNumber","foodLicense",
         "area","accountStatus"],
         include:[{
@@ -244,5 +248,39 @@ exports.getVendor=(request,response,next)=>{
         return response.status(200).json(user);
     }).catch(error=>{
         next(error)
+    })
+}
+
+exports.getAllVendorsTables = (request, response, next) => {
+    let {start, length, draw} = request.body;
+    let search = request.body['search[value]'];
+    Vendor.count().then(totalCount => {
+        Vendor.findAll({
+            attributes: ["id", "name", "email", "mobileNumber","gstNumber","foodLicense",
+                "avatar",
+                "area","accountStatus", "createdAt"],
+            include:[{model:UserAuth,attributes:["id"]}],
+            where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
+            order: [["createdAt", "DESC"]],
+            limit: parseInt(length) || 10,
+            offset: parseInt(start) || 0
+        })
+            .then((categories) => {
+                response.status(200).json({
+                    draw: parseInt(draw),
+                    recordsTotal: totalCount,
+                    recordsFiltered: categories.length,
+                    data: categories
+                });
+            }).catch(error => {
+            response.status(500).json({
+                body: error.message
+            })
+        })
+    }).catch(error => {
+        response.status(400).json({
+            body: "Not Found",
+            exception: error
+        });
     })
 }

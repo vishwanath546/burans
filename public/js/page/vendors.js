@@ -1,77 +1,77 @@
-// Multiple images preview in browser
-const imagesPreview = function(input, placeToInsertImagePreview) {
-
-    if (input.files) {
-        const filesAmount = input.files.length;
-
-        for (let i = 0; i < filesAmount; i++) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                $($.parseHTML('<div>'))
-                    .attr('style',`background-image: url("${event.target.result}")`)
-                    .attr('data-image',`${event.target.result}`)
-                    .attr('href',`${event.target.result}`)
-                    .attr('data-title',`image_${i}`)
-                    .attr("class","gallery-item")
-                    .appendTo(placeToInsertImagePreview);
-            }
-            reader.readAsDataURL(input.files[i]);
-        }
-    }
-
-};
-// $.uploadPreview({
-//     input_field: "#image-upload",   // Default: .image-upload
-//     preview_box: "#image-preview",  // Default: .image-preview
-//     label_field: "#image-label",    // Default: .image-label
-//     label_default: "Shop Image",   // Default: Choose File
-//     label_selected: "Shop Image",  // Default: Change File
-//     no_label: true,                // Default: false
-//     success_callback: null          // Default: null
-// });
-
-var dropzone = new Dropzone("#mydropzone", {
-    url: "#",
-    addRemoveLinks:true,
-    init: function() {
-        this.on("addedfile", file => {
-            console.log(file);
-        });
-    }
+$(document).ready(function () {
+    loadCategoryTable();
 });
 
-var minSteps = 6,
-    maxSteps = 60,
-    timeBetweenSteps = 100,
-    bytesPerStep = 100000;
 
-dropzone.uploadFiles = function(files) {
-    var self = this;
+function loadCategoryTable() {
 
-    for (var i = 0; i < files.length; i++) {
+    app.dataTable("vendorsTable", {
+        url: "vendor/getAllVendors"
+    }, [
+        {
+            data: "avatar",
+            render: (d, t, r, m) => {
+                if(d!==""){
+                    return `<img src="${baseURL+d.replace("public","")}" alt="${r["name"]}" class="mr-3 rounded" width="45" />`
+                }else{
+                    return `<img src="/assets/images/avatar-logo/avatar-1.png" class="mr-3 rounded" width="45" />`
+                }
 
-        var file = files[i];
-        let totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
+            }
+        },
 
-        for (var step = 0; step < totalSteps; step++) {
-            var duration = timeBetweenSteps * (step + 1);
-            setTimeout(function(file, totalSteps, step) {
-                return function() {
-                    file.upload = {
-                        progress: 100 * (step + 1) / totalSteps,
-                        total: file.size,
-                        bytesSent: (step + 1) * file.size / totalSteps
-                    };
+        {data: "name"},
+        {data: "email"},
+        {data: "mobileNumber"},
+        {data: "gstNumber"},
+        {data: "foodLicense"},
+        {data: "area"},
+        {
+            data: "accountStatus",
+            render: (d, t, r, m) => {
+                if(d===1){
+                    return `<span class="badge badge-success">Active</span>`;
+                }else{
+                    return `<span class="badge badge-danger">Inactive</span>`;
+                }
 
-                    self.emit('uploadprogress', file, file.upload.progress, file.upload.bytesSent);
-                    if (file.upload.progress == 100) {
-                        file.status = Dropzone.SUCCESS;
-                        self.emit("success", file, 'success', null);
-                        self.emit("complete", file);
-                        self.processQueue();
-                    }
-                };
-            }(file, totalSteps, step), duration);
+            }
+        },
+        {
+            data: "id",
+            render: (d, t, r, m) => {
+                return `
+                    <div class="btn btn-action">
+                        <a href="/update-vendor/${d}" class="btn btn-primary">
+                            <i class="fa fa-pen-alt"></i>    
+                        </a>    
+                        <button class="btn btn-danger"
+                            data-toggle="tooltip" title
+                            data-confirm="Are You Sure?|This action can not be undone. Do you want to continue?"
+                            data-confirm-yes="deleteVendor(${d})"
+                            data-original-title="Delete"
+                        >
+                            <i class="fa fa-trash-alt"></i>
+                        </button>
+                    </div>`
+            }
+        },
+
+    ],undefined,() => {
+        app.confirmationBox()
+    })
+}
+
+function deleteVendor(id) {
+    let data = new FormData();
+    data.set("vendorId",id);
+    app.request("deleteVendor",data,'delete').then(response=>{
+        loadCategoryTable();
+    }).catch(error=>{
+        if (error.status === 500) {
+            app.errorToast("something went wrong");
+        } else {
+            app.errorToast(error.message);
         }
-    }
+    });
 }

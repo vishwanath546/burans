@@ -23,6 +23,7 @@ module.exports.Vendor = Connection.define("Vendor", {
     foodLicense: DataTypes.STRING,
     area: DataTypes.STRING,
     avatar:DataTypes.STRING,
+    address:DataTypes.STRING,
     accountStatus: {
         type: DataTypes.INTEGER,
         default:1,

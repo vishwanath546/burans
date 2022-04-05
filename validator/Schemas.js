@@ -19,19 +19,10 @@ const Schemas = {
 
   vendorRegistration: Joi.object({
     name: Joi.string().required(),
-    password: Joi.string().required(),
-    shopName: Joi.string().required(),
-    mobileNumber: Joi.number().integer().min(10).required(),
-    gstNumber: Joi.string().required(),
-    area: Joi.string().required(),
-  }),
-  vendorUpdate: Joi.object({
-    name: Joi.string().required(),
     email: Joi.string().email().required(),
     shopName: Joi.string().required(),
     mobileNumber: Joi.number().integer().min(10).required(),
-    gstNumber: Joi.string().required(),
-    area: Joi.string().required(),
+
   }),
 //      Category form schemas
   categoryValidation: Joi.object({
