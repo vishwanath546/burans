@@ -2,6 +2,7 @@ const {Connection} = require('../model/Database');
 const {Op} = require('sequelize');
 const {Products} = require('../model/Products');
 const {ProductImages} = require('../model/ProductImages');
+const {Category} = require('../model/Category');
 
 const {clearImage} = require('../util/helpers');
 
@@ -20,7 +21,7 @@ exports.saveProductDetails = (request, response, next) => {
             let ProductObject = {
                 name: product_name,
                 description: product_description,
-                categoryId: category,
+                categoryId:category,
                 subCategoryId: subcategory,
                 price: price,
                 salePrice: sale_price,
@@ -28,7 +29,8 @@ exports.saveProductDetails = (request, response, next) => {
                 specialDeliveryCharges: special_delivery_charges,
                 metaTitle: product_meta_title,
                 metaDescription: product_meta_description,
-                status: status
+                status: status,
+
             };
             if (!product) {
                 return Products.create(ProductObject, {transaction: trans});
@@ -73,9 +75,13 @@ exports.getAllProductOption = (request, response, next) => {
 exports.getAllProductTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
-    Product.count().then(totalCount => {
-        Product.findAll({
-            attributes: ["id", "name", "description", "price", "salePrice", "priceQuantity", "specilDeliveryCharges", "status", "createdAt"],
+    Products.count().then(totalCount => {
+        Products.findAll({
+            include: [ { model:Category,
+                id: {[Op.col]: 'Products.categoryId'},
+                attributes: ["name"] }],
+            attributes: ["id", "name", "description", "price", "salePrice", "priceQuantity", "specialDeliveryCharges", "status", "createdAt"],
+
             where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
             order: [["createdAt", "DESC"]],
             limit: parseInt(length) || 10,
@@ -154,16 +160,22 @@ exports.getProductsByCategoryId = (request, response, next) => {
 }
 
 exports.deleteProduct = (request, response, next) => {
-    let {prodcutId} = request.body;
-    Product.findByPk(productId, {include: [{modal: ProductImages}]}).then(product => {
+    let productId = request.body.productId;
+    Products.findByPk(productId, {include: ProductImages}).then(product => {
         if (!product) {
             let error = new Error("Product Not Found");
             error.status = 404;
             throw error;
         }
-        product.productImages.map(item => {
-            clearImage(itme.path);
-        })
+        if (Array.isArray(product.productImages)) {
+            product.productImages.map(item => {
+                clearImage(item.path);
+            })
+        }else if(product.productImages){
+            clearImage(product.productImages.path);
+        }else{
+            console.log("No Image Found")
+        }
 
         return product.destroy();
     }).then(count => {
@@ -181,7 +193,7 @@ exports.deleteProduct = (request, response, next) => {
 exports.updateProductStatus = (request, response, next) => {
     let {productId, status} = request.body;
     Connection.transaction(async (trans) => {
-        return Product.findByPk(productId).then(product => {
+        return Products.findByPk(productId).then(product => {
             if (!product) {
                 let error = new Error("Product Not Found");
                 error.status = 404;
@@ -211,11 +223,11 @@ exports.uploadProductsImages = (request, response, next) => {
         Connection.transaction(async (trans) => {
             return Products.findByPk(product_id).then(product => {
                 if (product) {
-                    let imagesObjects=request.files.map((image, index) => {
+                    let imagesObjects = request.files.productImages.map((image, index) => {
                         return {
                             path: image.path,
                             sequenceNumber: index,
-                            ProductId:product.id
+                            ProductId: product.id
                         }
                     })
                     return ProductImages.bulkCreate(imagesObjects, {

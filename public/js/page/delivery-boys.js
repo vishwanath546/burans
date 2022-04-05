@@ -1,11 +1,11 @@
 $(document).ready(function () {
-    loadCategoryTable()
+    loadDeliveryTable()
 })
 
-function loadCategoryTable() {
+function loadDeliveryTable() {
 
-    app.dataTable("categoriesTable", {
-        url: "getAllCategoriesTables"
+    app.dataTable("deliveryBoyTables", {
+        url: "getAllDeliveryBoysTables"
     }, [
         {
             data: "photo",
@@ -19,15 +19,19 @@ function loadCategoryTable() {
         },
 
         {data: "name"},
-        {data: "description"},
+        {data: "email"},
+        {data: "mobileNumber"},
+        {data: "area"},
+        {data: "license"},
+        {data: "bikeRc"},
         {
-            data: "status",
+            data: "id",
             render: (d, t, r, m) => {
-                if(d===1){
+                // if(d===1){
                     return `<span class="badge badge-success">Active</span>`;
-                }else{
-                    return `<span class="badge badge-danger">Inactive</span>`;
-                }
+                // }else{
+                //     return `<span class="badge badge-danger">Inactive</span>`;
+                // }
 
             }
         },
@@ -42,7 +46,7 @@ function loadCategoryTable() {
                         <button class="btn btn-danger"
                             data-toggle="tooltip" title
                             data-confirm="Are You Sure?|This action can not be undone. Do you want to continue?"
-                            data-confirm-yes="deleteCategory(${d})"
+                            data-confirm-yes="deleteDeliveryBoy(${d})"
                             data-original-title="Delete"
                         >
                             <i class="fa fa-trash-alt"></i>
@@ -56,11 +60,11 @@ function loadCategoryTable() {
     })
 }
 
-function deleteCategory(id) {
+function deleteDeliveryBoy(id) {
 
     let data = new FormData();
-    data.set("categoryId",id);
-    app.request("",data,'delete').then(response=>{
+    data.set("deliveryBoyId",id);
+    app.request("deleteDeliveryBoy",data,'delete').then(response=>{
         loadCategoryTable();
     }).catch(error=>{
         if (error.status === 500) {

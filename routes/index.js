@@ -3,6 +3,7 @@ const router = express.Router();
 
 const CategoryController = require('../controller/CategoryController');
 const ProductController = require('../controller/ProductController');
+const DeliveryBoyController = require('../controller/DeliveryBoyController');
 
 const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
@@ -27,9 +28,10 @@ router.get('/categories', function (req, res, next) {
 router.get('/create-categories', function (req, res, next) {
     res.render('pages/product/CategoryForm', {title: 'View product', url: req.url, categoryId: 0});
 });
-router.get('/update-categories', function (req, res, next) {
+router.get('/update-categories/:updateID', function (req, res, next) {
     let categoryId = req.params.updateID;
-    res.render('pages/product/CategoryForm', {title: 'View product', url: req.url, categoryId: categoryId});
+    let segments = req.url.split('/');
+    res.render('pages/product/CategoryForm', {title: 'View product', url: '/' + segments[1], categoryId: categoryId});
 });
 
 router.get('/getAllCategories', CategoryController.getAllCategories);
@@ -61,12 +63,12 @@ router.get('/update-product/:updateID', function(req, res) {
     let segments = req.url.split('/');
     res.render('pages/product/ProductForm', {title: 'Create Product', url: '/' + segments[1], productId: productId});
 });
-router.post("/uploadProductsImages", ProductController.uploadProductsImages);
 
+router.post("/uploadProductsImages", ProductController.uploadProductsImages);
 router.post("/saveProductDetails", Validator(Schemas.productValidation), ProductController.saveProductDetails);
 router.post('/getProductById', ProductController.getProductById);
-
-
+router.post('/getAllProductsTables', ProductController.getAllProductTables);
+router.delete("/deleteProduct", ProductController.deleteProduct);
 // --------------------------- vendor ------------------------------------------
 
 router.get('/view-vendor', function (req, res, next) {
@@ -91,10 +93,17 @@ router.get('/update-vendor/:updateId', function (req, res, next) {
     res.render('pages/vendor/VendorForm', {title: 'View product',url:'/' + segments[1],vendorId:vendorId});
 });
 
-
+// ----------------- delivery boy -----------------------------------------------
 router.get('/create-delivery-boy', function(req, res, next) {
-    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'View product', url: req.url });
+    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url: req.url });
 });
+router.get('/view-delivery-boys', function (req, res, next) {
+    res.render('pages/DeliveryBoy/ViewDeliveryBoy', {title: 'View Delivery Boys',url:req.url});
+});
+router.post('/getAllDeliveryBoysTables', DeliveryBoyController.getAllDeliveryBoyTables);
+
+router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
+
 
 
 // --------------------------- offers ------------------------------------------

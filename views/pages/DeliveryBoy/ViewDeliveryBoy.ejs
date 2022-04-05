@@ -3,27 +3,38 @@
 <div class="col-12">
     <div class="card">
         <div class="card-header">
-            <h4><%= title %></h4>
+            <h4><%= title%></h4>
             <div class="card-header-action d-flex ">
-                <a class="btn btn-primary" href="/create-categories"><i class="fas fa-plus"></i></a>
+                <form class="px-2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a class="btn btn-primary" href="/create-delivery-boy"><i class="fas fa-plus"></i></a>
             </div>
         </div>
         <div class="card-body p-0">
             <div class="col-md-12">
                 <div class="table-responsive">
-                    <table class="table table-striped" id="categoriesTable" style="width:100%">
+                    <table class="table table-striped" id="deliveryBoyTables" style="width:100%">
                         <thead>
                         <tr>
                             <th class="text-center">
                             </th>
                             <th>Name</th>
-                            <th>Description</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Areas</th>
+                            <th>Licence</th>
+                            <th>Bike RC</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
                 </div>

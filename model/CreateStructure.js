@@ -22,9 +22,10 @@ const {OrderItems} = require('./OrderItems');
 const {CouponCode} = require('./CouponCode');
 module.exports.createDatabase = (isForce, callback) => {
 
+    Category.hasMany(Products);
     Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'categoryId'});
-    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'subCategoryId'});
     Products.hasMany(ProductImages);
+
     Category.belongsTo(Category);
 
     Users.hasMany(UserAddress);

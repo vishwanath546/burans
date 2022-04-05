@@ -32,7 +32,6 @@ function saveVendorDetails(form) {
     let type="post";
     if(vendor!==0){
         requestUrl = "vendor/saveUpdateVendorDetails/"+vendor;
-      
     }
     app.request(requestUrl, new FormData(form),type).then(response => {
         app.successToast(response.body)
@@ -45,7 +44,6 @@ function saveVendorDetails(form) {
         }
     })
 }
-
 
 function getVendorDetails(vendor) {
 

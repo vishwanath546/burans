@@ -9,7 +9,7 @@ module.exports.DeliveryBoy = Connection.define('DeliveryBoy', {
         primaryKey: true,
         allowNull: false
     },
-    name:DataTypes.STRING,    
+    name:DataTypes.STRING,
     email:DataTypes.STRING,
     mobileNumber:DataTypes.STRING,
     area:DataTypes.STRING,
@@ -18,7 +18,12 @@ module.exports.DeliveryBoy = Connection.define('DeliveryBoy', {
     bikeRc:DataTypes.STRING,
     bikeRcPhoto:DataTypes.STRING,
     photo:DataTypes.STRING,
-    loginAt: DataTypes.DATE
+    loginAt: DataTypes.DATE,
+    status:{
+        type:DataTypes.INTEGER,
+        defaultValue:0,
+        comment:"0.inactive 1.active"
+    }
 },{
     tableName:"delivery_boy"
 });
