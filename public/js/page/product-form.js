@@ -1,15 +1,17 @@
 $(document).ready(function () {
     app.formValidation();
-   
+
     category();
     getProductDetails();
     setup();
 });
-
+function paramNameForSend() {
+    return "productImages";
+}
 function setup() {
     let dropzone = new Dropzone("#productImageDropZone", {
-        url: baseURL+"productImages",
-        paramName: "productImages",
+        url: baseURL+"uploadProductsImages",
+        paramName: paramNameForSend,
         addRemoveLinks: true,
         uploadMultiple: true,
         maxFiles: 4,
@@ -26,6 +28,10 @@ function setup() {
             });
             this.on("success", function (file, response) {
                 alert(response);
+            });
+            //send all the form data along with the files:
+            this.on("sendingmultiple", function(data, xhr, formData) {
+                formData.append("product_id", $("#imageProduct").val());
             });
         }
     });
@@ -52,7 +58,7 @@ function subCategory(id) {
 function getProductDetails(){
     let productId = parseInt($("#updateProductId").val());
     if(productId !== 0){
-        let data = new FormData();    
+        let data = new FormData();
         data.set("productId",productId)
         app.request("getProductById",data).then(response=>{
 
@@ -63,12 +69,12 @@ function getProductDetails(){
             $("#price_quantity").val(response.priceQuantity);
             $("#special_delivery_charges").val(response.specialDeliveryCharges);
 
-            
+
             $("#product_meta_title").val(response.metaTitle);
             $("#product_meta_description").val(response.metaDescription);
             $('#ddl_category').val(response.categoryId).trigger('change');
             $('#ddl_sub_category').val(response.subCategoryId).trigger('change');
-            
+
         }).catch(error=>{
             if (error.status === 500) {
                 app.errorToast("something went wrong");
@@ -84,7 +90,9 @@ function saveProductDetails(form) {
     app.request("saveProductDetails", new FormData(form)).then(response => {
         app.successToast(response.body)
         $("#productDetailsForm").trigger('reset');
-
+        console.log(response.product);
+        $("#imageProduct").val(response.product.id);
+        $("#productImagesSubmit").click();
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");

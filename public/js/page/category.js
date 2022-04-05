@@ -10,7 +10,11 @@ function loadCategoryTable() {
         {
             data: "photo",
             render: (d, t, r, m) => {
-                return `<img src="${baseURL+d.replace("public","")}" alt="${r["name"]}" class="mr-3 rounded" width="45" />`
+                if(d) {
+                    return `<img src="${baseURL + d.replace("public", "")}" alt="${r["name"]}" class="mr-3 rounded" width="45" />`
+                }else{
+                    return '';
+                }
             }
         },
 

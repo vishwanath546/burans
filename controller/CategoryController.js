@@ -109,7 +109,7 @@ exports.saveCategorySubcategory = (request, response, next) => {
     let {name, description, status, category_id} = request.body;
 
     let categoriesPhotos = null;
-    if (request.files) {
+    if (request.files && request.files.categoryImage) {
         categoriesPhotos = request.files.categoryImage[0].path;
     }
 

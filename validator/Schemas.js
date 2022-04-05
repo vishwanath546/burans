@@ -42,7 +42,10 @@ const Schemas = {
     category: Joi.string().required(),
     price: Joi.number().required(),
     sale_price: Joi.number().required(),
-    price_quantity: Joi.string().required()    
+    price_quantity: Joi.string().required()
+  }),
+  productImageValidation: Joi.object({
+    product_id: Joi.number().required(),
   }),
 
 };
