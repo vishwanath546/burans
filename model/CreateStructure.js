@@ -24,6 +24,7 @@ module.exports.createDatabase = (isForce, callback) => {
 
     Category.hasMany(Products);
     Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'categoryId'});
+    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'subCategoryId'});
     Products.hasMany(ProductImages);
 
     Category.belongsTo(Category);

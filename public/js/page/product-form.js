@@ -1,16 +1,24 @@
+let subCategoryId;
 $(document).ready(function () {
+    subCategoryId = null
     app.formValidation();
-
-    category();
-    getProductDetails();
     setup();
+    let productId = parseInt($("#updateProductId").val());
+
+    if (productId !== 0) {
+        getProductDetails(productId);
+    } else {
+        category();
+    }
 });
+
 function paramNameForSend() {
     return "productImages";
 }
+
 function setup() {
     let dropzone = new Dropzone("#productImageDropZone", {
-        url: baseURL+"uploadProductsImages",
+        url: baseURL + "uploadProductsImages",
         paramName: paramNameForSend,
         addRemoveLinks: true,
         uploadMultiple: true,
@@ -26,73 +34,106 @@ function setup() {
                 e.stopPropagation();
                 mydropzone.processQueue();
             });
-            this.on("success", function (file, response) {
-                alert(response);
+            this.on("complete", function (file) {
+                if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                    app.successToast("Save Changes");
+                    dropzone.removeAllFiles(true);
+                }
             });
             //send all the form data along with the files:
-            this.on("sendingmultiple", function(data, xhr, formData) {
+            this.on("sendingmultiple", function (data, xhr, formData) {
                 formData.append("product_id", $("#imageProduct").val());
             });
+        }
+    });
+
+    $('.dropzone').sortable({
+        items: '.dz-preview',
+        cursor: 'move',
+        opacity: 0.5,
+        containment: '.dropzone',
+        distance: 20,
+        tolerance: 'pointer',
+        stop: function () {
+            let queue = dropzone.files;
+            let newQueue = [];
+            $('.dropzone .dz-preview .dz-filename [data-dz-name]').each(function (count, el) {
+                var name = el.innerHTML;
+                queue.forEach(function (file) {
+                    if (file.name === name) {
+                        newQueue.push(file);
+                    }
+                });
+            });
+            dropzone.files = newQueue;
         }
     });
 
 }
 
 function category() {
-    app.selectOption('ddl_category', 'Select Category', {
-        url: baseURL + "getAllCategoriesOptions",
-        method: 'POST',
-        delay: 250,
-    });
+    return app.request("getAllCategoriesOptions", null).then(response => {
+        app.selectOption('ddl_category', 'Select Category', null, response.results);
+        return Promise.resolve();
+    })
+
 }
 
 function subCategory(id) {
-    $('#ddl_sub_category').val(null).trigger('change');
-    app.selectOption('ddl_sub_category', 'Select Category', {
-        url: baseURL + "getAllSubcategoriesOption/" + id,
-        method: 'POST',
-        delay: 250,
-    });
-}
-
-function getProductDetails(){
-    let productId = parseInt($("#updateProductId").val());
-    if(productId !== 0){
-        let data = new FormData();
-        data.set("productId",productId)
-        app.request("getProductById",data).then(response=>{
-
-            $("#product_name").val(response.name);
-            $("#product_description").val(response.description);
-            $("#price").val(response.price);
-            $("#sale_price").val(response.salePrice);
-            $("#price_quantity").val(response.priceQuantity);
-            $("#special_delivery_charges").val(response.specialDeliveryCharges);
-
-
-            $("#product_meta_title").val(response.metaTitle);
-            $("#product_meta_description").val(response.metaDescription);
-            $('#ddl_category').val(response.categoryId).trigger('change');
-            $('#ddl_sub_category').val(response.subCategoryId).trigger('change');
-
-        }).catch(error=>{
-            if (error.status === 500) {
-                app.errorToast("something went wrong");
-            } else {
-                app.errorToast(error.message);
+    $('#ddl_sub_category').empty().trigger('change');
+    if(id) {
+        app.request("getAllSubcategoriesOption/" + id, null).then(response => {
+            app.selectOption('ddl_sub_category', 'Select Category', null, response.results);
+            if (subCategoryId !== null) {
+                $('#ddl_sub_category').val().trigger('change');
             }
         })
     }
 }
 
+function getProductDetails(productId) {
+
+    let data = new FormData();
+    data.set("productId", productId)
+    app.request("getProductById", data).then(response => {
+
+        $("#product_name").val(response.name);
+        $("#product_description").val(response.description);
+        $("#price").val(response.price);
+        $("#sale_price").val(response.salePrice);
+        $("#price_quantity").val(response.priceQuantity);
+        $("#special_delivery_charges").val(response.specialDeliveryCharges);
+
+
+        $("#product_meta_title").val(response.metaTitle);
+        $("#product_meta_description").val(response.metaDescription);
+        category().then(() => {
+            $('#ddl_category').val(response.categoryId).trigger('change');
+        })
+        subCategoryId = response.subCategoryId
+
+
+    }).catch(error => {
+        if (error.status === 500) {
+            app.errorToast("something went wrong");
+        } else {
+            app.errorToast(error.message);
+        }
+    })
+}
+
 function saveProductDetails(form) {
 
     app.request("saveProductDetails", new FormData(form)).then(response => {
-        app.successToast(response.body)
         $("#productDetailsForm").trigger('reset');
-        console.log(response.product);
-        $("#imageProduct").val(response.product.id);
-        $("#productImagesSubmit").click();
+        $("#ddl_category").empty().trigger('change')
+        if ($('.dropzone .dz-preview .dz-filename [data-dz-name]').length > 0) {
+            $("#imageProduct").val(response.product.id);
+            $("#productImagesSubmit").click();
+        } else {
+            app.successToast(response.body);
+        }
+
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -108,10 +149,10 @@ function loadCategoryTable() {
     app.dataTable("categoriesTable", {
         url: "getAllCategoriesTables"
     }, [
-        { data: "name" },
-        { data: "description" },
-        { data: "categoryId" },
-        { data: "description" },
+        {data: "name"},
+        {data: "description"},
+        {data: "categoryId"},
+        {data: "description"},
         {
             data: "status",
             render: (d, t, r, m) => {

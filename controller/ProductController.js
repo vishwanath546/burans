@@ -77,11 +77,26 @@ exports.getAllProductTables = (request, response, next) => {
     let search = request.body['search[value]'];
     Products.count().then(totalCount => {
         Products.findAll({
-            include: [ { model:Category,
-                id: {[Op.col]: 'Products.categoryId'},
-                attributes: ["name"] }],
-            attributes: ["id", "name", "description", "price", "salePrice", "priceQuantity", "specialDeliveryCharges", "status", "createdAt"],
+            attributes: {
+                include: [
+                    [Connection.literal(`(
+                    SELECT name
+                    FROM categories AS cat
+                    WHERE
+                        cat.id = Products.categoryId                        
+                )`),
+                    'category_name'],
+                    [Connection.literal(`(
+                    SELECT name
+                    FROM categories AS cat
+                    WHERE
+                        cat.id = Products.subCategoryId                        
+                )`),
+                        'subCategory_name']
 
+                    ],
+                exclude:["categoryId","subCategoryId"]
+            },
             where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
             order: [["createdAt", "DESC"]],
             limit: parseInt(length) || 10,
@@ -114,7 +129,7 @@ exports.getProductById = (request, response, next) => {
     Products.findByPk(productId, {
         include: [{model: ProductImages, attributes: ["id", "path", "sequenceNumber"]}],
         attributes: ["id", "name", "description", "price", "salePrice", "categoryId",
-            "subCategoryId", "metaTitle", "metaDescription", "categoryId", "priceQuantity", "specialDeliveryCharges"]
+             "metaTitle", "metaDescription", "categoryId", "priceQuantity", "specialDeliveryCharges"]
     })
         .then(async product => {
             if (product) {
@@ -144,7 +159,7 @@ exports.getProductsByCategoryId = (request, response, next) => {
     Product.findAll({
         where: whereBlock,
         include: [{model: ProductImages, attributes: ["id", "path", "sequenceNumber"]}],
-        attributes: ["id", "name", "description", "price", "salePrice", "categoryId", "subCategoryId", "metaTitle", "metaDescription", "categoryId"]
+        attributes: ["id", "name", "description", "price", "salePrice", "categoryId", "metaTitle", "metaDescription", "categoryId"]
     })
         .then(async product => {
             if (product) {

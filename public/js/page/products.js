@@ -9,7 +9,8 @@ function loadProductsTable() {
     }, [
         {data: "name"},
         {data: "description"},
-        {data: "category.name"},
+        {data: "category_name"},
+        {data: "subCategory_name"},
         {data: "price"},
         {data: "salePrice"},
         {data: "priceQuantity"},
