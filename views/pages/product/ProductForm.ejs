@@ -10,7 +10,7 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="hidden" name="product_id" id="updateProductId" value=<%= productId %> />
+                        <input type="hidden" name="product_id" id="updateProductId" value=<%= productId %>/>
                         <input type="text" class="form-control" name="product_name" id="product_name"
                                data-valid="required" data-msg="Please enter name">
                     </div>
@@ -37,52 +37,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Price</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        &#8377;
-                                    </div>
-                                </div>
-                                <input type="number" min="0" class="form-control currency" name="price"
-                                       data-valid="required" data-msg="Please enter price"
-                                       data-error="#price-error"
-                                       id="price">
-                            </div>
-                            <div id="price-error"></div>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Sale Price</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        &#8377;
-                                    </div>
-                                </div>
-                                <input type="number" min="0" class="form-control currency" name="sale_price" id="sale_price"
-                                       data-error="#sale-price-error"
-                                       data-valid="required" data-msg="Please enter sale price">
-                            </div>
-                            <div id="sale-price-error"></div>
-                            <small id="passwordHelpBlock" class="form-text text-muted">
-                                Note: Display to customer
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Price Quantity</label>
-                            <input type="text" class="form-control currency" name="price_quantity" id="price_quantity"
-                                   data-valid="required" data-msg="Please enter price quantity"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Special delivery charges</label>
-                            <input type="number" min="0" class="form-control currency" name="special_delivery_charges" id="special_delivery_charges"
-                                   />
-                        </div>
+                    <div class="form-group">
+                        <label>Suggested Sub-product</label>
+                        <select class="form-control" id="ddl_vendor"
+                                data-valid="required" data-msg="Please select vendor"
+                                data-error="#vendor-error"
+                                name="vendor">
+                        </select>
+                        <div id="vendor-error"></div>
                     </div>
                     <div class="form-group">
                         <label>Meta Title</label>
@@ -93,6 +55,7 @@
                         <textarea class="form-control form-control-sm" name="product_meta_description"
                                   id="product_meta_description"></textarea>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Status</label>
                         <div class="selectgroup selectgroup-pills">
@@ -112,7 +75,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary" >Save Changes</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -124,6 +87,133 @@
                     <input type="hidden" id="imageProduct" name="product_id"/>
                     <div class="dz-default dz-message"><span>Drop files here to upload</span></div>
                 </div>
+
+                <div class="form-row mt-3">
+                    <div class="form-group col-md-6">
+                        <label>Price</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    &#8377;
+                                </div>
+                            </div>
+                            <input type="number" min="0" class="form-control currency" name="price"
+                                   data-valid="required" data-msg="Please enter price"
+                                   data-error="#price-error"
+                                   id="price">
+                        </div>
+                        <div id="price-error"></div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Sale Price</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    &#8377;
+                                </div>
+                            </div>
+                            <input type="number" min="0" class="form-control currency" name="sale_price" id="sale_price"
+                                   data-error="#sale-price-error"
+                                   data-valid="required" data-msg="Please enter sale price">
+                        </div>
+                        <div id="sale-price-error"></div>
+                        <small id="passwordHelpBlock" class="form-text text-muted">
+                            Note: Display to customer
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Price Quantity</label>
+                        <input type="text" class="form-control currency" name="price_quantity" id="price_quantity"
+                               data-valid="required" data-msg="Please enter price quantity"/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Special delivery charges</label>
+                        <input type="number" min="0" class="form-control currency" name="special_delivery_charges"
+                               id="special_delivery_charges"
+                        />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Inventory Quantity</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="fas fa-cart-plus"></i>
+                                </div>
+                            </div>
+                            <input type="number" class="form-control currency" name="price_quantity" id="price_quantity"
+                                   data-valid="required" data-msg="Please enter price quantity"/>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Inventory Type</label>
+                        <div class="selectgroup selectgroup-pills">
+                            <label class="selectgroup-item">
+                                <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-sun"></i></span>
+                            </label>
+                            Daily
+                            <label class="selectgroup- pl-2">
+                                <input type="radio" name="status" value="2" class="selectgroup-input">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-chess-pawn"></i></span>
+                            </label>
+                            Onetime
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Duration</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <input type="number" class="form-control currency" name="price_quantity" id="price_quantity"
+                                   data-valid="required" data-msg="Please enter price quantity"/>
+                        </div>
+                        <small class="text-muted">Vendor making duration in min</small>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Minimum stock quantity</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                            </div>
+                            <input type="number" min="0" class="form-control currency" name="special_delivery_charges"
+                                   id="special_delivery_charges"
+                            />
+                        </div>
+                        <small class="text-muted">Trigger warning to assign vendor</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <select class="form-control" id="ddl_vendor"
+                            data-valid="required" data-msg="Please select vendor"
+                            data-error="#vendor-error"
+                            name="vendor">
+                    </select>
+                    <div id="vendor-error"></div>
+                </div>
+                <div class="form-group">
+                    <div class="control-label">Vendor Delivery boy</div>
+                    <label class="custom-switch mt-2">
+                        <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input">
+                        <span class="custom-switch-indicator"></span>
+                        <span class="custom-switch-description">is product delivery by vendor</span>
+                    </label>
+                </div>
+
             </div>
             <div class="card-footer">
                 <button class="btn btn-primary d-none" id="productImagesSubmit">Save Images</button>
