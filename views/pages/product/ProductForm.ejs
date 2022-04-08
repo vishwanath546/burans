@@ -1,83 +1,110 @@
 <%- include("../../partials/header") %>
 
 <div class="row">
+    <form id="productDetailsForm" method="post" data-form-valid="saveProductDetails"></form>
     <div class="col-12 col-md-6 col-lg-6">
         <div class="card">
-            <form id="productDetailsForm" method="post" data-form-valid="saveProductDetails">
-                <div class="card-header">
-                    <h4>Add Product Details</h4>
+            <div class="card-header">
+                <h4>Product Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="hidden" name="product_id" id="updateProductId" value=<%= productId %>/>
+                    <input type="text" class="form-control" name="product_name" id="product_name"
+                           data-valid="required" data-msg="Please enter name">
                 </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="hidden" name="product_id" id="updateProductId" value=<%= productId %>/>
-                        <input type="text" class="form-control" name="product_name" id="product_name"
-                               data-valid="required" data-msg="Please enter name">
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea type="text" class="form-control form-control-sm" name="product_description"
-                                  id="product_description"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Category</label>
-                            <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
-                                    data-valid="required" data-msg="Please select category"
-                                    data-error="#category-error"
-                                    name="category">
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea type="text" class="form-control form-control-sm" name="product_description"
+                              id="product_description"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Category</label>
+                        <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
+                                data-valid="required" data-msg="Please select category"
+                                data-error="#category-error"
+                                name="category">
 
-                            </select>
-                            <div id="category-error"></div>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Sub Category</label>
-                            <select class="form-control" id="ddl_sub_category" name="subcategory">
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Suggested Sub-product</label>
-                        <select class="form-control" id="ddl_vendor"
-                                data-valid="required" data-msg="Please select vendor"
-                                data-error="#vendor-error"
-                                name="vendor">
                         </select>
-                        <div id="vendor-error"></div>
+                        <div id="category-error"></div>
                     </div>
-                    <div class="form-group">
-                        <label>Meta Title</label>
-                        <input type="text" class="form-control" name="product_meta_title" id="product_meta_title">
-                    </div>
-                    <div class="form-group">
-                        <label>Meta Description</label>
-                        <textarea class="form-control form-control-sm" name="product_meta_description"
-                                  id="product_meta_description"></textarea>
-                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Sub Category</label>
+                        <select class="form-control" id="ddl_sub_category" name="subcategory">
 
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <div class="selectgroup selectgroup-pills">
-                            <label class="selectgroup-item">
-                                <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
-                                <span class="selectgroup-button selectgroup-button-icon"><i
-                                            class="fas fa-sun"></i></span>
-                            </label>
-                            Active
-                            <label class="selectgroup- pl-2">
-                                <input type="radio" name="status" value="0" class="selectgroup-input">
-                                <span class="selectgroup-button selectgroup-button-icon"><i
-                                            class="fas fa-moon"></i></span>
-                            </label>
-                            Inactive
-                        </div>
+                        </select>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <div class="selectgroup selectgroup-pills">
+                        <label class="selectgroup-item">
+                            <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
+                            <span class="selectgroup-button selectgroup-button-icon"><i
+                                        class="fas fa-sun"></i></span>
+                        </label>
+                        Active
+                        <label class="selectgroup- pl-2">
+                            <input type="radio" name="status" value="0" class="selectgroup-input">
+                            <span class="selectgroup-button selectgroup-button-icon"><i
+                                        class="fas fa-moon"></i></span>
+                        </label>
+                        Inactive
+                    </div>
                 </div>
-            </form>
+            </div>
+
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Add-Ons and suggestion product</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Add-Ons Product</label>
+                    <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
+                            data-valid="required" data-msg="Please select category"
+                            data-error="#category-error"
+                            name="category">
+
+                    </select>
+                    <div id="category-error"></div>
+                </div>
+                <div class="section-title">Suggestion Products / Category</div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Suggestion Products</label>
+                        <select class="form-control" id="ddl_sub_category" name="subcategory">
+
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Suggestion Category</label>
+                        <select class="form-control" id="ddl_sub_category" name="subcategory">
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Extra Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Meta Title</label>
+                    <input type="text" class="form-control" name="product_meta_title" id="product_meta_title">
+                </div>
+                <div class="form-group">
+                    <label>Meta Description</label>
+                    <textarea class="form-control form-control-sm" name="product_meta_description"
+                              id="product_meta_description"></textarea>
+                </div>
+
+            </div>
         </div>
     </div>
     <div class="col-12 col-md-6 col-lg-6">
@@ -85,9 +112,14 @@
             <div class="card-body">
                 <div class="dropzone dz-clickable" id="productImageDropZone">
                     <input type="hidden" id="imageProduct" name="product_id"/>
-                    <div class="dz-default dz-message"><span>Drop files here to upload</span></div>
+                    <div class="dz-default dz-message"><span>Drop image here to upload</span></div>
                 </div>
-
+                <button class="btn btn-primary d-none" id="productImagesSubmit">Save Images</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="section-title">Price Details</div>
                 <div class="form-row mt-3">
                     <div class="form-group col-md-6">
                         <label>Price</label>
@@ -122,7 +154,6 @@
                         </small>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label>Price Quantity</label>
@@ -205,19 +236,8 @@
                     </select>
                     <div id="vendor-error"></div>
                 </div>
-                <div class="form-group">
-                    <div class="control-label">Vendor Delivery boy</div>
-                    <label class="custom-switch mt-2">
-                        <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input">
-                        <span class="custom-switch-indicator"></span>
-                        <span class="custom-switch-description">is product delivery by vendor</span>
-                    </label>
-                </div>
+            </div>
 
-            </div>
-            <div class="card-footer">
-                <button class="btn btn-primary d-none" id="productImagesSubmit">Save Images</button>
-            </div>
         </div>
 
     </div>

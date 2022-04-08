@@ -18,6 +18,9 @@ const {UserAuth} = require('./UserAuth');
 const {AdminUser} = require('./AdminUser');
 const {Orders} = require('./Orders');
 const {OrderItems} = require('./OrderItems');
+const {AddOnsProduct} = require('./AddOnsProduct');
+const {AddOnProductMapping} = require('./AddOnProductMapping');
+const {SuggestedProductCategory} = require('./SuggestedProductMapping');
 
 const {CouponCode} = require('./CouponCode');
 module.exports.createDatabase = (isForce, callback) => {
@@ -26,6 +29,8 @@ module.exports.createDatabase = (isForce, callback) => {
     Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'categoryId'});
     Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'subCategoryId'});
     Products.hasMany(ProductImages);
+    Products.belongsToMany(AddOnsProduct,{through:AddOnProductMapping})
+    
 
     Category.belongsTo(Category);
 

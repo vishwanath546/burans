@@ -12,7 +12,7 @@ exports.getAllCategoriesOption = (request, response, next) => {
     })
         .then(categories => {
             response.status(200).json({
-                results: categories
+                results: [{id:-1,text:"",selected:true,disabled: true},...categories]
             });
         }).catch(error => {
         response.status(500).json({
@@ -30,7 +30,7 @@ exports.getAllSubcategoriesOption = (request, response, next) => {
     })
         .then(categories => {
             response.status(200).json({
-                results: categories
+                results: [{id:-1,text:"",selected:true,disabled: true},...categories]
             });
         }).catch(error => {
         response.status(500).json({
