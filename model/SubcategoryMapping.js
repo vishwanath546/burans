@@ -1,6 +1,6 @@
 const {DataTypes} = require('sequelize');
 const {Connection} = require('./Database');
-module.exports.SuggestedProductCategory=Connection.define("SuggestedProductCategory",{
+module.exports.SubcategoryMapping=Connection.define("SubcategoryMapping",{
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -8,5 +8,5 @@ module.exports.SuggestedProductCategory=Connection.define("SuggestedProductCateg
         allowNull: false
     },
 },{
-    tableName:"suggested_item_mapping"
+    tableName:"subcategory_mapping"
 });

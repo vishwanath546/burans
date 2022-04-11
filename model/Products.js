@@ -14,23 +14,23 @@ module.exports.Products=Connection.define("Products",{
     description:DataTypes.STRING,
     priceQuantity:DataTypes.STRING,
     specialDeliveryCharges:DataTypes.STRING,
-    stockQuantity:{
-        type:DataTypes.INTEGER,
-        comment:"number of units in stock"
-    },
-    stockType:{
-      type:DataTypes.INTEGER,
-      defaultValue:1,
-      comment:"1.daily 2.onetime"
-    },
-    minStock:{
-        type:DataTypes.INTEGER,
-        comment:"warning limit to vendor"
-    },
-    makingDuration:{
-      type:DataTypes.INTEGER,
-      comment:"making time for vendor"
-    },
+    // stockQuantity:{
+    //     type:DataTypes.INTEGER,
+    //     comment:"number of units in stock"
+    // },
+    // stockType:{
+    //   type:DataTypes.INTEGER,
+    //   defaultValue:1,
+    //   comment:"1.daily 2.onetime"
+    // },
+    // minStock:{
+    //     type:DataTypes.INTEGER,
+    //     comment:"warning limit to vendor"
+    // },
+    // makingDuration:{
+    //   type:DataTypes.INTEGER,
+    //   comment:"making time for vendor"
+    // },
     metaTitle:DataTypes.STRING,
     metaDescription:DataTypes.STRING,
     status:{

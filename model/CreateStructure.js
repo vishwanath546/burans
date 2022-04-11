@@ -21,19 +21,20 @@ const {OrderItems} = require('./OrderItems');
 const {AddOnsProduct} = require('./AddOnsProduct');
 const {AddOnProductMapping} = require('./AddOnProductMapping');
 const {SuggestedProductCategory} = require('./SuggestedProductMapping');
+const {SubcategoryMapping} = require('./SubcategoryMapping');
 
 const {CouponCode} = require('./CouponCode');
 module.exports.createDatabase = (isForce, callback) => {
 
-    Category.hasMany(Products);
-    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'categoryId'});
-    Products.belongsTo(Category,{onDelete: "CASCADE", foreignKey: 'subCategoryId'});
+    Products.belongsTo(Category,{onDelete: "CASCADE", as: 'category',foreignKey:'categoryId'});
+    Products.belongsTo(Category,{onDelete: "CASCADE", as: 'subCategory',foreignKey:'subcategoryId'});
     Products.hasMany(ProductImages);
+
     Products.belongsToMany(AddOnsProduct,{through:AddOnProductMapping})
-    
+    Products.belongsToMany(Products,{through:SuggestedProductCategory,as:'SuggestedProduct'})
+    Products.belongsToMany(Category,{through:SuggestedProductCategory,as:'SuggestedCategory'})
 
-    Category.belongsTo(Category);
-
+    Category.belongsToMany(Category,{through:SubcategoryMapping,as:'subcategory'});
     Users.hasMany(UserAddress);
     Users.hasOne(UserAuth, {onDelete: "CASCADE"});
     AdminUser.hasOne(UserAuth, {onDelete: "CASCADE", foreignKey: 'AdminUserId'});

@@ -1,18 +1,19 @@
 const {Connection} = require('../model/Database');
 const {Op} = require('sequelize');
 const {Category} = require('../model/Category')
+const {SubcategoryMapping} = require('../model/SubcategoryMapping')
 const {clearImage} = require('../util/helpers');
 
 
 exports.getAllCategoriesOption = (request, response, next) => {
 
     Category.findAll({
-        where: {categoryId: null},
+        where: {status: 1, isSubcategory: 0},
         attributes: ["id", ["name", "text"]]
     })
         .then(categories => {
             response.status(200).json({
-                results: [{id:-1,text:"",selected:true,disabled: true},...categories]
+                results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
             });
         }).catch(error => {
         response.status(500).json({
@@ -23,14 +24,14 @@ exports.getAllCategoriesOption = (request, response, next) => {
 
 exports.getAllSubcategoriesOption = (request, response, next) => {
 
-    let categoryId=request.params.categoryId;
+    let categoryId = request.params.categoryId;
     Category.findAll({
         where: {categoryId: categoryId},
         attributes: ["id", ["name", "text"]]
     })
         .then(categories => {
             response.status(200).json({
-                results: [{id:-1,text:"",selected:true,disabled: true},...categories]
+                results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
             });
         }).catch(error => {
         response.status(500).json({
@@ -42,50 +43,43 @@ exports.getAllSubcategoriesOption = (request, response, next) => {
 exports.getAllCategoriesTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
-    Category.count().then(totalCount => {
-        Category.findAll({
-            attributes: ["id", "name", "description", "photo", "status", "categoryId", "createdAt"],
-            where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-            order: [["createdAt", "DESC"]],
-            limit: parseInt(length) || 10,
-            offset: parseInt(start) || 0
-        })
-            .then((categories) => {
-                response.status(200).json({
-                    draw: parseInt(draw),
-                    recordsTotal: totalCount,
-                    recordsFiltered: categories.length,
-                    data: categories
-                });
-            }).catch(error => {
-            response.status(500).json({
-                body: error.message
-            })
-        })
-    }).catch(error => {
-        response.status(400).json({
-            body: "Not Found",
-            exception: error
-        });
+
+    Category.findAndCountAll({
+        attributes: ["id", "name", "description", "photo", "status", "createdAt"],
+        where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
+        include: [
+            {model: Category, as: 'subcategory'}
+        ],
+        order: [["createdAt", "DESC"]],
+        limit: parseInt(length) || 10,
+        offset: parseInt(start) || 0
     })
+        .then(({total, rows}) => {
+            response.status(200).json({
+                draw: parseInt(draw),
+                recordsTotal: total,
+                recordsFiltered: rows.length,
+                data: rows
+            });
+        }).catch(error => {
+        response.status(500).json({
+            body: error.message
+        })
+    })
+
 }
 
 exports.getAllCategories = (request, response, next) => {
 
     Category.findAll({
-        where: {status: 1, categoryId: null},
-        attributes: ["id", "name", "description", "photo", "categoryId"]
+        where: {status: 1, isSubcategory: 0},
+        include: [{model: Category, as: 'subcategory'}],
+        attributes: ["id", "name", "description", "photo", "isService"]
     }).then(categories => {
-
         if (categories) {
-            console.log(categories.toString())
             let allCategories = categories.map(async (category) => {
                 return {
                     category: category,
-                    subCategories: await Category.findAll({
-                        where: {status: 1, categoryId: category.id},
-                        attributes: ["id", "name", "description", "photo", "categoryId"]
-                    })
                 }
             })
             Promise.all(allCategories).then(res => {
@@ -106,7 +100,7 @@ exports.getAllCategories = (request, response, next) => {
 
 exports.saveCategorySubcategory = (request, response, next) => {
 
-    let {name, description, status, category_id} = request.body;
+    let {name, description, isService, status, chkIsSubcategory, updateCategoryId, category_id} = request.body;
 
     let categoriesPhotos = null;
     if (request.files && request.files.categoryImage) {
@@ -114,17 +108,82 @@ exports.saveCategorySubcategory = (request, response, next) => {
     }
 
     Connection.transaction(async (trans) => {
+        let object = {
+            name: name,
+            description: description,
+            photo: categoriesPhotos,
+            isSubcategory: chkIsSubcategory === "on" ? 1 : 0,
+            isService: isService === "on" ? 1 : 0,
+            status: status,
+        };
         return Category.findByPk(category_id).then(async category => {
-            let newCategory = await Category.create({
-                name: name,
-                description: description,
-                photo: categoriesPhotos,
-                status: status
-            }, {transaction: trans})
-            if (category) {
-                Category.update({categoryId: category_id}, {
-                    where: {id: newCategory.id}
-                }, {transaction: trans})
+            if (parseInt(updateCategoryId)!==0) {
+                // update
+                console.log("new category mapping id ",category.id) // 1
+                // update existing category in category table
+                await Category.update(object,{where:{id:updateCategoryId}});
+
+                // find new updated category object
+                    Category.findByPk(updateCategoryId,{
+                        attributes: {
+                            include: [[Connection.literal(`(
+                    SELECT categoryId
+                    FROM subcategory_mapping AS cat
+                    WHERE
+                        cat.subcategoryId = Category.id                        
+                )`),
+                                'category_id'],
+                            ],
+                            exclude: ["createdAt", "updatedAt"]
+                        }
+                    }).then((newUpdateObject)=>{
+                        // get existing category with subcategory id
+                        console.log('existing subcategory id',newUpdateObject.dataValues.category_id) // 2
+                        if(!newUpdateObject){
+                            let error = new Error("Category Not Found");
+                            error.status = 404;
+                            throw  error;
+                        }
+                        if(category){
+                            if(newUpdateObject.dataValues.category_id){
+                                // find old subcategory object from category by id
+                                Category.findByPk(newUpdateObject.dataValues.category_id).
+                                then(async removeObject=>{
+                                   if(!removeObject){
+                                       let error = new Error("Category Not Found");
+                                       error.status = 404;
+                                       throw  error;
+                                   }
+                                    // newUpdate object id 5
+                                    console.log('to be remove',removeObject.id) // 2
+                                    // let r=await removeObject.removeSubcategory({
+                                    //     where:{
+                                    //         categoryId:{[Op.eq]: updateCategoryId}
+                                    //     }
+                                    // });
+                                     category.setSubcategory(newUpdateObject);
+                                })
+
+                            }else{
+                                category.addSubcategory(newUpdateObject);
+                            }
+                        }else{
+                            if(newUpdateObject.subcategory.length>0){
+                                category.removeSubcategory(newUpdateObject.subcategory[0]);
+                            }else{
+                                category.addSubcategory(newUpdateObject);
+                            }
+                        }
+                    })
+
+            } else {
+                // create new
+
+                let newCategory = await Category.create(object, {transaction: trans});
+                if (category) {
+                    category.addSubcategory(newCategory);
+                }
+
             }
         })
 
@@ -141,7 +200,17 @@ exports.getCategoryById = (request, response, next) => {
 
     let {categoryId} = request.body;
     Category.findByPk(categoryId, {
-        attributes: ["id", "name", "description", "photo", "categoryId"]
+        attributes: {
+            include: [[Connection.literal(`(
+                    SELECT categoryId
+                    FROM subcategory_mapping AS cat
+                    WHERE
+                        cat.subcategoryId = Category.id                        
+                )`),
+                'category_id'],
+            ],
+            exclude: ["createdAt", "updatedAt"]
+        }
     })
         .then(async category => {
             if (category) {

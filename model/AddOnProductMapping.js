@@ -3,20 +3,13 @@ const {Connection} = require('./Database');
 const {AddOnsProduct} = require('./AddOnsProduct');
 const {Products} = require('./Products');
 module.exports.AddOnProductMapping=Connection.define("AddOnProductMapping",{
-    AddOnId:{
+    id:{
         type: DataTypes.INTEGER,
-        references: {
-            model: AddOnsProduct,
-            key: 'id'
-        }
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
     },
-    ProductId:{
-        type: DataTypes.INTEGER,
-        references: {
-            model: Products,
-            key: 'id'
-        }
-    }
+
 },{
     tableName:"addon_product_mapping"
 });

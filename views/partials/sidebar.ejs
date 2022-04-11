@@ -22,27 +22,31 @@
                 </a>
             </li>
             <li class="dropdown
-             <%= url == 'categories' || url == 'products' || url == 'vendor' || url == 'delveryboy' || url == 'advertise'
+             <%= url == '/categories' || url == '/products' || url == '/view-vendor' || url == '/view-delivery-boys' || url == '/view-advertise'
+            || url == '/add-ons-products' || url == '/view-locations'
                     ? 'active' : ''
             %>">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-store"></i><span>Master</span></a>
                 <ul class="dropdown-menu">
-                    <li class="<%= url == 'products' ? 'active' : ''; %>">
+                    <li class="<%= url == '/products' ? 'active' : ''; %>">
                         <a class="nav-link" href="/products">Products</a>
                     </li>
-                    <li class="<%=  url == 'categories' ? 'active' : ''; %>">
+                    <li class="<%= url == '/add-ons-products'? 'active' : ''; %>">
+                        <a class="nav-link" href="/add-ons-products">Add Ons Product</a>
+                    </li>
+                    <li class="<%=  url == '/categories' ? 'active' : ''; %>">
                         <a class="nav-link" href="/categories">Categories</a>
                     </li>
-                    <li class="<%= url == 'create-vendor' ? 'active' : ''; %>">
+                    <li class="<%= url == '/view-vendor' ? 'active' : ''; %>">
                         <a class="nav-link" href="/view-vendor">Vendor</a>
                     </li>
-                    <li class="<%= url == 'create-delivery-boy' ? 'active' : ''; %>">
+                    <li class="<%= url == '/view-delivery-boys' ? 'active' : ''; %>">
                         <a class="nav-link" href="/view-delivery-boys">Delivery Boy</a>
                     </li>
-                    <li class="<%= url == 'advertise'? 'active' : ''; %>">
+                    <li class="<%= url == '/view-advertise'? 'active' : ''; %>">
                         <a class="nav-link" href="/view-advertise">Advertise</a>
                     </li>
-                    <li class="<%= url == 'advertise'? 'active' : ''; %>">
+                    <li class="<%= url == '/view-locations'? 'active' : ''; %>">
                         <a class="nav-link" href="/view-locations">Location</a>
                     </li>
                 </ul>

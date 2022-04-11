@@ -22,13 +22,17 @@
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
 <% } %>
 
-<% if (url === "/categories" || url === "/products" || url === "/view-vendor"|| url==="/view-delivery-boys") {  %>
+<% if (url === "/categories" || url === "/products" ||
+        url === "/view-vendor"|| url==="/view-delivery-boys"||
+        url ==="/add-ons-products"
+) {  %>
 <script src="/modules/datatables/datatables.min.js"></script>
 <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
 <script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
 <% } %>
 
-<% if (url === "/create-vendor" || url === "/update-vendor") {  %>
+<% if (url === "/create-vendor" || url === "/update-vendor"
+        || url === "/create-add-ons-product" || url === "/update-add-ons-product") {  %>
     <script src="/modules/select2/dist/js/select2.js"></script>
     <script src="/modules/select2/dist/js/select2.full.js"></script>
     <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
@@ -62,6 +66,9 @@
 <% if (url === "/create-delivery-boy" || url === "/update-delivery-boy") {  %>
     <script src="/js/page/delivery-boy-form.js"></script>
 <% } %>
+<% if (url === "/create-add-ons-product" || url === "/update-add-ons-product") {  %>
+    <script src="/js/page/addons-product-form.js"></script>
+<% } %>
 <% if (url === "/categories") {  %>
     <script src="/js/page/category.js"></script>
 <% } %>
@@ -74,6 +81,10 @@
 <% if (url === "/view-delivery-boys") {  %>
     <script src="/js/page/delivery-boys.js"></script>
 <% } %>
+<% if (url === "/add-ons-products") {  %>
+    <script src="/js/page/addons-prodcuts.js"></script>
+<% } %>
+
 
 
 </body>

@@ -12,16 +12,15 @@
     <!-- CSS Libraries -->
     <% if (url == "/create-product" || url == "/update-product" ) { %>
         <link rel="stylesheet" href="/modules/dropzonejs/dropzone.css">
+    <% } %>
+
+    <% if (url == "/create-categories"|| url == "/update-categories"||
+        url == "/create-product" || url == "/update-product" ||
+            url == "/create-vendor"  || url === "/update-vendor"
+    ) { %>
         <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
     <% } %>
 
-    <% if (url == "/create-categories" ) { %>
-        <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
-    <% } %>
-
-    <% if (url == "/create-vendor"  || url === "/update-vendor") { %>
-        <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
-    <% } %>
 
     <link rel="stylesheet" href="/modules/datatables/datatables.css">
     <!-- Template CSS -->

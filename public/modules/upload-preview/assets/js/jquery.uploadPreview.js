@@ -32,7 +32,7 @@
                   // Image
                   $(settings.preview_box).css("background-image", "url("+loadedFile.result+")");
                   $(settings.preview_box).css("background-size", "cover");
-                  $(settings.preview_box).css("background-position", "center center");
+                  $(settings.preview_box).css("background-position", "left center");
                 } else if (file.type.match('audio')) {
                   // Audio
                   $(settings.preview_box).html("<audio controls><source src='" + loadedFile.result + "' type='" + file.type + "' />Your browser does not support the audio element.</audio>");

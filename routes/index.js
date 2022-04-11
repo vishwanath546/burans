@@ -4,7 +4,7 @@ const router = express.Router();
 const CategoryController = require('../controller/CategoryController');
 const ProductController = require('../controller/ProductController');
 const DeliveryBoyController = require('../controller/DeliveryBoyController');
-
+const AddOnsProductController = require("../controller/AddOnsProductController");
 const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
 
@@ -35,7 +35,7 @@ router.get('/update-categories/:updateID', function (req, res, next) {
 });
 
 router.get('/getAllCategories', CategoryController.getAllCategories);
-router.get('/getCategoryById', CategoryController.getCategoryById);
+router.post('/getCategoryById', CategoryController.getCategoryById);
 router.post("/saveCategorySubcategory", Validator(Schemas.categoryValidation), CategoryController.saveCategorySubcategory);
 router.post('/getAllCategoriesOptions', CategoryController.getAllCategoriesOption);
 router.post('/getAllSubcategoriesOption/:categoryId', CategoryController.getAllSubcategoriesOption);
@@ -69,6 +69,34 @@ router.post("/saveProductDetails", Validator(Schemas.productValidation), Product
 router.post('/getProductById', ProductController.getProductById);
 router.post('/getAllProductsTables', ProductController.getAllProductTables);
 router.delete("/deleteProduct", ProductController.deleteProduct);
+// -------------------------- Add ons products --------------------------------------
+
+
+router.get('/add-ons-products', function (req, res) {
+    console.log(req.url)
+    res.render('pages/product/ViewAddOnsProduct', {title: 'View add ons product', url: req.url});
+});
+router.get("/create-add-ons-product",function (req,res) {
+    res.render('pages/product/AddOnsProductForm', {title: 'Create Product', url: req.url, addOnProductId: 0});
+})
+router.get("/update-add-ons-product/:updateID",function (req,res) {
+    let productId = req.params.updateID;
+    if (!productId) {
+        let error = new Error('Not Found');
+        error.statusCode = 404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/product/AddOnsProductForm', {title: 'Create Add Ons Product', url: '/' + segments[1], addOnProductId: productId});
+})
+
+
+router.post("/saveAddOnsProductDetails", AddOnsProductController.saveAddOnsProduct)
+router.post('/getAllAddOnsProductsTables', AddOnsProductController.getAllOnsProductTables);
+router.post('/getAllAddOnsProductsOptions', AddOnsProductController.getAllAddOnsProductOption);
+router.post('/getAddOnsProduct', AddOnsProductController.getAddOnsProductById);
+router.delete("/deleteAddOnsProduct", AddOnsProductController.deleteAddOnsProduct);
+
 // --------------------------- vendor ------------------------------------------
 
 router.get('/view-vendor', function (req, res, next) {
@@ -115,3 +143,4 @@ router.get('/create-coupons', function(req, res, next) {
     res.render('pages/offers/coupon', { title: 'View product', url: req.url });
 });
 module.exports = router;
+// --------------------------

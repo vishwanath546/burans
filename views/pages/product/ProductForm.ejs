@@ -1,5 +1,10 @@
 <%- include("../../partials/header") %>
-
+<style>
+    #ddl_addOnsProduct ul.select2-selection__rendered{
+        display: flex!important;
+        flex-direction: column;
+    }
+</style>
 <div class="row">
     <form id="productDetailsForm" method="post" data-form-valid="saveProductDetails"></form>
     <div class="col-12 col-md-6 col-lg-6">
@@ -64,13 +69,14 @@
             <div class="card-body">
                 <div class="form-group">
                     <label>Add-Ons Product</label>
-                    <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
+                    <select class="form-control d-flex flex-column" id="ddl_addOnsProduct"
+                            multiple
                             data-valid="required" data-msg="Please select category"
-                            data-error="#category-error"
-                            name="category">
+                            data-error="#addOnProduct-error"
+                            name="addOnsProduct">
 
                     </select>
-                    <div id="category-error"></div>
+                    <div id="addOnProduct-error"></div>
                 </div>
                 <div class="section-title">Suggestion Products / Category</div>
                 <div class="form-row">
@@ -82,7 +88,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Suggestion Category</label>
-                        <select class="form-control" id="ddl_sub_category" name="subcategory">
+                        <select class="form-control" id="ddl_addons_category" name="subcategory">
 
                         </select>
                     </div>

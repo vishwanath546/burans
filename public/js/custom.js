@@ -5,7 +5,7 @@ const app = (function () {
             return JSON.parse(atob(string));
         }
 
-        const request = (url, formData,type="POST") => {
+        const request = (url, formData, type = "POST") => {
 
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -60,27 +60,35 @@ const app = (function () {
             }
         }
 
-        const validation = (formElement, rules, message, submitHandlerFunction,errorPlacement=null) => {
+        const validation = (formElement, rules, message, submitHandlerFunction, errorPlacement = null) => {
             $(`#${formElement}`).validate({
                 rules: rules,
                 messages: message,
                 errorClass: 'text-danger',
                 errorElement: 'span',
                 submitHandler: submitHandlerFunction,
-                errorPlacement:errorPlacement,
+                errorPlacement: errorPlacement,
             });
         }
 
-        const selectOption = (element, placeholder,ajax ,data) => {
+        const selectOption = (element, placeholder, ajax, data, templateResult, templateSelection) => {
             let options = {
                 placeholder: placeholder,
-                allowClear: true
+                allowClear: true,
             };
 
-            if(ajax){
-                options.ajax= ajax;
-            }else if(data){
+            if (ajax) {
+                options.ajax = ajax;
+            } else if (data) {
                 options.data = data;
+            }
+
+            if (templateResult) {
+                options.templateResult = templateResult;
+            }
+
+            if (templateSelection) {
+                options.templateSelection = templateSelection
             }
 
 
@@ -126,7 +134,7 @@ const app = (function () {
                         {
                             text: me.data('confirm-text-cancel') || 'Cancel',
                             class: 'btn btn-secondary',
-                            handler: function(modal) {
+                            handler: function (modal) {
                                 $.destroyModal(modal);
                                 eval(me.data('confirm-no'));
                             }
@@ -136,9 +144,9 @@ const app = (function () {
             });
         }
 
-        const imagePreview = (url, title,action="") => {
-            let clickEvent=``;
-            if(action!=""){
+        const imagePreview = (url, title, action = "") => {
+            let clickEvent = ``;
+            if (action != "") {
                 clickEvent = `data-confirm="Realy?|Do you want to delete Image?"
                                data-confirm-yes="${action}" `;
             }
@@ -153,7 +161,7 @@ const app = (function () {
             $(`#${elementID}`).rules('add', rule);
         }
 
-        const removeValidation = (elementID)=>{
+        const removeValidation = (elementID) => {
             $(`#${elementID}`).rules('remove');
         }
 
@@ -208,7 +216,7 @@ const app = (function () {
 
                     let hasFunction = window[handlerName];
                     if (typeof hasFunction === "function") {
-                        validation(formID, formRules, formMessages, hasFunction,function(error, element) {
+                        validation(formID, formRules, formMessages, hasFunction, function (error, element) {
                             let placement = $(element).data('error');
                             if (placement) {
                                 $(placement).append(error)
@@ -221,10 +229,10 @@ const app = (function () {
             }
         }
 
-        const deleteImage = (id)=>{
+        const deleteImage = (id) => {
             let formData = new FormData();
-            formData.set("id",id);
-            return request('deleteImage',formData)
+            formData.set("id", id);
+            return request('deleteImage', formData)
         }
 
         const getDate = (dateString) => {
@@ -244,10 +252,10 @@ const app = (function () {
 
         return {
             jsonResponse: (string) => jsonResponse(string),
-            request: (url, formData,type) => request(url, formData,type),
+            request: (url, formData, type) => request(url, formData, type),
             dataTable: (elementID, ajax = undefined, column = undefined, rowRenderCallback = undefined, initCompleteCallback = undefined) => dataTable(elementID, ajax, column, rowRenderCallback, initCompleteCallback),
             validation: (formElement, rules, message, submitHandlerFunction) => validation(formElement, rules, message, submitHandlerFunction),
-            selectOption: (element, placeholder,ajax=null, data=null) => selectOption(element, placeholder,ajax,data),
+            selectOption: (element, placeholder, ajax = null, data = null, templateResult = null, templateSelection = null) => selectOption(element, placeholder, ajax, data, templateResult, templateSelection),
             successToast: (message) => successToast(message),
             errorToast: (message) => errorToast(message),
             confirmationBox: () => confirmationBox(),
@@ -256,8 +264,8 @@ const app = (function () {
             setValidation: (elementID, rules) => addValidation(elementID, rules),
             removeValidation: (elementID) => removeValidation(elementID),
             getDate: (string) => getDate(string),
-            imagePreview: (url, title,id) => imagePreview(url, title,id),
-            deleteImage:(id)=>deleteImage(id)
+            imagePreview: (url, title, id) => imagePreview(url, title, id),
+            deleteImage: (id) => deleteImage(id)
         }
     }
 )();

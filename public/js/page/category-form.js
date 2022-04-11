@@ -10,36 +10,39 @@ $(document).ready(function () {
         success_callback: null          // Default: null
     });
     listOfCategory();
+    let categoryId = parseInt($("#updateCategoryId").val());
+    if(categoryId!==0){
+        getCategoryDetails(categoryId);
+    }
 });
 
 
-function previousImage() {
-return `<div class="gallery-item"
-             data-image="images/category/1648314083759-504120518-32819.jpg"
-             data-title="Image 1"
-             href="images/category/1648314083759-504120518-32819.jpg"
-             title="Image 1"
-             style="height: 100px;
-             background-image: url('images/category/1648314083759-504120518-32819.jpg');">
-        </div>`
+function previousImage(imagePath) {
+    return `<div class="d-flex flex-column" style="width: 150px;height: 150px;">
+              <img alt="image" src="${baseURL+imagePath.replace("public","")}" class="author-box-picture"> 
+            </div>`
+}
+
+function loadCategoryOptions() {
+
+    return app.request("getAllCategoriesOptions",null).then(response=>{
+        app.selectOption('category_id', 'Select Category', null, response.results);
+        return Promise.resolve();
+    })
+
 }
 
 function isSubcategory(element) {
     if (element.checked) {
         $("#subcategorySelectionBox").removeClass("d-none");
-
-        app.selectOption('category_id', 'Select Category', {
-            url: baseURL + "getAllCategoriesOptions",
-            method: 'POST',
-            delay: 250,
-        });
-
-        app.setValidation('category_id', {
-            required: true,
-            messages: {
-                required: "Select category"
-            }
-        });
+        loadCategoryOptions().then(()=>{
+            app.setValidation('category_id', {
+                required: true,
+                messages: {
+                    required: "Select category"
+                }
+            });
+        }).catch(error =>console.log(error))
     } else {
         $("#subcategorySelectionBox").addClass("d-none");
         app.removeValidation('category_id')
@@ -51,6 +54,10 @@ function saveCategorySubCategoryDetails(form) {
     app.request("saveCategorySubcategory", new FormData(form)).then(response => {
         app.successToast(response.body)
         $("#category_form").trigger('reset');
+        $('#category-image-preview').css("background-image", "none");
+        $('#alreadyUploadImage').empty();
+        $("#subcategorySelectionBox").addClass("d-none");
+        app.removeValidation('category_id')
         listOfCategory();
     }).catch(error => {
         if (error.status === 500) {
@@ -60,6 +67,52 @@ function saveCategorySubCategoryDetails(form) {
         }
 
     })
+}
+
+
+function getCategoryDetails(categoryId) {
+
+    let formData = new FormData();
+    formData.set("categoryId",categoryId)
+    app.request("getCategoryById",formData).then(response=>{
+        $("#name").val(response.name);
+        $("#description").val(response.description);
+        if(response.isSubcategory===1){
+            $("#chkIsSubcategory").attr("checked",true);
+            $("#subcategorySelectionBox").removeClass("d-none");
+            loadCategoryOptions().then(()=>{
+                $("#category_id").val(response.category_id).trigger('change');
+                app.setValidation('category_id', {
+                    required: true,
+                    messages: {
+                        required: "Select category"
+                    }
+                });
+
+            }).catch(error =>console.log(error))
+        }else{
+            $("#chkIsSubcategory").attr("checked",false);
+        }
+        if(response.isService===1){
+            $("#ck_isService").attr("checked",true);
+        }else{
+            $("#ck_isService").attr("checked",false);
+        }
+
+
+        $('#alreadyUploadImage').empty();
+
+        if(response.photo && response.photo !==""){
+            $('#alreadyUploadImage').append(previousImage(response.photo));
+        }
+
+        if(response.status === 1){
+            $("input[type='radio'][value='1']").attr("checked",true);
+        }else{
+            $("input[type='radio'][value='0']").attr("checked",true);
+        }
+    })
+
 }
 
 function listOfCategory() {
@@ -94,14 +147,14 @@ function getAccordion(category, index) {
                      aria-expanded="${index === 0}">
                     <div class="d-flex align-items-center justify-content-between">
                         <h4>${category.category.name}</h4>
-                        <span class="badge badge-white">${category.subCategories.length}</span>
+                        <span class="badge badge-white">${category.category.subcategory.length}</span>
                     </div>
                 </div>
                 <div class="accordion-body collapse ${index === 0 ? 'show' : ''}" 
                     id="panel-body-${category.category.id}" 
                     data-parent="#accordion">
                     <ul class="list-group">
-                       ${category.subCategories.map(getSubCategoryAccordionBody).join("")}
+                       ${category.category.subcategory.map(getSubCategoryAccordionBody).join("")}
                     </ul>
                 </div>
             </div>`

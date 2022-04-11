@@ -3,6 +3,7 @@ $(document).ready(function () {
     subCategoryId = null
     app.formValidation();
     setup();
+    addOnsProduct();
     let productId = parseInt($("#updateProductId").val());
 
     if (productId !== 0) {
@@ -74,6 +75,7 @@ function setup() {
 function category() {
     return app.request("getAllCategoriesOptions", null).then(response => {
         app.selectOption('ddl_category', 'Select Category', null, response.results);
+        app.selectOption('ddl_addons_category', 'Select Category', null, response.results);
         return Promise.resolve();
     })
 
@@ -89,6 +91,36 @@ function subCategory(id) {
             }
         })
     }
+}
+
+function formatRepo (repo) {
+    if (repo.loading) {
+        return repo.text;
+    }
+
+    var $container = $(
+        `
+              <div class="align-items-center d-flex justify-content-center">
+                <img class="mr-3 rounded-circle" width="50" src="${baseURL+repo.photo.replace("public","")}" alt="avatar">
+                  <div class="media-body">
+                    <div class="badge badge-pill badge-dark float-right">${repo.price}</div>
+                    <h6 class="media-title">${repo.name}</h6>
+                  </div>
+              </div>`
+    );
+
+    return $container;
+}
+
+function formatRepoSelection (repo) {
+    return repo.name || repo.text;
+}
+
+function addOnsProduct() {
+    return app.request("getAllAddOnsProductsOptions", null).then(response => {
+        app.selectOption('ddl_addOnsProduct', 'Select Add-Ons Product', null, response.results, formatRepo, formatRepoSelection);
+        return Promise.resolve();
+    });
 }
 
 function getProductDetails(productId) {
@@ -170,8 +202,8 @@ function loadCategoryTable() {
                 return `
                     <div class="btn btn-action">
                         <a href="/create-categories/${d}" class="btn btn-primary">
-                            <i class="fa fa-pen-alt"></i>    
-                        </a>    
+                            <i class="fa fa-pen-alt"></i>
+                        </a>
                         <button class="btn btn-danger"
                             data-toggle="tooltip" title
                             data-confirm="Are You Sure?|This action can not be undone. Do you want to continue?"
