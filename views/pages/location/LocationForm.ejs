@@ -1,0 +1,50 @@
+
+<div class="modal fade"  role="dialog" id="fire-modal-1" >
+    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Location</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="location_form" method="post" data-form-valid="saveLocationDetails">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Location Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="hidden" name="updateLocationId" id="updateLocationId"/>
+                                <input type="text" class="form-control" name="name"
+                                       id="name"
+                                       data-valid="required" data-msg="Please enter name"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <div class="selectgroup selectgroup-pills">
+                                    <label class="selectgroup-item">
+                                        <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
+                                        <span class="selectgroup-button selectgroup-button-icon"><i
+                                                    class="fas fa-sun"></i></span>
+                                    </label>
+                                    Active
+                                    <label class="selectgroup- pl-2">
+                                        <input type="radio" name="status" value="0" class="selectgroup-input">
+                                        <span class="selectgroup-button selectgroup-button-icon"><i
+                                                    class="fas fa-moon"></i></span>
+                                    </label>
+                                    Inactive
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

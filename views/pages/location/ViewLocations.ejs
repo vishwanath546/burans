@@ -1,0 +1,33 @@
+<%- include("../../partials/header") %>
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h4><%= title%></h4>
+            <div class="card-header-action d-flex ">
+                <button type="button"
+                        class="btn btn-primary trigger--fire-modal-1"
+                        id="location-modal"
+                ><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="productTables" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include("../../partials/footer") %>

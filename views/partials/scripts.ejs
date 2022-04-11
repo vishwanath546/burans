@@ -24,7 +24,7 @@
 
 <% if (url === "/categories" || url === "/products" ||
         url === "/view-vendor"|| url==="/view-delivery-boys"||
-        url ==="/add-ons-products"
+        url ==="/add-ons-products" || url==="/view-location"
 ) {  %>
 <script src="/modules/datatables/datatables.min.js"></script>
 <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
@@ -48,6 +48,7 @@
 <script>
     const baseURL = '<%= process.env.BASE_URL %>';
 </script>
+
 <script src="/js/scripts.js"></script>
 <script src="/js/custom.js"></script>
 
@@ -77,6 +78,9 @@
 <% } %>
 <% if (url === "/view-vendor") {  %>
     <script src="/js/page/vendors.js"></script>
+<% } %>
+<% if (url === "/view-location") {  %>
+    <script src="/js/page/locations.js"></script>
 <% } %>
 <% if (url === "/view-delivery-boys") {  %>
     <script src="/js/page/delivery-boys.js"></script>

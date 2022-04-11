@@ -99,6 +99,11 @@ router.delete("/deleteAddOnsProduct", AddOnsProductController.deleteAddOnsProduc
 
 // --------------------------- vendor ------------------------------------------
 
+router.get("/view-location",function (req,res) {
+    res.render("pages/location/ViewLocations",{title:'View Location',url:req.url})
+});
+
+
 router.get('/view-vendor', function (req, res, next) {
     res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
 });
