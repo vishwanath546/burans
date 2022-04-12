@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const CategoryController = require('../controller/CategoryController');
+const LocationController = require('../controller/LocationController');
 const ProductController = require('../controller/ProductController');
 const DeliveryBoyController = require('../controller/DeliveryBoyController');
 const AddOnsProductController = require("../controller/AddOnsProductController");
@@ -99,10 +100,14 @@ router.delete("/deleteAddOnsProduct", AddOnsProductController.deleteAddOnsProduc
 
 // --------------------------- vendor ------------------------------------------
 
-router.get("/view-location",function (req,res) {
+router.get("/view-locations",function (req,res) {
     res.render("pages/location/ViewLocations",{title:'View Location',url:req.url})
 });
-
+router.post("/saveLocation", LocationController.saveAddOnsProduct)
+router.post('/getAllLocationTables', LocationController.getAllOnsProductTables);
+router.post('/getAllLocationOptions', LocationController.getAllAddOnsProductOption);
+router.post('/getLocation', LocationController.getAddOnsProductById);
+router.delete("/deleteLocation", LocationController.deleteAddOnsProduct)
 
 router.get('/view-vendor', function (req, res, next) {
     res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
