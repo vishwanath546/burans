@@ -3,6 +3,8 @@ $(document).ready(function () {
     previewUpload("#profile-image-label","#profile-image-preview","#profile-image");
     previewUpload("#license-image-label","#license-image-preview","#license-image");
     previewUpload("#rc-image-label","#rc-image-preview","#rc-image");
+    getLocationOptions('area');
+    getVendorsOptions('vendor');
 });
 
 function previewUpload(label_field,preview_box,input_field) {

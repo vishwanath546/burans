@@ -1,5 +1,7 @@
 const {Connection} = require("../model/Database");
+const {Op} = require('sequelize');
 const {Vendor} = require("../model/Vendor");
+const {Location} = require("../model/Location");
 const {UserAuth} = require('../model/UserAuth');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -13,7 +15,7 @@ const clearImage = imagePath => {
     })
 }
 
-exports.login_vendor =  (request, response, next) => {
+exports.login_vendor = (request, response, next) => {
     let {username, password} = request.body;
     UserAuth.findOne({
         where: {mobileNumber: username, userType: 2},
@@ -83,10 +85,19 @@ exports.vendorRegistration = (request, response, next) => {
             gstNumber: gstNumber,
             email: email,
             foodLicense: foodLicense,
-            accountStatus:2,
-            area: area,
+            accountStatus: 2,
             avatar: avatar,
         }, {transaction: trans});
+        let locations = await Location.findAll({
+            where: {
+                id: {
+                    [Op.in]: [...area]
+                }
+            }
+        });
+        newVendor.addVendorLocations([...locations])
+
+
         return await newVendor.createUserAuth({
             userType: 2,
             mobileNumber: mobileNumber,
@@ -106,7 +117,7 @@ exports.vendorUpdate = (request, response, next) => {
 
     console.log("hii");
     let userId = request.params.userId;
-    let updateBy =1; //request.userId;
+    let updateBy = 1; //request.userId;
     let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
     let avatar;
     if (request.files) {
@@ -129,7 +140,7 @@ exports.vendorUpdate = (request, response, next) => {
                     throw error;
                 }
                 let updateObject = {columns: [], values: []};
-                if (user.updateOnColumn != null && user.updateOnColumn !=="") {
+                if (user.updateOnColumn != null && user.updateOnColumn !== "") {
                     updateObject = JSON.parse(user.updateOnColumn);
                 }
                 user.name = name;
@@ -199,14 +210,14 @@ exports.vendorUpdate = (request, response, next) => {
 }
 
 
-exports.deleteVendor = (request, response,next) => {
+exports.deleteVendor = (request, response, next) => {
 
     let userId = request.params.vendorId;
 
-    UserAuth.findOne({ where :{VendorId:userId}}).then(user => {
+    UserAuth.findOne({where: {VendorId: userId}}).then(user => {
         if (!user) {
             let error = new Error("User Not Found");
-            error.statusCode =404;
+            error.statusCode = 404;
             throw error;
         }
         clearImage(user.avatar);
@@ -225,28 +236,28 @@ exports.deleteVendor = (request, response,next) => {
             body: "Successfully delete user"
         })
     }).catch(error => {
-       next(error)
+        next(error)
     })
 }
 
 
-exports.getVendor=(request,response,next)=>{
+exports.getVendor = (request, response, next) => {
     let userId = request.body.vendorId;
-    Vendor.findByPk(userId,{
-        attributes:["id","name","email","mobileNumber","avatar","shopName","gstNumber","foodLicense",
-        "area","accountStatus"],
-        include:[{
-            model:UserAuth,
-            attributes:["userType","loginAt"]
+    Vendor.findByPk(userId, {
+        attributes: ["id", "name", "email", "mobileNumber", "avatar", "shopName", "gstNumber", "foodLicense",
+            "area", "accountStatus"],
+        include: [{
+            model: UserAuth,
+            attributes: ["userType", "loginAt"]
         }]
-    }).then(user=>{
-        if(!user){
+    }).then(user => {
+        if (!user) {
             let error = new Error("User Not Found")
             error.statusCode = 404;
             throw error;
         }
         return response.status(200).json(user);
-    }).catch(error=>{
+    }).catch(error => {
         next(error)
     })
 }
@@ -256,10 +267,9 @@ exports.getAllVendorsTables = (request, response, next) => {
     let search = request.body['search[value]'];
     Vendor.count().then(totalCount => {
         Vendor.findAll({
-            attributes: ["id", "name", "email", "mobileNumber","gstNumber","foodLicense",
-                "avatar",
-                "area","accountStatus", "createdAt"],
-            include:[{model:UserAuth,attributes:["id"]}],
+            attributes: ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
+                "avatar", "accountStatus", "createdAt"],
+            include: [{model: UserAuth, attributes: ["id"]},{model:Location,as:"VendorLocations"}],
             where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
             order: [["createdAt", "DESC"]],
             limit: parseInt(length) || 10,
@@ -282,5 +292,21 @@ exports.getAllVendorsTables = (request, response, next) => {
             body: "Not Found",
             exception: error
         });
+    })
+}
+
+exports.getAllVendorOptions = (request, response, next) => {
+
+    Vendor.findAll({
+        attributes: ["id", ["name", "text"]]
+    })
+        .then(vendors => {
+            response.status(200).json({
+                results: [{id: -1, text: "", selected: true, disabled: true}, ...vendors]
+            });
+        }).catch(error => {
+        response.status(500).json({
+            body: error.message
+        })
     })
 }

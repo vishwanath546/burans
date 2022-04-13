@@ -21,6 +21,10 @@ router.post("/saveUpdateVendorDetails/:userId",
 
 router.post("/getAllVendors",
     vendorController.getAllVendorsTables);
+
+router.post("/getAllVendorOptions",
+    vendorController.getAllVendorOptions);
+
 router.post("/getVendorDetails",
     vendorController.getVendor);
 

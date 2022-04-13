@@ -21,7 +21,6 @@ module.exports.Vendor = Connection.define("Vendor", {
     shopName: DataTypes.STRING,
     gstNumber: DataTypes.STRING,
     foodLicense: DataTypes.STRING,
-    area: DataTypes.STRING,
     avatar:DataTypes.STRING,
     address:DataTypes.STRING,
     accountStatus: {

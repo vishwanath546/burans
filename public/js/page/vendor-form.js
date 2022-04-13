@@ -1,6 +1,6 @@
 $(document).ready(function () {
     app.formValidation();
-    getAreas();
+    getLocationOptions('area');
     $.uploadPreview({
         input_field: "#shop-image",   // Default: .image-upload
         preview_box: "#shop-image-preview",  // Default: .image-preview
@@ -15,16 +15,6 @@ $(document).ready(function () {
         getVendorDetails(vendor);
     }
 });
-
-function getAreas() {
-
-    app.selectOption('area', 'Select area', null,[
-        {id:1,text:"Panvel"},
-        {id:2,text:"Vashi"},
-        {id:3,text:"Dadar"},
-        {id:4,text:"Thane"}
-    ]);
-}
 
 function saveVendorDetails(form) {
     let vendor = parseInt($("#updateVendorId").val());

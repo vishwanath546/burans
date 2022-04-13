@@ -3,6 +3,7 @@ const router = express.Router();
 
 const CategoryController = require('../controller/CategoryController');
 const LocationController = require('../controller/LocationController');
+const ServiceController = require('../controller/ServiceController');
 const ProductController = require('../controller/ProductController');
 const DeliveryBoyController = require('../controller/DeliveryBoyController');
 const AddOnsProductController = require("../controller/AddOnsProductController");
@@ -98,16 +99,46 @@ router.post('/getAllAddOnsProductsOptions', AddOnsProductController.getAllAddOns
 router.post('/getAddOnsProduct', AddOnsProductController.getAddOnsProductById);
 router.delete("/deleteAddOnsProduct", AddOnsProductController.deleteAddOnsProduct);
 
-// --------------------------- vendor ------------------------------------------
+// --------------------------- Location ------------------------------------------
 
 router.get("/view-locations",function (req,res) {
     res.render("pages/location/ViewLocations",{title:'View Location',url:req.url})
 });
-router.post("/saveLocation", LocationController.saveAddOnsProduct)
-router.post('/getAllLocationTables', LocationController.getAllOnsProductTables);
-router.post('/getAllLocationOptions', LocationController.getAllAddOnsProductOption);
-router.post('/getLocation', LocationController.getAddOnsProductById);
-router.delete("/deleteLocation", LocationController.deleteAddOnsProduct)
+router.post("/saveLocation", LocationController.saveLocation)
+router.post('/getAllLocationTables', LocationController.getAllLocationTables);
+router.post('/getAllLocationOptions', LocationController.getAllLocationOption);
+router.post('/getLocation', LocationController.getLocationById);
+router.delete("/deleteLocation", LocationController.deleteLocation)
+// ------------------------------ service ----------------------------------------
+
+router.get("/create-service",function (req,res) {
+    res.render('pages/service/ServiceForm', {title: 'Create Service', url: req.url, serviceId: 0});
+})
+router.get("/update-service/:updateID",function (req,res) {
+    let serviceId = req.params.updateID;
+    if (!serviceId) {
+        let error = new Error('Not Found');
+        error.statusCode = 404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/service/ServiceForm', {title: 'Update Service', url: '/' + segments[1], serviceId: serviceId});
+})
+
+
+router.get("/view-service",function (req,res) {
+    res.render("pages/Service/ViewServices",{title:'View Services',url:req.url})
+});
+router.post("/saveService", ServiceController.saveServiceSubServices)
+router.post('/getAllServiceTables', ServiceController.getAllServicesTables);
+router.post('/getAllServiceOptions', ServiceController.getAllServiceOption);
+router.get('/getAllService', ServiceController.getAllServices);
+router.post('/getService', ServiceController.getServiceById);
+router.delete("/deleteService", ServiceController.deleteService)
+
+
+
+// --------------------------- vendor ------------------------------------------
 
 router.get('/view-vendor', function (req, res, next) {
     res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
@@ -135,10 +166,23 @@ router.get('/update-vendor/:updateId', function (req, res, next) {
 router.get('/create-delivery-boy', function(req, res, next) {
     res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url: req.url });
 });
+
+router.get('/update-delivery-boy/:updateId', function(req, res, next) {
+    let deliveryBoyId= req.params.updateId;
+    if(!deliveryBoyId){
+        let error = new Error('Not Found');
+        error.statusCode=404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url:'/' + segments[1],vendorId:deliveryBoyId });
+});
+
 router.get('/view-delivery-boys', function (req, res, next) {
     res.render('pages/DeliveryBoy/ViewDeliveryBoy', {title: 'View Delivery Boys',url:req.url});
 });
 router.post('/getAllDeliveryBoysTables', DeliveryBoyController.getAllDeliveryBoyTables);
+router.post('/saveDeliveryBoyDetails', DeliveryBoyController.DeliveryBoyRegistration);
 
 router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
 

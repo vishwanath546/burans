@@ -29,12 +29,19 @@ const diskStorage = multer.diskStorage({
             case "categoryImage":
                 destinationPath += "images/category";
                 break;
+            case "serviceImage":
+                destinationPath += "images/service";
+                break;
             case "addOnsProductImage":
             case "productImages":
                 destinationPath += "images/products";
                 break;
             case "shopImage":
                 destinationPath += "images/vendor";
+                break;
+            case "licenseImage":
+            case "bikeRcImage":
+                destinationPath += "images/documents";
                 break;
         }
         callback(null, destinationPath)
@@ -59,10 +66,13 @@ const fileFilter = (request, file, callback) => {
 
 app.use(multer({storage: diskStorage, fileFilter: fileFilter}).fields([
     {name: "profileImage", maxCount: 1},
+    {name: "serviceImage", maxCount: 1},
     {name: "categoryImage", maxCount: 4},
     {name: "shopImage", maxCount: 4},
     {name: "productImages", maxCount: 4},
-    {name: "addOnsProductImage", maxCount: 1}
+    {name: "addOnsProductImage", maxCount: 1},
+    {name: "licenseImage", maxCount: 1},
+    {name: "bikeRcImage", maxCount: 1}
 ]))
 
 

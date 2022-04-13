@@ -1,5 +1,8 @@
 const {Connection} = require("../model/Database");
+const {Op} = require('sequelize');
 const {DeliveryBoy} = require("../model/DeliveryBoy");
+const {Location} = require("../model/Location");
+const {Vendor} = require("../model/Vendor");
 const {UserAuth} = require('../model/UserAuth');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -63,8 +66,8 @@ exports.login_vendor =  (request, response, next) => {
         });
 };
 
-exports.vendorRegistration = (request, response, next) => {
-    let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
+exports.DeliveryBoyRegistration = (request, response, next) => {
+    let {name, address, email, mobileNumber, license, bikeRc, area,vendor} = request.body;
 
     Connection.transaction(async (trans) => {
         const hashPassword = await bcrypt.hash("123456", 12);
@@ -75,27 +78,59 @@ exports.vendorRegistration = (request, response, next) => {
                 body: "no image provided"
             })
         }
-        const avatar = request.files.shopImage[0].path;
-        let newVendor = await Vendor.create({
+        let avatar,licenseImage,bikeRcImage;
+        if (request.files && request.files.profileImage) {
+            avatar = request.files.profileImage[0].path;
+        }
+        if (request.files && request.files.licenseImage) {
+            licenseImage = request.files.licenseImage[0].path;
+        }
+        if (request.files && request.files.bikeRcImage) {
+            bikeRcImage = request.files.bikeRcImage[0].path;
+        }
+
+        let newDeliveryBoy = await DeliveryBoy.create({
             name: name,
-            shopName: shopName,
+            address: address,
             mobileNumber: mobileNumber,
-            gstNumber: gstNumber,
+            license: license,
+            licensePhoto:licenseImage,
+            bikeRcPhoto:bikeRcImage,
             email: email,
-            foodLicense: foodLicense,
-            accountStatus:2,
-            area: area,
+            bikeRc: bikeRc,
             avatar: avatar,
         }, {transaction: trans});
-        return await newVendor.createUserAuth({
-            userType: 2,
+        let locations = await Location.findAll({
+            where: {
+                id: {
+                    [Op.in]: [...area]
+                }
+            }
+        });
+        if(locations)
+        newDeliveryBoy.addDeliveryBoysLocations([...locations])
+
+        if(vendor) {
+            let vendors = await Vendor.findAll({
+                where: {
+                    id: {
+                        [Op.in]:[...vendor]
+                    }
+                }
+            });
+            if (vendors)
+                newDeliveryBoy.addDeliveryBoysVendors([...vendors])
+        }
+
+        return await newDeliveryBoy.createUserAuth({
+            userType: 3,
             mobileNumber: mobileNumber,
             password: hashPassword,
         }, {transaction: trans});
     }).then(() => {
         response.status(200).json({
             status: 200,
-            body: "Vendor Register successfully!",
+            body: "Delivery Boy Register successfully!",
         });
     }).catch(error => {
         next(error)
@@ -203,18 +238,15 @@ exports.deleteDeliveryBoy = (request, response,next) => {
 
     let userId = request.body.deliveryBoyId;
 
-    UserAuth.findOne({ where :{DeliveryBoyId:userId}}).then(user => {
+    DeliveryBoy.findByPk(userId).then(user => {
         if (!user) {
             let error = new Error("User Not Found");
             error.statusCode =404;
             throw error;
         }
+        console.log(user)
         clearImage(user.avatar);
-        return DeliveryBoy.destroy({
-            where: {
-                id: userId
-            }
-        })
+        return user.destroy()
     }).then(count => {
         if (!count) {
             let error = new Error("Failed to delete Delivery Boy")
@@ -256,10 +288,12 @@ exports.getAllDeliveryBoyTables = (request, response, next) => {
     let search = request.body['search[value]'];
     DeliveryBoy.count().then(totalCount => {
         DeliveryBoy.findAll({
-            attributes: ["id", "name", "email", "area","mobileNumber","license","bikeRc",
-                "photo",
-                "area", "createdAt"],
-            include:[{model:UserAuth,attributes:["id"]}],
+            attributes: ["id", "name", "email","mobileNumber","license","bikeRc",
+                "avatar", "createdAt"],
+            include:[{model:UserAuth,attributes:["id"]},
+                {
+                    model:Location,as: 'DeliveryBoysLocations'
+                }],
             where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
             order: [["createdAt", "DESC"]],
             limit: parseInt(length) || 10,

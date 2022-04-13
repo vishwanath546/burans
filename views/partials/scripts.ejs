@@ -25,7 +25,8 @@
 
 <% if (url === "/categories" || url === "/products" ||
         url === "/view-vendor"|| url==="/view-delivery-boys"||
-        url ==="/add-ons-products" || url==="/view-locations"
+        url ==="/add-ons-products" || url==="/view-locations"||
+        url==="/view-service"
 ) {  %>
 <script src="/modules/datatables/datatables.min.js"></script>
 <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
@@ -33,14 +34,17 @@
 <% } %>
 
 <% if (url === "/create-vendor" || url === "/update-vendor"
-        || url === "/create-add-ons-product" || url === "/update-add-ons-product") {  %>
+    ||url === "/create-offers" || url === "/create-delivery-boy"
+    || url === "/create-add-ons-product" || url === "/update-add-ons-product"
+        || url === "/create-service" || url === "/update-service"
+) {  %>
     <script src="/modules/select2/dist/js/select2.js"></script>
     <script src="/modules/select2/dist/js/select2.full.js"></script>
     <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
 <% } %>
 
-<% if (url === "/create-offers" || url === "/create-delivery-boy" || url === "/view-locations") {  %>
+<% if (url === "/view-locations") {  %>
     <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
 <% } %>
@@ -63,14 +67,20 @@
     <script src="/js/page/product-form.js"></script>
 <% } %>
 <% if (url === "/create-vendor" || url === "/update-vendor") {  %>
+    <script src="/js/page/common.js"></script>
     <script src="/js/page/vendor-form.js"></script>
 <% } %>
 <% if (url === "/create-delivery-boy" || url === "/update-delivery-boy") {  %>
+    <script src="/js/page/common.js"></script>
     <script src="/js/page/delivery-boy-form.js"></script>
 <% } %>
 <% if (url === "/create-add-ons-product" || url === "/update-add-ons-product") {  %>
     <script src="/js/page/addons-product-form.js"></script>
 <% } %>
+<% if (url === "/create-service" || url === "/update-service") {  %>
+    <script src="/js/page/service-form.js"></script>
+<% } %>
+
 <% if (url === "/categories") {  %>
     <script src="/js/page/category.js"></script>
 <% } %>
@@ -85,6 +95,9 @@
 <% } %>
 <% if (url === "/view-delivery-boys") {  %>
     <script src="/js/page/delivery-boys.js"></script>
+<% } %>
+<% if (url==="/view-service") {  %>
+    <script src="/js/page/services.js"></script>
 <% } %>
 <% if (url === "/add-ons-products") {  %>
     <script src="/js/page/addons-prodcuts.js"></script>

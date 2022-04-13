@@ -23,7 +23,7 @@
             </li>
             <li class="dropdown
              <%= url == '/categories' || url == '/products' || url == '/view-vendor' || url == '/view-delivery-boys' || url == '/view-advertise'
-            || url == '/add-ons-products' || url == '/view-locations'
+            || url == '/add-ons-products' || url == '/view-locations'|| url == '/view-service'
                     ? 'active' : ''
             %>">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-store"></i><span>Master</span></a>
@@ -36,6 +36,9 @@
                     </li>
                     <li class="<%=  url == '/categories' ? 'active' : ''; %>">
                         <a class="nav-link" href="/categories">Categories</a>
+                    </li>
+                    <li class="<%=  url == '/view-service' ? 'active' : ''; %>">
+                        <a class="nav-link" href="/view-service">Service</a>
                     </li>
                     <li class="<%= url == '/view-vendor' ? 'active' : ''; %>">
                         <a class="nav-link" href="/view-vendor">Vendor</a>

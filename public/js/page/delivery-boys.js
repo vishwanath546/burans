@@ -21,7 +21,12 @@ function loadDeliveryTable() {
         {data: "name"},
         {data: "email"},
         {data: "mobileNumber"},
-        {data: "area"},
+        {data: "DeliveryBoysLocations",
+            render: (d, t, r, m) => {
+                if (Array.isArray(d)) {
+                    return d.map(i=>`<small><span class="badge badge-success">${i.name}</span></small>`).join(" ")
+                }
+            }},
         {data: "license"},
         {data: "bikeRc"},
         {
@@ -40,7 +45,7 @@ function loadDeliveryTable() {
             render: (d, t, r, m) => {
                 return `
                     <div class="btn btn-action">
-                        <a href="/update-categories/${d}" class="btn btn-primary">
+                        <a href="/update-delivery-boy/${d}" class="btn btn-primary">
                             <i class="fa fa-pen-alt"></i>    
                         </a>    
                         <button class="btn btn-danger"
@@ -65,7 +70,7 @@ function deleteDeliveryBoy(id) {
     let data = new FormData();
     data.set("deliveryBoyId",id);
     app.request("deleteDeliveryBoy",data,'delete').then(response=>{
-        loadCategoryTable();
+        loadDeliveryTable();
     }).catch(error=>{
         if (error.status === 500) {
             app.errorToast("something went wrong");

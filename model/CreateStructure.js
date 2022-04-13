@@ -4,6 +4,8 @@ const {Products} = require('./Products');
 const {ProductImages} = require('./ProductImages');
 
 const {Category} = require('./Category');
+const {Service} = require('./Service');
+const {Location} = require('./Location');
 
 const {DeliveryBoy} = require('./DeliveryBoy');
 const {DeliveryBoyOrders} = require('./DeliveryBoyOrders');
@@ -22,6 +24,7 @@ const {AddOnsProduct} = require('./AddOnsProduct');
 const {AddOnProductMapping} = require('./AddOnProductMapping');
 const {SuggestedProductCategory} = require('./SuggestedProductMapping');
 const {SubcategoryMapping} = require('./SubcategoryMapping');
+const {SubServiceMapping} = require('./SubserviceMapping');
 
 const {CouponCode} = require('./CouponCode');
 module.exports.createDatabase = (isForce, callback) => {
@@ -35,6 +38,8 @@ module.exports.createDatabase = (isForce, callback) => {
     Products.belongsToMany(Category,{through:SuggestedProductCategory,as:'SuggestedCategory'})
 
     Category.belongsToMany(Category,{through:SubcategoryMapping,as:'subcategory'});
+    Service.belongsToMany(Service,{through:SubServiceMapping,as:'SubService'});
+
     Users.hasMany(UserAddress);
     Users.hasOne(UserAuth, {onDelete: "CASCADE"});
     AdminUser.hasOne(UserAuth, {onDelete: "CASCADE", foreignKey: 'AdminUserId'});
@@ -49,9 +54,13 @@ module.exports.createDatabase = (isForce, callback) => {
     Vendor.hasOne(UserAuth, {onDelete: "CASCADE"});
     Vendor.belongsToMany(Products, {through: VendorProduct});
     Vendor.belongsToMany(Orders, {through: VendorOrders})
+    Vendor.belongsToMany(Location,{through:'vendor_locations',as:'VendorLocations'})
+    Vendor.belongsToMany(DeliveryBoy, {through: 'delivery_boys_vendors',as:'DeliveryBoysVendors'});
 
     DeliveryBoy.hasOne(UserAuth, {onDelete: "CASCADE"});
     DeliveryBoy.belongsToMany(Orders, {through: DeliveryBoyOrders});
+    DeliveryBoy.belongsToMany(Location, {through: 'delivery_boys_locations',as:'DeliveryBoysLocations'});
+    DeliveryBoy.belongsToMany(Vendor, {through: 'delivery_boys_vendors',as:'DeliveryBoysVendors'});
 
     if (isForce) {
         Connection.query('SET FOREIGN_KEY_CHECKS = 0', {raw: true}).then(r => {

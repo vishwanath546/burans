@@ -1,0 +1,35 @@
+<%- include("../../partials/header") %>
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h4><%= title %></h4>
+            <div class="card-header-action d-flex ">
+                <a class="btn btn-primary" href="/create-service"><i class="fas fa-plus"></i></a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="serviceTable" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th class="text-center">
+                            </th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("../../partials/footer") %>

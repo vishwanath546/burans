@@ -19,6 +19,7 @@ function saveLocationDetails(form) {
         app.successToast(response.body)
         $("#location_form").trigger('reset');
         loadLocation();
+        $("#location-modal").click();
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -33,7 +34,8 @@ function getLocation(id) {
     let data = new FormData();
     data.set("locationId",id);
     app.request("getLocation",data).then(response=>{
-        $("#").val(response.name)
+        $("#name").val(response.name)
+        $("#updateLocationId").val(response.id)
         if(response.status === 1){
             $("input[type='radio'][value='1']").attr("checked",true);
         }else{
@@ -52,9 +54,9 @@ function getLocation(id) {
 function deleteLocation(id) {
 
     let data = new FormData();
-    data.set("categoryId",id);
+    data.set("locationId",id);
     app.request("deleteLocation",data,'delete').then(response=>{
-        loadCategoryTable();
+        loadLocation();
     }).catch(error=>{
         if (error.status === 500) {
             app.errorToast("something went wrong");
