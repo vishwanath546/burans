@@ -1,130 +1,106 @@
 <%- include("../../partials/header") %>
-    <style>
-        .form-group {
-            /* margin-bottom: 5px;s */
-        }
-        
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-        }
-        
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-        
-         ::-webkit-scrollbar {
-            display: none;
-            /* Safari and Chrome */
-        }
-    </style>
 
-    <div class="row">
-        <div class="col-12 col-md-8 col-lg-8">
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-6">
+        <form id="category_form" method="post" data-form-valid="saveCategorySubCategoryDetails">
             <div class="card">
                 <div class="card-header">
-                    <h4>Offers</h4>
+                    <h4>Offer Details</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Offer Heading</label>
-                                <input type="text" class="form-control" name="Offer_Heading" id="txt_product_name">
-                            </div>
-
-                        </div>
-
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="hidden" name="updateCategoryId" id="updateCategoryId" value="" />
+                        <input type="text" class="form-control" name="name"
+                               id="name"
+                               data-valid="required" data-msg="Please enter name"
+                        >
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Offer Name</label>
-                                <input type="text" class="form-control" name="Offer_Name" id="txt_product_name">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Offer Code</label>
-                                <input type="text" class="form-control" name="Offer_Code" id="txt_product_name">
-                            </div>
-
-                        </div>
-
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control form-control-sm" name="description"
+                                  id="description"></textarea>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="">Expiration</label>
-                            <div class="border d-flex Expiration rounded">
-                                <input type="number" name="Expiration" id="Expiration" class="border-0 form-control">
-                                <span class="border btn btn-light px-4 rounded-0" style=" cursor: auto;"><i class="fa-percent fa-solid fas mt-2"></i></span>
-                            </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Amount Off</label>
+                            <input type="hidden" name="updateCategoryId" id="updateCategoryId" value="" />
+                            <input type="text" class="form-control" name="name"
+                                   id="name"
+                                   data-valid="required" data-msg="Please enter name"
+                            >
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Expiration Type</label>
-
-                                <div class="selectgroup selectgroup-pills">
-                                    <label class="selectgroup-item" style="margin: .5rem;">
-                                      <input type="radio" name="icon-input" value="1" class="selectgroup-input" checked="">
-                                      <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-sun"></i></span>
-                                    </label>
-                                    <label class="selectgroup-item" style="margin: .5rem;">
-                                      <input type="radio" name="icon-input" value="2" class="selectgroup-input">
-                                      <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
-                                    </label>
-                                    <div class="small mt-1"><b>Note:</b>Total Number of Users</div>
-
-                                </div>
-
-                            </div>
+                        <div class="form-group col-md-6">
+                            <label>Off Type</label>
+                            <select id="offType" name="offType" class="form-control">
+                                <option value="1">Amount</option>
+                                <option value="2">Percentage</option>
+                                <option value="3">Free Shipping</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label for="">percent</label>
-                            <div class="border d-flex percent rounded">
-                                <input type="number" name="percent" id="percent" class="border-0 form-control">
-                                <span class="border btn btn-light px-4 rounded-0" style=" cursor: auto;"><i class="fa-percent fa-solid fas mt-2"></i></span>
-                            </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Apply To</label>
+                            <select  id="applyTo" name="applyTo" class="form-control">
+                                <option value="1">All Product</option>
+                                <option value="5">All Order</option>
+                                <option value="2">Specific Product</option>
+                                <option value="3">Minimum order subtotal</option>
+                                <option value="4">Specific User</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6 d-none" id="specifyProductSelectionBox">
+                            <label>Specify product</label>
+                            <select  id="product" name="product" class="form-control">
+
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6 d-none" id="specifyUserSelectionBox">
+                            <label>Specify user</label>
+                            <select  id="user" name="user" class="form-control">
+
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6 d-none" id="minSubTotalAmountBox">
+                            <label>Minimum subtotal amount</label>
+                            <input type="number" class="form-control" name="name"
+                                   id="name">
+                        </div>
+                    </div>
+
+                    <div class="section-title">Valid between</div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" name="name"
+                                   id="name">
+                        </div>
+                        <div class="form-group col-md-6">
+
+                                <label>end Date</label>
+                                <input type="date" class="form-control" name="name"
+                                       id="name">
+                            <small id="passwordHelpBlock" class="form-text text-muted">
+                                Note: default Never expiry
+                            </small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="font-weight-bold">Offer Description</label>
-                        <textarea type="text" class="form-control" cols="5"></textarea>
-                    </div>
-
-                    <!-- <div class="form-group">
-                        <label>Shop Name</label>
-                        <input type="text" class="form-control" name="txt_product_name" id="txt_product_name">
-                    </div> -->
-
-                    <div class="form-group mb-0">
-                        <label class="form-label">Status</label>
-                        <div class="selectgroup selectgroup-pills">
-                            <label class="selectgroup-item">
-                            <input type="radio" name="icon-input" value="1" class="selectgroup-input" checked="">
-                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-sun"></i></span>
-                        </label> Active
-                            <label class="selectgroup- pl-2">
-                            <input type="radio" name="icon-input" value="2" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
-                        </label> Inactive
-                            <label class="selectgroup- pl-2">
-                            <input type="radio" name="icon-input" value="2" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
-                        </label> expiry
-                        </div>
+                        <label>Limit Users</label>
+                        <input type="number" class="form-control" name="name"
+                               id="name">
                     </div>
                 </div>
-                <div class="card-footer pt-0">
+                <div class="card-footer">
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </div>
-        </div>
+        </form>
+
     </div>
+</div>
 
 
-    <%- include("../../partials/footer") %>
+<%- include("../../partials/footer") %>

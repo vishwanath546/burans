@@ -98,5 +98,5 @@ app.use(function (err, req, res, next) {
 });
 
 createDatabase(false, () => {
-    app.listen(3000, () => console.log("Burans Application Running on Port 3000"));
+    app.listen(3000, () => console.log("Burans http://localhost:3000/"));
 });

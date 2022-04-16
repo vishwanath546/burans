@@ -1,5 +1,5 @@
 const {Connection} = require('../model/Database');
-const {Op} = require('sequelize');
+const {Op,QueryTypes} = require('sequelize');
 const {Category} = require('../model/Category')
 const {SubcategoryMapping} = require('../model/SubcategoryMapping')
 const {clearImage} = require('../util/helpers');
@@ -25,19 +25,19 @@ exports.getAllCategoriesOption = (request, response, next) => {
 exports.getAllSubcategoriesOption = (request, response, next) => {
 
     let categoryId = request.params.categoryId;
-    Category.findAll({
-        where: {categoryId: categoryId},
-        attributes: ["id", ["name", "text"]]
-    })
-        .then(categories => {
+    Connection.query("select id,name as text from category where id in " +
+         "(select subcategoryId from subcategory_mapping where CategoryId="+categoryId+")",
+        { type: QueryTypes.SELECT })
+
+        .then((results) => {
             response.status(200).json({
-                results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
+                results: [{id: -1, text: "", selected: true, disabled: true}, ...results]
             });
         }).catch(error => {
         response.status(500).json({
             body: error.message
         })
-    })
+    });
 }
 
 exports.getAllCategoriesTables = (request, response, next) => {
@@ -116,57 +116,29 @@ exports.saveCategorySubcategory = (request, response, next) => {
             isService: isService === "on" ? 1 : 0,
             status: status,
         };
-        return Category.findByPk(category_id).then(async category => {
+        return Category.findByPk(category_id,{
+            include:[{model:Category, as :'subcategory'}]
+        }).then(async category => {
             if (parseInt(updateCategoryId)!==0) {
                 // update
                 console.log("new category mapping id ",category.id) // 1
                 // update existing category in category table
-                await Category.update(object,{where:{id:updateCategoryId}});
+                // await Category.update(object,{where:{id:updateCategoryId}});
 
                 // find new updated category object
                     Category.findByPk(updateCategoryId,{
-                        attributes: {
-                            include: [[Connection.literal(`(
-                    SELECT categoryId
-                    FROM subcategory_mapping AS cat
-                    WHERE
-                        cat.subcategoryId = Category.id                        
-                )`),
-                                'category_id'],
-                            ],
-                            exclude: ["createdAt", "updatedAt"]
-                        }
-                    }).then((newUpdateObject)=>{
+                       include:[{model:Category, as :'subcategory'}]
+                    }).then( async (newUpdateObject)=>{
                         // get existing category with subcategory id
-                        console.log('existing subcategory id',newUpdateObject.dataValues.category_id) // 2
+                        // console.log(newUpdateObject) // 2
                         if(!newUpdateObject){
                             let error = new Error("Category Not Found");
                             error.status = 404;
                             throw  error;
                         }
                         if(category){
-                            if(newUpdateObject.dataValues.category_id){
-                                // find old subcategory object from category by id
-                                Category.findByPk(newUpdateObject.dataValues.category_id).
-                                then(async removeObject=>{
-                                   if(!removeObject){
-                                       let error = new Error("Category Not Found");
-                                       error.status = 404;
-                                       throw  error;
-                                   }
-                                    // newUpdate object id 5
-                                    console.log('to be remove',removeObject.id) // 2
-                                    // let r=await removeObject.removeSubcategory({
-                                    //     where:{
-                                    //         categoryId:{[Op.eq]: updateCategoryId}
-                                    //     }
-                                    // });
-                                     category.setSubcategory(newUpdateObject);
-                                })
-
-                            }else{
-                                category.addSubcategory(newUpdateObject);
-                            }
+                            category.setSubcategory([newUpdateObject]);
+                            await newUpdateObject.update(object,{include: {all: true, nested:true}});
                         }else{
                             if(newUpdateObject.subcategory.length>0){
                                 category.removeSubcategory(newUpdateObject.subcategory[0]);
@@ -175,6 +147,7 @@ exports.saveCategorySubcategory = (request, response, next) => {
                             }
                         }
                     })
+
 
             } else {
                 // create new

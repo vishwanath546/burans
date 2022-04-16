@@ -190,6 +190,9 @@ router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
 
 // --------------------------- offers ------------------------------------------
 
+router.get('/offers', function(req, res, next) {
+    res.render('pages/offers/offers', { title: 'View product', url: req.url });
+});
 router.get('/create-offer', function(req, res, next) {
     res.render('pages/offers/offers', { title: 'View product', url: req.url });
 });

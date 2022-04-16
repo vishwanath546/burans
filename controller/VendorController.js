@@ -298,7 +298,7 @@ exports.getAllVendorsTables = (request, response, next) => {
 exports.getAllVendorOptions = (request, response, next) => {
 
     Vendor.findAll({
-        attributes: ["id", ["name", "text"]]
+        attributes: ["id", ["shopName", "text"]]
     })
         .then(vendors => {
             response.status(200).json({

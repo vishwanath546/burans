@@ -107,12 +107,13 @@ exports.saveServiceSubServices = (request, response, next) => {
         categoriesPhotos = request.files.serviceImage[0].path;
     }
 
+
     Connection.transaction(async (trans) => {
         let object = {
             name: name,
             description: description,
             photo: categoriesPhotos,
-            isSubcategory: chkIsSubService === "on" ? 1 : 0,
+            isSubService: chkIsSubService === "on" ? 1 : 0,
             status: status,
         };
         return Service.findByPk(service_id).then(async service => {
@@ -153,6 +154,7 @@ exports.saveServiceSubServices = (request, response, next) => {
                                     error.status = 404;
                                     throw  error;
                                 }
+                                Service.removeSubServices(newUpdateObject.getSubService());
                                 Service.setSubService(newUpdateObject);
                             })
 
@@ -170,7 +172,7 @@ exports.saveServiceSubServices = (request, response, next) => {
 
             } else {
                 // create new
-
+                console.log(object)
                 let newService = await Service.create(object, {transaction: trans});
                 if (service) {
                     service.addSubService(newService);
