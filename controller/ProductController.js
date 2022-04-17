@@ -1,8 +1,8 @@
-const {Connection} = require('../model/Database');
+const {Connection} = require('../sequlizerModel/Database');
 const {Op} = require('sequelize');
-const {Products} = require('../model/Products');
-const {ProductImages} = require('../model/ProductImages');
-const {Category} = require('../model/Category');
+const {Products} = require('../sequlizerModel/Products');
+const {ProductImages} = require('../sequlizerModel/ProductImages');
+const {Category} = require('../sequlizerModel/Category');
 
 const {clearImage} = require('../util/helpers');
 

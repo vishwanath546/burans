@@ -5,9 +5,10 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const multer = require('multer');
 
+// const db = require('./model/db')
 
 const app = express();
-const {createDatabase} = require("./model/CreateStructure");
+const {createDatabase} = require("./sequlizerModel/CreateStructure");
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -97,6 +98,16 @@ app.use(function (err, req, res, next) {
     res.status(err.statusCode || 500).json({message: err.message});
 });
 
-createDatabase(false, () => {
+//
+// createDatabase(false, () => {
     app.listen(3000, () => console.log("Burans http://localhost:3000/"));
-});
+// });
+
+
+// db.insert("category", {"name":'test', "description":'test', "photo":'232.png'})
+//     db._delete("category",{id:8})
+// db.select("category",null,["name"])
+//     .then(result => {
+//         console.log(result)
+//     })
+//     .catch(error => console.log("hii",error))

@@ -3,10 +3,10 @@ const {clearImage} = require('../util/helpers');
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-const {Connection} = require('../model/Database');
+const {Connection} = require('../sequlizerModel/Database');
 
-const {AdminUser} = require('../model/AdminUser');
-const {UserAuth} = require('../model/UserAuth');
+const {AdminUser} = require('../sequlizerModel/AdminUser');
+const {UserAuth} = require('../sequlizerModel/UserAuth');
 
 
 

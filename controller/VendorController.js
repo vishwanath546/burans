@@ -1,20 +1,13 @@
-const {Connection} = require("../model/Database");
-const {Op} = require('sequelize');
-const {Vendor} = require("../model/Vendor");
-const {Location} = require("../model/Location");
-const {UserAuth} = require('../model/UserAuth');
+const database = require('../model/db');
+
+const {clearImage} = require('../util/helpers');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const path = require('path');
-const fs = require('fs');
 
-const clearImage = imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath);
-    fs.unlink(filePath, error => {
-        if (error) console.log("Failed to delete image at update", error)
-    })
-}
-
+const locationTable = 'location';
+const vendorTable = 'vendor_user';
+const userAuthTable = 'user_auth';
+const vendorLocationTable ="vendor_locations";
 exports.login_vendor = (request, response, next) => {
     let {username, password} = request.body;
     UserAuth.findOne({
@@ -65,20 +58,22 @@ exports.login_vendor = (request, response, next) => {
         });
 };
 
-exports.vendorRegistration = (request, response, next) => {
+exports.vendorRegistration = async (request, response, next) => {
     let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
 
-    Connection.transaction(async (trans) => {
-        const hashPassword = await bcrypt.hash("123456", 12);
 
-        if (!request.files) {
-            return response.status(401).json({
-                status: 401,
-                body: "no image provided"
-            })
-        }
-        const avatar = request.files.shopImage[0].path;
-        let newVendor = await Vendor.create({
+    if (!request.files) {
+        return response.status(401).json({
+            status: 401,
+            body: "no image provided"
+        })
+    }
+    const avatar = request.files.shopImage[0].path;
+
+    try {
+        const connection = await database.transaction();
+        await connection.beginTransaction();
+        const [vendorResult, error] = await connection.query("insert into ?? set ?", [vendorTable, {
             name: name,
             shopName: shopName,
             mobileNumber: mobileNumber,
@@ -87,30 +82,55 @@ exports.vendorRegistration = (request, response, next) => {
             foodLicense: foodLicense,
             accountStatus: 2,
             avatar: avatar,
-        }, {transaction: trans});
-        let locations = await Location.findAll({
-            where: {
-                id: {
-                    [Op.in]: [...area]
-                }
-            }
-        });
-        newVendor.addVendorLocations([...locations])
-
-
-        return await newVendor.createUserAuth({
+            createdAt:database.currentTimeStamp()
+        }]);
+        if (error) {
+            await connection.rollback();
+            throw new Error("Failed To Create Vendor");
+        }
+        const hashPassword = await bcrypt.hash("123456", 12);
+        const [authUserResult, authError] = await connection.query("insert into ?? set ?", [userAuthTable, {
             userType: 2,
             mobileNumber: mobileNumber,
             password: hashPassword,
-        }, {transaction: trans});
-    }).then(() => {
-        response.status(200).json({
-            status: 200,
-            body: "Vendor Register successfully!",
-        });
-    }).catch(error => {
-        next(error)
-    });
+            VendorId: vendorResult.insertId,
+            createdAt:database.currentTimeStamp()
+        }])
+
+        if(area){
+            let allAreas=area.map(a=> {
+                return connection.query("insert into ?? set ?", [vendorLocationTable,
+                    {locationId: a, vendorId: vendorResult.insertId}
+                ]);
+            });
+            Promise.all(allAreas).then(async (areaResult,areaError)=>{
+                if (areaError) {
+                    await connection.rollback();
+                    throw new Error("Failed To Create Vendor Areas");
+                }
+                await connection.commit();
+                connection.release()
+                response.status(200).json({
+                    body: "Create Category Successfully"
+                })
+            })
+
+        }else{
+            if (authError || !authUserResult.status) {
+                await connection.rollback();
+                throw new Error("Failed To Create Vendor auth");
+            }
+            await connection.commit();
+            connection.release()
+            response.status(200).json({
+                body: "Create Category Successfully"
+            })
+        }
+
+
+    } catch (e) {
+        next(e)
+    }
 };
 
 exports.vendorUpdate = (request, response, next) => {
@@ -265,29 +285,23 @@ exports.getVendor = (request, response, next) => {
 exports.getAllVendorsTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
-    Vendor.count().then(totalCount => {
-        Vendor.findAll({
-            attributes: ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
-                "avatar", "accountStatus", "createdAt"],
-            include: [{model: UserAuth, attributes: ["id"]},{model:Location,as:"VendorLocations"}],
-            where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-            order: [["createdAt", "DESC"]],
-            limit: parseInt(length) || 10,
-            offset: parseInt(start) || 0
-        })
-            .then((categories) => {
-                response.status(200).json({
-                    draw: parseInt(draw),
-                    recordsTotal: totalCount,
-                    recordsFiltered: categories.length,
-                    data: categories
-                });
-            }).catch(error => {
-            response.status(500).json({
-                body: error.message
-            })
-        })
-    }).catch(error => {
+
+    database.findAllCount(vendorTable, {activeStatus: 1})
+        .then(totalCount => {
+            database.dataTableSource(vendorTable, ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
+                    "avatar", "accountStatus", "createdAt",
+                    "(select group_concat(name) from location where id in(select locationId from vendor_locations where vendorId=vendor_user.id)) as area"],
+                {activeStatus: 1},
+                'createdAt', 'name', search, "desc", parseInt(start), parseInt(length),false)
+                .then(result => {
+                    return response.status(200).json({
+                        draw: parseInt(draw),
+                        recordsTotal: totalCount,
+                        recordsFiltered: result.length,
+                        data: result
+                    });
+                })
+        }).catch(error => {
         response.status(400).json({
             body: "Not Found",
             exception: error

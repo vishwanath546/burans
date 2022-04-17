@@ -1,16 +1,12 @@
-const {Connection} = require('../model/Database');
-const {Op} = require('sequelize');
-const {Service} = require('../model/Service')
-const {SubServiceMapping} = require('../model/SubserviceMapping')
+const database = require('../model/db');
+const tableName = 'service';
+const mappingTableName = 'sub_service_mapping';
 const {clearImage} = require('../util/helpers');
 
 
 exports.getAllServiceOption = (request, response, next) => {
 
-    Service.findAll({
-        where: {status: 1, isSubService: 0},
-        attributes: ["id", ["name", "text"]]
-    })
+    database.query('select id, name as text from ?? where status=1 and isSubService=0 and activeStatus=1', [tableName])
         .then(services => {
             response.status(200).json({
                 results: [{id: -1, text: "", selected: true, disabled: true}, ...services]
@@ -25,10 +21,9 @@ exports.getAllServiceOption = (request, response, next) => {
 exports.getAllSubServicesOption = (request, response, next) => {
 
     let serviceId = request.params.serviceId;
-    Service.findAll({
-        where: {categoryId: serviceId},
-        attributes: ["id", ["name", "text"]]
-    })
+    database.query(`select id, name as text from ${tableName} 
+                    where id in (select subcategoryId from ${mappingTableName} where serviceId=${serviceId}) 
+                    and activeStatus=1 and status=1`)
         .then(categories => {
             response.status(200).json({
                 results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
@@ -44,61 +39,56 @@ exports.getAllServicesTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
 
-    Service.findAndCountAll({
-        attributes: ["id", "name", "description", "photo", "status", "createdAt"],
-        where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-        include: [
-            {model: Service, as: 'SubService'}
-        ],
-        order: [["createdAt", "DESC"]],
-        limit: parseInt(length) || 10,
-        offset: parseInt(start) || 0
-    })
-        .then(({total, rows}) => {
-            response.status(200).json({
+    database.findAllCount(tableName, {
+        activeStatus: 1
+    }).then(totalCount => {
+        database.dataTableSource(tableName, ["id", "name", "description", "photo", "status", "createdAt"]
+            , {activeStatus: 1}, 'createdAt', 'name', search, 'desc',
+            parseInt(start), parseInt(length)).then(result => {
+            return response.status(200).json({
                 draw: parseInt(draw),
-                recordsTotal: total,
-                recordsFiltered: rows.length,
-                data: rows
+                recordsTotal: totalCount,
+                recordsFiltered: result.length,
+                data: result
             });
-        }).catch(error => {
+        });
+    }).catch(error => {
         response.status(500).json({
             body: error.message
         })
     })
-
 }
 
 exports.getAllServices = (request, response, next) => {
 
-    Service.findAll({
-        where: {status: 1, isSubService: 0},
-        include: [{model: Service, as: 'SubService'}],
-        attributes: ["id", "name", "description", "photo"]
-    }).then(services => {
-        if (services) {
-            let allServices = services.map(async (Service) => {
-                return {
-                    Service: Service,
-                }
-            })
-            Promise.all(allServices).then(res => {
-                return response.status(200).json(res);
-            }).catch(error => {
-                next(error)
-            });
+    database.select(tableName, {status: 1, isSubService: 0}, ["id", "name", "description", "photo"])
+        .then(services => {
+            if (services.length > 0) {
+                let allServices = services.map( (service) => {
+                    return {
+                        service:service,
+                        subService: database.query(`select id, name,description, photo from ${tableName} 
+                    where id in (select subcategoryId from ${mappingTableName} where serviceId=${service.id}) 
+                    and activeStatus=1 and status=1`),
+                    }
+                })
+                Promise.all(allServices).then(res => {
+                    return response.status(200).json(res);
+                }).catch(error => {
+                    next(error)
+                });
 
-        } else {
-            let error = new Error("Service Not Found");
-            error.statusCode = 404;
-            throw error;
-        }
-    }).catch(error => {
+            } else {
+                let error = new Error("Service Not Found");
+                error.statusCode = 404;
+                throw error;
+            }
+        }).catch(error => {
         next(error)
     })
 }
 
-exports.saveServiceSubServices = (request, response, next) => {
+exports.saveServiceSubServices = async (request, response, next) => {
 
     let {name, description, status, chkIsSubService, updateServiceId, service_id} = request.body;
 
@@ -108,7 +98,8 @@ exports.saveServiceSubServices = (request, response, next) => {
     }
 
 
-    Connection.transaction(async (trans) => {
+    try {
+        // Connection.transaction(async (trans) => {
         let object = {
             name: name,
             description: description,
@@ -116,99 +107,96 @@ exports.saveServiceSubServices = (request, response, next) => {
             isSubService: chkIsSubService === "on" ? 1 : 0,
             status: status,
         };
-        return Service.findByPk(service_id).then(async service => {
-            if (parseInt(updateServiceId)!==0) {
-                // update
-                console.log("new Service mapping id ",Service.id) // 1
-                // update existing Service in Service table
-                await Service.update(object,{where:{id:updateServiceId}});
 
-                // find new updated Service object
-                Service.findByPk(updateServiceId,{
-                    attributes: {
-                        include: [[Connection.literal(`(
-                    SELECT serviceId
-                    FROM sub_service_mapping AS ser
-                    WHERE
-                        ser.subcategoryId = Service.id                        
-                )`),
-                            'service_id'],
-                        ],
-                        exclude: ["createdAt", "updatedAt"]
-                    }
-                }).then((newUpdateObject)=>{
-                    // get existing Service with subcategory id
-                    console.log('existing subcategory id',newUpdateObject.dataValues.service_id) // 2
-                    if(!newUpdateObject){
-                        let error = new Error("Service Not Found");
-                        error.status = 404;
-                        throw  error;
-                    }
-                    if(Service){
-                        if(newUpdateObject.dataValues.service_id){
-                            // find old subcategory object from Service by id
-                            Service.findByPk(newUpdateObject.dataValues.service_id).
-                            then(async removeObject=>{
-                                if(!removeObject){
-                                    let error = new Error("Service Not Found");
-                                    error.status = 404;
-                                    throw  error;
-                                }
-                                Service.removeSubServices(newUpdateObject.getSubService());
-                                Service.setSubService(newUpdateObject);
-                            })
+        if (parseInt(updateServiceId) !== 0) {
+            const existingServiceObject = await database.query(`select *,(select serviceId from sub_service_mapping where subcategoryId =s.id) as serviceID from service s where id = ${updateServiceId}`);
 
-                        }else{
-                            Service.addSubService(newUpdateObject);
-                        }
-                    }else{
-                        if(newUpdateObject.subservice.length>0){
-                            Service.removeSubService(newUpdateObject.subservice[0]);
-                        }else{
-                            Service.addSubService(newUpdateObject);
-                        }
-                    }
-                })
-
-            } else {
-                // create new
-                console.log(object)
-                let newService = await Service.create(object, {transaction: trans});
-                if (service) {
-                    service.addSubService(newService);
+            if (existingServiceObject.length !== 0) {
+                let error = new Error("Not Found Service");
+                error.statusCode = 404;
+            }
+            const connection = await database.transaction()
+            if (!connection) {
+                let error = new Error("no connection found");
+                error.statusCode = 500;
+                throw error
+            }
+            await connection.beginTransaction();
+            if (existingServiceObject[0].isSubService === 1) {
+                let [deleteResult,error] = await connection.query(`delete from ${mappingTableName} where subcategoryId =${existingServiceObject[0].id}`);
+                if (error) {
+                    await connection.rollback();
+                    let error = new Error("Failed to update");
+                    error.statusCode = 500;
+                    throw error
                 }
 
             }
-        })
+            object.updatedAt = database.currentTimeStamp();
+            let [updateResult,updateError] = await connection.query('update ?? set ? where ? ', [tableName, object, {id: updateServiceId}]);
 
-    }).then(() => {
-        response.status(200).json({
-            body: "Create Service Successfully"
-        })
-    }).catch(error => {
-        next(error)
-    })
+            if (updateError) {
+                await connection.rollback();
+                connection.release();
+                throw new Error("Failed To updated");
+            }
+
+            if (chkIsSubService === "on") {
+                await connection.query("insert into ?? set ?", [mappingTableName,
+                    {serviceId: service_id, subcategoryId: updateServiceId}])
+            }
+            await connection.commit();
+            connection.release()
+            response.status(200).json({
+                body: "Update Service Successfully"
+            })
+        } else {
+            const connection = await database.transaction();
+            if (!connection) {
+                let error = new Error("no connection found");
+                error.statusCode = 500;
+                throw error
+            }
+            await connection.beginTransaction();
+            object.createdAt = database.currentTimeStamp();
+            const [results, error] = await connection.query("insert into ?? set ?", [tableName, object]);
+            if (error) {
+                await connection.rollback();
+                let error = new Error("Failed To Create Service");
+                error.statusCode = 500;
+                throw error
+            }
+            if (chkIsSubService === "on") {
+                const [mapError] = await connection.query("insert into ?? set ?",[mappingTableName, {
+                    serviceId: service_id,
+                    subcategoryId: results.insertId
+                }])
+                if (!mapError) {
+                    await connection.rollback();
+                    let error = new Error("Failed To mapping services");
+                    error.statusCode = 500;
+                    throw error
+                }
+            }
+            await connection.commit();
+            connection.release()
+            response.status(200).json({
+                body: "Create Service Successfully"
+            })
+        }
+    }catch (e) {
+        next(e);
+    }
 }
 
 exports.getServiceById = (request, response, next) => {
 
     let {serviceId} = request.body;
-    Service.findByPk(serviceId, {
-        attributes: {
-            include: [[Connection.literal(`(
-                    SELECT serviceId
-                    FROM sub_service_mapping AS cat
-                    WHERE
-                        cat.SubServiceId = Service.id                        
-                )`),
-                'category_id'],
-            ],
-            exclude: ["createdAt", "updatedAt"]
-        }
-    })
-        .then(async service => {
-            if (service) {
-                response.status(200).json(service)
+    database.query(`select id,name,description,isSubService,status,photo,sequenceNumber,
+       (select serviceId from sub_service_mapping where subcategoryId=s.id) as serviceID from ?? s where id=?`,[tableName,serviceId])
+        .then(service => {
+            if (service.length > 0) {
+                response.status(200).json(service[0])
             } else {
                 let error = new Error("Service Not Found");
                 error.statusCode = 404;
@@ -221,16 +209,19 @@ exports.getServiceById = (request, response, next) => {
 
 exports.deleteService = (request, response, next) => {
     let {serviceId} = request.body;
-    Service.findByPk(serviceId).then(Service => {
-        if (!Service) {
+    database.select(tableName,{id:serviceId}).then(service=>{
+        if(service.length===0){
             let error = new Error("Service Not Found");
             error.status = 404;
             throw  error;
         }
-        clearImage(Service.photo);
-        return Service.destroy();
-    }).then(count => {
-        if (!count) {
+        if(service[0].photo){
+            clearImage(service[0].photo);
+        }
+        return database.update(tableName,{activeStatus:0},{id:serviceId})
+    })
+    .then(results => {
+        if (!results.status) {
             throw new Error("Failed to delete Service");
         }
         return response.status(200).json({

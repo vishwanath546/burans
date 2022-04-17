@@ -26,17 +26,17 @@ function loadCategoryTable() {
         {data: "gstNumber"},
         {data: "foodLicense"},
         {
-            data: "VendorLocations",
+            data: "area",
             render: (d, t, r, m) => {
-                if (Array.isArray(d)) {
-                        return d.map(i=>`<small><span class="badge badge-success">${i.name}</span></small>`).join(" ")
+                if (d !== "" && d !== null) {
+                    return d.split(",").map(i => `<small><span class="badge badge-success">${i}</span></small>`).join(" ");
                 }
             }
         },
         {
             data: "accountStatus",
             render: (d, t, r, m) => {
-                if (d === 1) {
+                if (parseInt(d) === 1) {
                     return `<span class="badge badge-success">Active</span>`;
                 } else {
                     return `<span class="badge badge-danger">Inactive</span>`;

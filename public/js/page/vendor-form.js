@@ -26,6 +26,8 @@ function saveVendorDetails(form) {
     app.request(requestUrl, new FormData(form),type).then(response => {
         app.successToast(response.body)
         $("#vendorDetailsForm").trigger('reset');
+        $('#shop-image-preview').css("background-image", "none");
+        $("#area").empty().trigger('change');
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");

@@ -1,64 +1,59 @@
-const {Connection} = require('../model/Database');
-const {Op} = require('sequelize');
-const {Location} = require('../model/Location')
-
-exports.saveLocation = (request,response,next)=>{
-    let {name,status, updateLocationId} = request.body;
-
-    Connection.transaction(async (trans) => {
-
-        if(!updateLocationId){
-            return await Location.create({
-                name: name,
-                status:status
-            }, {transaction: trans});
-        }else{
-            return await Location.update({name:name,status:status},{where:{id:updateLocationId}},{transaction: trans})
-        }
-
-    }).then(() => {
-        response.status(200).json({
-            status: 200,
-            body: "save changes",
-        });
-    }).catch(error => {
-        next(error)
-    });
+const database = require('../model/db');
+const tableName = 'location';
+exports.saveLocation = (request, response, next) => {
+    let {name, status, updateLocationId} = request.body;
+    if (!updateLocationId) {
+        return database.insert(tableName, {
+            name: name,
+            status: status,
+            createdAt:database.currentTimeStamp()
+        }).then(result => {
+            if(!result.status) throw result.error
+            return response.status(200).json({
+                status: 200,
+                body: "save changes",
+            });
+        })
+    } else {
+        return database.update(tableName, {name: name, status: status,updatedAt:database.currentTimeStamp()}, {id: updateLocationId}).then(result => {
+            if(!result.status) throw result.error
+            return response.status(200).json({
+                status: 200,
+                body: "save changes",
+            });
+        }).catch(error => {
+            next(error)
+        })
+    }
 }
 
-exports.getAllLocationTables = (request,response,next)=>{
+exports.getAllLocationTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
 
-    Location.findAndCountAll({
-        attributes: ["id", "name", "status", "createdAt"],
-        where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-        order: [["createdAt", "DESC"]],
-        limit: parseInt(length) || 10,
-        offset: parseInt(start) || 0
-    })
-        .then(({total, rows}) => {
-            response.status(200).json({
+    database.findAllCount(tableName,{active_status:1}).then(totalCount => {
+        database.dataTableSource(tableName, ["id", "name", "status", "createdAt"], {active_status:1},
+            'createdAt', 'name', search, "desc", parseInt(start), parseInt(length)).then(result => {
+            return response.status(200).json({
                 draw: parseInt(draw),
-                recordsTotal: total,
-                recordsFiltered: rows.length,
-                data: rows
+                recordsTotal: totalCount,
+                recordsFiltered: result.length,
+                data: result
             });
-        }).catch(error => {
-        response.status(500).json({
-            body: error.message
         })
     })
+        .catch(error => {
+            response.status(500).json({
+                body: error.message
+            })
+        })
 }
 
-exports.getAllLocationOption = (request,response,next)=>{
-    Location.findAll({
-        where: {status: 1},
-        attributes: ["id", ["name", "text"]]
-    })
+exports.getAllLocationOption = (request, response, next) => {
+    database.query(`select id, name as text from ?? where active_status=1 and status=1`,[tableName])
         .then(locations => {
             response.status(200).json({
-                results: [{id: -1, text: "", selected: true, disabled: true}, ...locations]
+                results: [{id: -1, text: "",  disabled: true}, ...locations]
             });
         }).catch(error => {
         response.status(500).json({
@@ -67,14 +62,14 @@ exports.getAllLocationOption = (request,response,next)=>{
     })
 }
 
-exports.getLocationById = (request,response,next)=>{
+exports.getLocationById = (request, response, next) => {
     let {locationId} = request.body;
-    Location.findByPk(locationId, {
-            exclude: ["createdAt", "updatedAt"]
-    })
+    database.select(tableName, {
+      id:locationId
+    },["id","name","status"])
         .then(async location => {
-            if (location) {
-                response.status(200).json(location)
+            if (location.length >0) {
+                response.status(200).json(location[0])
             } else {
                 let error = new Error("Location Not Found");
                 error.statusCode = 404;
@@ -84,15 +79,16 @@ exports.getLocationById = (request,response,next)=>{
         next(error);
     })
 }
-exports.deleteLocation = (request,response,next)=>{
+exports.deleteLocation = (request, response, next) => {
     let {locationId} = request.body;
-    Location.findByPk(locationId).then(location => {
-        if (!location) {
+    database.update(tableName,{deletedAt:database.currentTimeStamp(),active_status:0},{id:locationId})
+        .then(location => {
+        if (!location.status) {
             let error = new Error("Location Not Found");
             error.status = 404;
             throw  error;
         }
-        return location.destroy();
+        return location.affectedRows;
     }).then(count => {
         if (!count) {
             throw new Error("Failed to delete Location");

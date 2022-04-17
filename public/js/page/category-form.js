@@ -147,14 +147,14 @@ function getAccordion(category, index) {
                      aria-expanded="${index === 0}">
                     <div class="d-flex align-items-center justify-content-between">
                         <h4>${category.category.name}</h4>
-                        <span class="badge badge-white">${category.category.subcategory.length}</span>
+                        <span class="badge badge-white">${category.subCategory.length}</span>
                     </div>
                 </div>
                 <div class="accordion-body collapse ${index === 0 ? 'show' : ''}" 
                     id="panel-body-${category.category.id}" 
                     data-parent="#accordion">
                     <ul class="list-group">
-                       ${category.category.subcategory.map(getSubCategoryAccordionBody).join("")}
+                       ${category.subCategory.map(getSubCategoryAccordionBody).join("")}
                     </ul>
                 </div>
             </div>`

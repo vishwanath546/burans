@@ -77,11 +77,11 @@ function getServiceDetails(serviceId) {
     app.request("getService",formData).then(response=>{
         $("#name").val(response.name);
         $("#description").val(response.description);
-        if(response.isSubService===1){
+        if(parseInt(response.isSubService)===1){
             $("#chkIsSubService").attr("checked",true);
             $("#subServiceSelectionBox").removeClass("d-none");
             loadServiceOptions().then(()=>{
-                $("#category_id").val(response.category_id).trigger('change');
+                $("#service_id").val(response.serviceID).trigger('change');
                 app.setValidation('category_id', {
                     required: true,
                     messages: {
@@ -106,7 +106,7 @@ function getServiceDetails(serviceId) {
             $('#alreadyUploadImage').append(previousImage(response.photo));
         }
 
-        if(response.status === 1){
+        if(parseInt(response.status) === 1){
             $("input[type='radio'][value='1']").attr("checked",true);
         }else{
             $("input[type='radio'][value='0']").attr("checked",true);
@@ -139,22 +139,22 @@ function getSubCategoryAccordionBody(subcategories) {
              </li>`;
 }
 
-function getAccordion(category, index) {
+function getAccordion(item, index) {
 
     return `<div class="accordion">
                 <div class="accordion-header" role="button" data-toggle="collapse" 
-                    data-target="#panel-body-${category.Service.id}"
+                    data-target="#panel-body-${item.service.id}"
                      aria-expanded="${index === 0}">
                     <div class="d-flex align-items-center justify-content-between">
-                        <h4>${category.Service.name}</h4>
-                        <span class="badge badge-white">${category.Service.SubService.length}</span>
+                        <h4>${item.service.name}</h4>
+                        <span class="badge badge-white">${item.subService.length}</span>
                     </div>
                 </div>
                 <div class="accordion-body collapse ${index === 0 ? 'show' : ''}" 
-                    id="panel-body-${category.Service.id}" 
+                    id="panel-body-${item.service.id}" 
                     data-parent="#serviceAccordion">
                     <ul class="list-group">
-                       ${category.Service.SubService.map(getSubCategoryAccordionBody).join("")}
+                       ${item.subService.map(getSubCategoryAccordionBody).join("")}
                     </ul>
                 </div>
             </div>`

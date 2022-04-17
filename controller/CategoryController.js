@@ -1,16 +1,10 @@
-const {Connection} = require('../model/Database');
-const {Op,QueryTypes} = require('sequelize');
-const {Category} = require('../model/Category')
-const {SubcategoryMapping} = require('../model/SubcategoryMapping')
+const database = require('../model/db');
+const tableName = 'category';
+const mappingTableName = 'subcategory_mapping';
 const {clearImage} = require('../util/helpers');
 
-
 exports.getAllCategoriesOption = (request, response, next) => {
-
-    Category.findAll({
-        where: {status: 1, isSubcategory: 0},
-        attributes: ["id", ["name", "text"]]
-    })
+    database.query('select id, name as text from ?? where status=1 and isSubcategory=0 and activeStatus=1', [tableName])
         .then(categories => {
             response.status(200).json({
                 results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
@@ -25,43 +19,39 @@ exports.getAllCategoriesOption = (request, response, next) => {
 exports.getAllSubcategoriesOption = (request, response, next) => {
 
     let categoryId = request.params.categoryId;
-    Connection.query("select id,name as text from category where id in " +
-         "(select subcategoryId from subcategory_mapping where CategoryId="+categoryId+")",
-        { type: QueryTypes.SELECT })
 
-        .then((results) => {
+    database.query(`select id, name as text from ${tableName} 
+                    where id in (select subcategoryId from ${mappingTableName} where CategoryId=${categoryId}) 
+                    and activeStatus=1 and status=1`)
+        .then(categories => {
             response.status(200).json({
-                results: [{id: -1, text: "", selected: true, disabled: true}, ...results]
+                results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
             });
         }).catch(error => {
         response.status(500).json({
             body: error.message
         })
-    });
+    })
 }
 
 exports.getAllCategoriesTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
 
-    Category.findAndCountAll({
-        attributes: ["id", "name", "description", "photo", "status", "createdAt"],
-        where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-        include: [
-            {model: Category, as: 'subcategory'}
-        ],
-        order: [["createdAt", "DESC"]],
-        limit: parseInt(length) || 10,
-        offset: parseInt(start) || 0
-    })
-        .then(({total, rows}) => {
-            response.status(200).json({
+    database.findAllCount(tableName, {
+        activeStatus: 1
+    }).then(totalCount => {
+        database.dataTableSource(tableName, ["id", "name", "description", "photo", "status","isSubcategory", "createdAt"]
+            , {activeStatus: 1}, 'createdAt', 'name', search, 'desc',
+            parseInt(start), parseInt(length)).then(result => {
+            return response.status(200).json({
                 draw: parseInt(draw),
-                recordsTotal: total,
-                recordsFiltered: rows.length,
-                data: rows
+                recordsTotal: result.length,
+                recordsFiltered: totalCount,
+                data: result
             });
-        }).catch(error => {
+        });
+    }).catch(error => {
         response.status(500).json({
             body: error.message
         })
@@ -71,123 +61,133 @@ exports.getAllCategoriesTables = (request, response, next) => {
 
 exports.getAllCategories = (request, response, next) => {
 
-    Category.findAll({
-        where: {status: 1, isSubcategory: 0},
-        include: [{model: Category, as: 'subcategory'}],
-        attributes: ["id", "name", "description", "photo", "isService"]
-    }).then(categories => {
-        if (categories) {
-            let allCategories = categories.map(async (category) => {
-                return {
-                    category: category,
-                }
-            })
-            Promise.all(allCategories).then(res => {
-                return response.status(200).json(res);
-            }).catch(error => {
-                next(error)
-            });
-
-        } else {
-            let error = new Error("Category Not Found");
-            error.statusCode = 404;
-            throw error;
-        }
-    }).catch(error => {
+    database.select(tableName, {status: 1, isSubcategory: 0}, ["id", "name", "description", "photo"])
+        .then(categories => {
+            if (categories.length > 0) {
+                let allCategories = categories.map(async(category) => {
+                    return {
+                        category:category,
+                        subCategory: await database.query(`select id, name,description, photo from ${tableName} 
+                    where id in (select subcategoryId from ${mappingTableName} where CategoryId=${category.id}) 
+                    and activeStatus=1 and status=1`),
+                    }
+                })
+                Promise.all(allCategories).then(res => {
+                    return response.status(200).json(res);
+                }).catch(error => {
+                    next(error)
+                });
+            } else {
+                let error = new Error("Service Not Found");
+                error.statusCode = 404;
+                throw error;
+            }
+        }).catch(error => {
         next(error)
     })
+
 }
 
-exports.saveCategorySubcategory = (request, response, next) => {
+exports.saveCategorySubcategory = async (request, response, next) => {
 
-    let {name, description, isService, status, chkIsSubcategory, updateCategoryId, category_id} = request.body;
+    let {name, description, status, chkIsSubcategory, updateCategoryId, category_id} = request.body;
 
     let categoriesPhotos = null;
     if (request.files && request.files.categoryImage) {
         categoriesPhotos = request.files.categoryImage[0].path;
     }
+    let object = {
+        name: name,
+        description: description,
+        photo: categoriesPhotos,
+        isSubcategory: chkIsSubcategory === "on" ? 1 : 0,
+        status: status,
+    };
 
-    Connection.transaction(async (trans) => {
-        let object = {
-            name: name,
-            description: description,
-            photo: categoriesPhotos,
-            isSubcategory: chkIsSubcategory === "on" ? 1 : 0,
-            isService: isService === "on" ? 1 : 0,
-            status: status,
-        };
-        return Category.findByPk(category_id,{
-            include:[{model:Category, as :'subcategory'}]
-        }).then(async category => {
-            if (parseInt(updateCategoryId)!==0) {
-                // update
-                console.log("new category mapping id ",category.id) // 1
-                // update existing category in category table
-                // await Category.update(object,{where:{id:updateCategoryId}});
+    try{
+        if (parseInt(updateCategoryId) !== 0) {
 
-                // find new updated category object
-                    Category.findByPk(updateCategoryId,{
-                       include:[{model:Category, as :'subcategory'}]
-                    }).then( async (newUpdateObject)=>{
-                        // get existing category with subcategory id
-                        // console.log(newUpdateObject) // 2
-                        if(!newUpdateObject){
-                            let error = new Error("Category Not Found");
-                            error.status = 404;
-                            throw  error;
-                        }
-                        if(category){
-                            category.setSubcategory([newUpdateObject]);
-                            await newUpdateObject.update(object,{include: {all: true, nested:true}});
-                        }else{
-                            if(newUpdateObject.subcategory.length>0){
-                                category.removeSubcategory(newUpdateObject.subcategory[0]);
-                            }else{
-                                category.addSubcategory(newUpdateObject);
-                            }
-                        }
-                    })
+            const existingCategoryObject = await database.query(`select *,(select CategoryId from subcategory_mapping where subcategoryId =s.id) as categoryID from category s where id = ${updateCategoryId}`);
 
-
-            } else {
-                // create new
-
-                let newCategory = await Category.create(object, {transaction: trans});
-                if (category) {
-                    category.addSubcategory(newCategory);
-                }
-
+            if (existingCategoryObject.length !== 0) {
+                let error = new Error("Not Found Category");
+                error.statusCode = 404;
             }
-        })
+            const connection = await database.transaction()
+            await connection.beginTransaction();
+            if (existingCategoryObject[0].isSubcategory === 1) {
+                let [deleteResult,error] = await connection.query(`delete from ${mappingTableName} where subcategoryId =${existingCategoryObject[0].id}`);
+                if (error) {
+                    await connection.rollback();
+                    let error = new Error("Failed to update");
+                    error.statusCode = 500;
+                    throw error
+                }
+            }
+            object.updatedAt = database.currentTimeStamp();
+            let [updateResult,updateError] = await connection.query('update ?? set ? where ? ', [tableName, object, {id: updateCategoryId}]);
 
-    }).then(() => {
-        response.status(200).json({
-            body: "Create Category Successfully"
-        })
-    }).catch(error => {
+            if (updateError) {
+                await connection.rollback();
+                connection.release();
+                throw new Error("Failed To updated");
+            }
+
+            if (chkIsSubcategory === "on") {
+                await connection.query("insert into ?? set ?", [mappingTableName,
+                    {CategoryId: category_id, subcategoryId: updateCategoryId}])
+            }
+            await connection.commit();
+            connection.release()
+            response.status(200).json({
+                body: "Update Service Successfully"
+            })
+
+        }else{
+            const connection = await database.transaction();
+            await connection.beginTransaction();
+            object.createdAt = database.currentTimeStamp();
+            const [results, error] = await connection.query("insert into ?? set ?", [tableName, object]);
+            if (error) {
+                await connection.rollback();
+                let error = new Error("Failed To Create Category");
+                error.statusCode = 500;
+                throw error
+            }
+
+            if (chkIsSubcategory === "on") {
+                const [mapError] = await connection.query("insert into ?? set ?",[mappingTableName, {
+                    CategoryId: category_id,
+                    subcategoryId: results.insertId
+                }])
+                if (!mapError) {
+                    await connection.rollback();
+                    let error = new Error("Failed To mapping category");
+                    error.statusCode = 500;
+                    throw error
+                }
+            }
+            await connection.commit();
+            connection.release()
+            response.status(200).json({
+                body: "Create Category Successfully"
+            })
+        }
+
+    }catch (error) {
         next(error)
-    })
+    }
+
 }
 
 exports.getCategoryById = (request, response, next) => {
 
     let {categoryId} = request.body;
-    Category.findByPk(categoryId, {
-        attributes: {
-            include: [[Connection.literal(`(
-                    SELECT categoryId
-                    FROM subcategory_mapping AS cat
-                    WHERE
-                        cat.subcategoryId = Category.id                        
-                )`),
-                'category_id'],
-            ],
-            exclude: ["createdAt", "updatedAt"]
-        }
-    })
-        .then(async category => {
-            if (category) {
-                response.status(200).json(category)
+    database.query(`select id,name,description,isSubcategory,status,photo,sequenceNumber,
+       (select CategoryId from subcategory_mapping where subcategoryId=s.id) as category_id from ?? s where id=?`,[tableName,categoryId])
+        .then(category => {
+            if (category.length > 0) {
+                response.status(200).json(category[0])
             } else {
                 let error = new Error("Category Not Found");
                 error.statusCode = 404;
@@ -200,22 +200,25 @@ exports.getCategoryById = (request, response, next) => {
 
 exports.deleteCategory = (request, response, next) => {
     let {categoryId} = request.body;
-    Category.findByPk(categoryId).then(category => {
-        if (!category) {
-            let error = new Error("User Not Found");
+    database.select(tableName,{id:categoryId}).then(category=>{
+        if(category.length===0){
+            let error = new Error("Category Not Found");
             error.status = 404;
             throw  error;
         }
-        clearImage(category.photo);
-        return category.destroy();
-    }).then(count => {
-        if (!count) {
-            throw new Error("Failed to delete user");
+        if(category[0].photo){
+            clearImage(category[0].photo);
         }
-        return response.status(200).json({
-            body: "Successfully delete user"
-        })
-    }).catch(error => {
+        return database.update(tableName,{activeStatus:0},{id:categoryId})
+    })
+        .then(results => {
+            if (!results.status) {
+                throw new Error("Failed to delete Category");
+            }
+            return response.status(200).json({
+                body: "Successfully delete Category"
+            })
+        }).catch(error => {
         next(error);
     })
 }

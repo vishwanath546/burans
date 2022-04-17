@@ -60,7 +60,7 @@ function deleteCategory(id) {
 
     let data = new FormData();
     data.set("categoryId",id);
-    app.request("",data,'delete').then(response=>{
+    app.request("deleteCategory",data,'delete').then(response=>{
         loadCategoryTable();
     }).catch(error=>{
         if (error.status === 500) {
