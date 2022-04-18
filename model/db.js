@@ -58,14 +58,20 @@ async function dataTableSource(tableName,selectAttribute,where,orderColumn,searc
 
 async function select(tableName, where, selectAttributes) {
     let sql;
-    if (where && selectAttributes)
-        sql = mysql.format(`select ?? from ??  where ${Object.keys(where).map((key,index)=>`${key}=${where[key]}`).join(" and ")}`, [selectAttributes, tableName, where]);
-    if (!selectAttributes && where)
-        sql = mysql.format(`select * from ??  where ${Object.keys(where).map((key,index)=>`${key}=${where[key]}`).join(" and ")}`, [tableName, where]);
-    if(!where && selectAttributes)
-        sql = mysql.format('select ?? from ??', [selectAttributes, tableName]);
-    if(!where && !selectAttributes)
-        sql = mysql.format('select * from ??', [tableName]);
+
+    let whereCondition =``;
+    if(where){
+        whereCondition=Object.keys(where).map((key) => `${key}=${where[key]}`).join(" and ");
+    }
+        if (where && selectAttributes)
+            sql = mysql.format(`select ${selectAttributes.join(',')} from ??  where ${whereCondition}`, [tableName]);
+        if (!selectAttributes && where)
+            sql = mysql.format(`select * from ??  where ${whereCondition}`, [tableName]);
+        if (!where && selectAttributes)
+            sql = mysql.format(`select ${selectAttributes.join(',')} from ??`, [tableName]);
+        if (!where && !selectAttributes)
+            sql = mysql.format('select * from ??', [tableName]);
+
     console.log(sql);
     const [records] = await pool.query(sql)
     return emptyOrRows(records);

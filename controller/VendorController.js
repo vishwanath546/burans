@@ -4,10 +4,10 @@ const {clearImage} = require('../util/helpers');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const locationTable = 'location';
 const vendorTable = 'vendor_user';
 const userAuthTable = 'user_auth';
 const vendorLocationTable ="vendor_locations";
+
 exports.login_vendor = (request, response, next) => {
     let {username, password} = request.body;
     UserAuth.findOne({
@@ -80,12 +80,13 @@ exports.vendorRegistration = async (request, response, next) => {
             gstNumber: gstNumber,
             email: email,
             foodLicense: foodLicense,
-            accountStatus: 2,
+            accountStatus: 1,
             avatar: avatar,
             createdAt:database.currentTimeStamp()
         }]);
         if (error) {
             await connection.rollback();
+            connection.release()
             throw new Error("Failed To Create Vendor");
         }
         const hashPassword = await bcrypt.hash("123456", 12);
@@ -118,6 +119,7 @@ exports.vendorRegistration = async (request, response, next) => {
         }else{
             if (authError || !authUserResult.status) {
                 await connection.rollback();
+                connection.release()
                 throw new Error("Failed To Create Vendor auth");
             }
             await connection.commit();
@@ -133,9 +135,8 @@ exports.vendorRegistration = async (request, response, next) => {
     }
 };
 
-exports.vendorUpdate = (request, response, next) => {
+exports.vendorUpdate = async (request, response, next) => {
 
-    console.log("hii");
     let userId = request.params.userId;
     let updateBy = 1; //request.userId;
     let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
@@ -144,89 +145,92 @@ exports.vendorUpdate = (request, response, next) => {
         avatar = request.files.shopImage[0].path;
     }
 
-    UserAuth.findOne({where: {VendorId: updateBy}}).then(requestUser => {
-        if (!requestUser) {
-            let error = new Error("Unauthorized access");
-            error.statusCode = 401;
+
+    try{
+        const connection = await database.transaction();
+        await connection.beginTransaction();
+        const [vendors]=await connection.query(`select *,
+       (select group_concat(locationId) from vendor_locations where vendorId=vendor_user.id) as mapAreas,
+       (select mobileNumber from user_auth where VendorId=vendor_user.id) as user_mobileNumber
+                                            from vendor_user where id=?`,[userId]);
+        if(vendors.length===0){
+            connection.release()
+            let error = new Error("User Not Found");
+            error.statusCode = 404;
             throw error;
         }
-        Connection.transaction(async (trans) => {
-            return Vendor.findByPk(userId, {
-                include: [{model: UserAuth}]
-            }).then(user => {
-                if (!user) {
-                    let error = new Error("User Not Found");
-                    error.statusCode = 404;
-                    throw error;
-                }
-                let updateObject = {columns: [], values: []};
-                if (user.updateOnColumn != null && user.updateOnColumn !== "") {
-                    updateObject = JSON.parse(user.updateOnColumn);
-                }
-                user.name = name;
-                user.email = email;
-                if (user.mobileNumber !== mobileNumber) {
-                    if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
-                        updateObject.columns.push('mobileNumber');
-                        updateObject.values.push(mobileNumber);
-                    }
-                }
-                if (user.shopName !== shopName) {
-                    if (updateObject.columns.findIndex(i => i === 'shopName') === -1) {
-                        updateObject.columns.push('shopName');
-                        updateObject.values.push(shopName);
-                    }
-                }
-                if (user.gstNumber !== gstNumber) {
-                    if (updateObject.columns.findIndex(i => i === 'gstNumber') === -1) {
-                        updateObject.columns.push('gstNumber');
-                        updateObject.values.push(gstNumber);
-                    }
-                }
-                if (user.foodLicense !== foodLicense) {
-                    if (updateObject.columns.findIndex(i => i === 'foodLicense') === -1) {
-                        updateObject.columns.push('foodLicense');
-                        updateObject.values.push(foodLicense);
-                    }
-                }
-                if (user.area !== area) {
-                    if (updateObject.columns.findIndex(i => i === 'area') === -1) {
-                        updateObject.columns.push('area');
-                        updateObject.values.push(area);
-                    }
-                }
-                if (avatar) {
-                    clearImage(user.avatar);
-                    user.avatar = avatar;
-                }
-                if (updateObject.columns.length > 0) {
-                    user.adminConfirmOn = 0;
-                    user.updateOnColumn = JSON.stringify(updateObject);
-                }
+        let vendor = vendors[0];
+        let updateObject = {columns: [], values: []};
+        if (vendor.updateOnColumn != null && vendor.updateOnColumn !== "") {
+            updateObject = JSON.parse(vendor.updateOnColumn);
+        }
+        let vendorObject = {};
+        vendorObject.name = name;
+        vendorObject.email = email;
+        if (vendor.mobileNumber !== mobileNumber) {
+            if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
+                updateObject.columns.push('mobileNumber');
+                updateObject.values.push(mobileNumber);
+            }
+        }
+        if (vendor.shopName !== shopName) {
+            if (updateObject.columns.findIndex(i => i === 'shopName') === -1) {
+                updateObject.columns.push('shopName');
+                updateObject.values.push(shopName);
+            }
+        }
+        if (vendor.gstNumber !== gstNumber) {
+            if (updateObject.columns.findIndex(i => i === 'gstNumber') === -1) {
+                updateObject.columns.push('gstNumber');
+                updateObject.values.push(gstNumber);
+            }
+        }
+        if (vendor.foodLicense !== foodLicense) {
+            if (updateObject.columns.findIndex(i => i === 'foodLicense') === -1) {
+                updateObject.columns.push('foodLicense');
+                updateObject.values.push(foodLicense);
+            }
+        }
+        if (vendor.mapAreas !== area.join(",")) {
+            if (updateObject.columns.findIndex(i => i === 'area') === -1) {
+                updateObject.columns.push('area');
+                updateObject.values.push(area);
+            }
+        }
+        if (avatar) {
+            vendorObject.avatar = avatar;
+        }
+        if (updateObject.columns.length > 0) {
+            vendorObject.adminConfirmOn = 0;
+            vendorObject.updateOnColumn = JSON.stringify(updateObject);
+        }
+        const [result,vendorUpdateError]= await connection.query('update ?? set ? where ?',[vendorTable,vendorObject,{id:userId}]);
+        if(vendorUpdateError){
+            await connection.rollback();
+            connection.release();
+            throw new Error("Failed To Create Vendor");
+        }
 
-                user.updateBy = requestUser.id;
-                return user.save({transaction: trans});
-            }).then(user => {
-                if (user.UserAuth.mobileNumber !== mobileNumber) {
-                    user.UserAuth.mobileNumber = mobileNumber
-                }
-                return user.UserAuth.save({transaction: trans})
-            }).catch(error => {
-                throw error;
-            })
-        }).then(result => {
-            response.status(200).json({
-                status: 200,
-                body: "Vendor create successfully!"
-            })
-        }).catch(error => {
-            if (avatar) clearImage(avatar);
-            next(error);
+        if (vendor.user_mobileNumber !== mobileNumber) {
+          const [userAuthResult,userAuthError]=await connection.query("update ?? set ? where ?",[userAuthTable,{mobileNumber:mobileNumber},{VendorId:userId}])
+            if(userAuthError){
+                await connection.rollback();
+                connection.release();
+                throw new Error("Failed To Update Vendor auth");
+            }
+        }
+        await connection.commit();
+        if (avatar) {
+            vendorObject.avatar = avatar;
+        }
+        connection.release()
+        response.status(200).json({
+            body: "Create Category Successfully"
         })
-    }).catch(error => {
+    }catch (error) {
+        console.log(error)
         next(error);
-    })
-
+    }
 }
 
 
@@ -234,28 +238,34 @@ exports.deleteVendor = (request, response, next) => {
 
     let userId = request.params.vendorId;
 
-    UserAuth.findOne({where: {VendorId: userId}}).then(user => {
-        if (!user) {
+    database.select(vendorTable,{id:userId})
+        .then(user => {
+        if (user.length===0) {
             let error = new Error("User Not Found");
             error.statusCode = 404;
             throw error;
         }
-        clearImage(user.avatar);
-        return Vendor.destroy({
-            where: {
-                id: userId
-            }
-        })
-    }).then(count => {
-        if (!count) {
+        clearImage(user[0].avatar);
+        return database.update(vendorTable,{activeStatus:0,deletedAt:database.currentTimeStamp()},{id:userId});
+    }).then(result => {
+        if (!result.status) {
+            let error = new Error("Failed to delete vendor")
+            error.statusCode = 500;
+            throw error;
+        }
+        return database.update(userAuthTable,{activeStatus:0,deletedAt:database.currentTimeStamp()},{VendorId:userId});
+
+    }).then(result=>{
+        if (!result.status) {
             let error = new Error("Failed to delete vendor")
             error.statusCode = 500;
             throw error;
         }
         response.status(200).json({
-            body: "Successfully delete user"
+            body: "Successfully delete vendor"
         })
-    }).catch(error => {
+    })
+        .catch(error => {
         next(error)
     })
 }
@@ -263,20 +273,17 @@ exports.deleteVendor = (request, response, next) => {
 
 exports.getVendor = (request, response, next) => {
     let userId = request.body.vendorId;
-    Vendor.findByPk(userId, {
-        attributes: ["id", "name", "email", "mobileNumber", "avatar", "shopName", "gstNumber", "foodLicense",
-            "area", "accountStatus"],
-        include: [{
-            model: UserAuth,
-            attributes: ["userType", "loginAt"]
-        }]
-    }).then(user => {
-        if (!user) {
+    database.select(vendorTable, {id:userId},
+        ["id", "name", "email", "mobileNumber", "avatar", "shopName", "gstNumber", "foodLicense",
+            "updateOnColumn","adminConfirmOn","accountStatus",
+            "(select group_concat(locationId) from vendor_locations where vendorId=vendor_user.id) as area",
+            "accountStatus"]).then(user => {
+        if (user.length ===0) {
             let error = new Error("User Not Found")
             error.statusCode = 404;
             throw error;
         }
-        return response.status(200).json(user);
+        return response.status(200).json(user[0]);
     }).catch(error => {
         next(error)
     })
@@ -289,7 +296,7 @@ exports.getAllVendorsTables = (request, response, next) => {
     database.findAllCount(vendorTable, {activeStatus: 1})
         .then(totalCount => {
             database.dataTableSource(vendorTable, ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
-                    "avatar", "accountStatus", "createdAt",
+                    "avatar", "accountStatus", "createdAt","adminConfirmOn",
                     "(select group_concat(name) from location where id in(select locationId from vendor_locations where vendorId=vendor_user.id)) as area"],
                 {activeStatus: 1},
                 'createdAt', 'name', search, "desc", parseInt(start), parseInt(length),false)
@@ -311,9 +318,7 @@ exports.getAllVendorsTables = (request, response, next) => {
 
 exports.getAllVendorOptions = (request, response, next) => {
 
-    Vendor.findAll({
-        attributes: ["id", ["shopName", "text"]]
-    })
+    database.select(vendorTable,{activeStatus:1},["id","shopName as text"])
         .then(vendors => {
             response.status(200).json({
                 results: [{id: -1, text: "", selected: true, disabled: true}, ...vendors]

@@ -1,20 +1,13 @@
-const {Connection} = require("../sequlizerModel/Database");
-const {Op} = require('sequelize');
-const {DeliveryBoy} = require("../sequlizerModel/DeliveryBoy");
-const {Location} = require("../sequlizerModel/Location");
-const {Vendor} = require("../sequlizerModel/Vendor");
-const {UserAuth} = require('../sequlizerModel/UserAuth');
+const database = require('../model/db');
+const {clearImage} = require('../util/helpers');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const path = require('path');
-const fs = require('fs');
 
-const clearImage = imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath);
-    fs.unlink(filePath, error => {
-        if (error) console.log("Failed to delete image at update", error)
-    })
-}
+
+const deliveryTable = 'delivery_boy';
+const userAuthTable = 'user_auth';
+const deliveryLocationTable ="delivery_boys_locations";
+const deliveryVendorTable ="delivery_boys_vendors";
 
 exports.login_vendor =  (request, response, next) => {
     let {username, password} = request.body;
@@ -286,6 +279,28 @@ exports.getVendor=(request,response,next)=>{
 exports.getAllDeliveryBoyTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
+
+    database.findAllCount(vendorTable, {activeStatus: 1})
+        .then(totalCount => {
+            database.dataTableSource(vendorTable, ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
+                    "avatar", "accountStatus", "createdAt","adminConfirmOn",
+                    "(select group_concat(name) from location where id in(select locationId from vendor_locations where vendorId=vendor_user.id)) as area"],
+                {activeStatus: 1},
+                'createdAt', 'name', search, "desc", parseInt(start), parseInt(length),false)
+                .then(result => {
+                    return response.status(200).json({
+                        draw: parseInt(draw),
+                        recordsTotal: totalCount,
+                        recordsFiltered: result.length,
+                        data: result
+                    });
+                })
+        }).catch(error => {
+        response.status(400).json({
+            body: "Not Found",
+            exception: error
+        });
+    })
     DeliveryBoy.count().then(totalCount => {
         DeliveryBoy.findAll({
             attributes: ["id", "name", "email","mobileNumber","license","bikeRc",

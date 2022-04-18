@@ -47,8 +47,15 @@ function loadCategoryTable() {
         {
             data: "id",
             render: (d, t, r, m) => {
+                let confirm=``;
+                if(r["adminConfirmOn"] === 0){
+                    confirm=  `<button class="btn btn-primary">
+                            <i class="fa fa-check"></i>    
+                     </button> `
+                }
                 return `
                     <div class="btn btn-action">
+                        ${confirm}
                         <a href="/update-vendor/${d}" class="btn btn-primary">
                             <i class="fa fa-pen-alt"></i>    
                         </a>    
