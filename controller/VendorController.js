@@ -216,7 +216,7 @@ exports.vendorUpdate = async (request, response, next) => {
             if(userAuthError){
                 await connection.rollback();
                 connection.release();
-                throw new Error("Failed To Update Vendor auth");
+                throw new Error("Failed To Update Vendor ");
             }
         }
         await connection.commit();
