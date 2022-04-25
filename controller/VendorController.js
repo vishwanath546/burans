@@ -321,7 +321,7 @@ exports.getAllVendorOptions = (request, response, next) => {
     database.select(vendorTable,{activeStatus:1},["id","shopName as text"])
         .then(vendors => {
             response.status(200).json({
-                results: [{id: -1, text: "", selected: true, disabled: true}, ...vendors]
+                results: [{id: -1, text: "",  disabled: true}, ...vendors]
             });
         }).catch(error => {
         response.status(500).json({

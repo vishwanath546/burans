@@ -10,9 +10,9 @@ function loadDeliveryTable() {
         {
             data: "photo",
             render: (d, t, r, m) => {
-                if(d) {
+                if (d) {
                     return `<img src="${baseURL + d.replace("public", "")}" alt="${r["name"]}" class="mr-3 rounded" width="45" />`
-                }else{
+                } else {
                     return '';
                 }
             }
@@ -21,30 +21,34 @@ function loadDeliveryTable() {
         {data: "name"},
         {data: "email"},
         {data: "mobileNumber"},
-        {data: "DeliveryBoysLocations",
+        {
+            data: "areas",
             render: (d, t, r, m) => {
-                if (Array.isArray(d)) {
-                    return d.map(i=>`<small><span class="badge badge-success">${i.name}</span></small>`).join(" ")
+                if (d !== null && d !== "") {
+                    return d.split(',').map(i => `<small><span class="badge badge-success">${i}</span></small>`).join(" ")
                 }
-            }},
+            }
+        },
         {data: "license"},
         {data: "bikeRc"},
         {
             data: "id",
             render: (d, t, r, m) => {
-                // if(d===1){
-                    return `<span class="badge badge-success">Active</span>`;
-                // }else{
-                //     return `<span class="badge badge-danger">Inactive</span>`;
-                // }
-
+                return `<span class="badge badge-success">Active</span>`;
             }
         },
         {
             data: "id",
             render: (d, t, r, m) => {
+                let confirm=``;
+                if(r["adminConfirmOn"] === 0){
+                    confirm=  `<button class="btn btn-primary">
+                            <i class="fa fa-check"></i>    
+                     </button> `
+                }
                 return `
                     <div class="btn btn-action">
+                        ${confirm}
                         <a href="/update-delivery-boy/${d}" class="btn btn-primary">
                             <i class="fa fa-pen-alt"></i>    
                         </a>    
@@ -60,7 +64,7 @@ function loadDeliveryTable() {
             }
         },
 
-    ],undefined,() => {
+    ], undefined, () => {
         app.confirmationBox()
     })
 }
@@ -68,10 +72,10 @@ function loadDeliveryTable() {
 function deleteDeliveryBoy(id) {
 
     let data = new FormData();
-    data.set("deliveryBoyId",id);
-    app.request("deleteDeliveryBoy",data,'delete').then(response=>{
+    data.set("deliveryBoyId", id);
+    app.request("deleteDeliveryBoy", data, 'delete').then(response => {
         loadDeliveryTable();
-    }).catch(error=>{
+    }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
         } else {
@@ -80,14 +84,14 @@ function deleteDeliveryBoy(id) {
     });
 }
 
-function statusUpdate(categoryId,status) {
+function statusUpdate(categoryId, status) {
     let data = new FormData();
-    data.set("categoryId",categoryId);
-    data.set("status",status);
-    app.request("",data,'put').then(response=>{
+    data.set("categoryId", categoryId);
+    data.set("status", status);
+    app.request("", data, 'put').then(response => {
         app.successToast(response.body);
         loadCategoryTable();
-    }).catch(error=>{
+    }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
         } else {

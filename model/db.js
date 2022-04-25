@@ -37,19 +37,24 @@ async function findAllCount(tableName,where){
 async function dataTableSource(tableName,selectAttribute,where,orderColumn,searchColumn,searchValue="",
                                direction="desc",offset=0,length=10,isFormat=true){
     let sql;
-    if(!where){
-        sql = mysql.format(`select ?? from ?? where ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-            [selectAttribute,tableName,searchColumn]);
-    }else{
         if(isFormat){
-            sql = mysql.format(`select ?? from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-                [selectAttribute,tableName,where,searchColumn]);
-        }else{
-            sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-                [tableName,where,searchColumn]);
-        }
+            if(!where){
+                sql = mysql.format(`select ?? from ?? where ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [selectAttribute,tableName,searchColumn]);
+            }else{
+                sql = mysql.format(`select ?? from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [selectAttribute,tableName,where,searchColumn]);
+            }
 
-    }
+        }else{
+            if(where) {
+                sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [tableName, where, searchColumn]);
+            }else{
+                sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where  ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [tableName, searchColumn]);
+            }
+        }
     console.log(sql);
     const [records] = await pool.query(sql)
     return emptyOrRows(records);

@@ -81,7 +81,7 @@ exports.DeliveryBoyRegistration = async (request, response, next) => {
 
     try {
 
-        const user = await database.query("select id from user_auth where mobileNumber=? and DeliveryBoyId is not and activeStatus=1", [mobileNumber])
+        const user = await database.query("select id from user_auth where mobileNumber=? and activeStatus=1  and DeliveryBoyId is not null", [mobileNumber])
 
         if (user.length > 0) {
             let error = new Error("User Already register with mobile number");
@@ -96,11 +96,11 @@ exports.DeliveryBoyRegistration = async (request, response, next) => {
             address: address,
             mobileNumber: mobileNumber,
             license: license,
+            photo: avatar,
             licensePhoto: licenseImage,
             bikeRcPhoto: bikeRcImage,
             email: email,
             bikeRc: bikeRc,
-            avatar: avatar,
         };
 
         const [deliveryResult, deliveryError] = await connection.query("insert into ?? set ?", [deliveryTable, deliveryBoyObject])
@@ -124,7 +124,7 @@ exports.DeliveryBoyRegistration = async (request, response, next) => {
             })
         }
         if (vendor) {
-            let allVendor = area.map(a => {
+            let allVendor = vendor.map(a => {
                 return connection.query("insert into ?? set ?", [deliveryVendorTable,
                     {vendorId: a, deliveryBoyId: deliveryResult.insertId}
                 ]);
@@ -162,18 +162,19 @@ exports.DeliveryBoyRegistration = async (request, response, next) => {
     }
 };
 
-exports.vendorUpdate = async (request, response, next) => {
+exports.deliveryBoyUpdate = async (request, response, next) => {
 
     let userId = request.params.userId;
     let updateBy = 1; //request.userId;
-    let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
-    let avatar;
-    if (request.files) {
-        avatar = request.files.shopImage[0].path;
+    let {name, address, email, mobileNumber, license, bikeRc, area, vendor} = request.body;
+
+    let avatar, licenseImage, bikeRcImage;
+    if (request.files && request.files.profileImage) {
+        avatar = request.files.profileImage[0].path;
     }
 
     try {
-        const userResult = await database.query("select * from ? where id=(select deliveryBoyId from user_auth where deliveryBoyId=? and activeStatus=1)",
+        const userResult = await database.query("select *,(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors, (select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas from ?? where id=(select deliveryBoyId from user_auth where deliveryBoyId=? and activeStatus=1)",
             [deliveryTable, userId]);
 
         if (userResult.length === 0) {
@@ -190,35 +191,50 @@ exports.vendorUpdate = async (request, response, next) => {
 
         user.name = name;
         user.email = email;
-
+        user.address = address;
         if (userObject.mobileNumber !== mobileNumber) {
             if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
                 updateObject.columns.push('mobileNumber');
                 updateObject.values.push(mobileNumber);
             }
         }
-        if (userObject.shopName !== shopName) {
-            if (updateObject.columns.findIndex(i => i === 'shopName') === -1) {
-                updateObject.columns.push('shopName');
-                updateObject.values.push(shopName);
+        if (userObject.license !== license) {
+            if (updateObject.columns.findIndex(i => i === 'license') === -1) {
+                updateObject.columns.push('license');
+                updateObject.values.push(license);
             }
         }
-        if (userObject.gstNumber !== gstNumber) {
-            if (updateObject.columns.findIndex(i => i === 'gstNumber') === -1) {
-                updateObject.columns.push('gstNumber');
-                updateObject.values.push(gstNumber);
+        if (userObject.bikeRc !== bikeRc) {
+            if (updateObject.columns.findIndex(i => i === 'bikeRc') === -1) {
+                updateObject.columns.push('bikeRc');
+                updateObject.values.push(bikeRc);
             }
         }
-        if (userObject.foodLicense !== foodLicense) {
-            if (updateObject.columns.findIndex(i => i === 'foodLicense') === -1) {
-                updateObject.columns.push('foodLicense');
-                updateObject.values.push(foodLicense);
+        if (request.files && request.files.licenseImage) {
+            licenseImage = request.files.licenseImage[0].path;
+            if (updateObject.columns.findIndex(i => i === 'licenseImage') === -1) {
+                updateObject.columns.push('licenseImage');
+                updateObject.values.push(licenseImage);
             }
         }
-        if (user.area !== area) {
+        if (request.files && request.files.bikeRcImage) {
+            bikeRcImage = request.files.bikeRcImage[0].path;
+            if (updateObject.columns.findIndex(i => i === 'bikeRcImage') === -1) {
+                updateObject.columns.push('bikeRcImage');
+                updateObject.values.push(bikeRcImage);
+            }
+        }
+
+        if (user.areas !== area) {
             if (updateObject.columns.findIndex(i => i === 'area') === -1) {
                 updateObject.columns.push('area');
                 updateObject.values.push(area);
+            }
+        }
+        if (user.vendors !== vendor) {
+            if (updateObject.columns.findIndex(i => i === 'vendors') === -1) {
+                updateObject.columns.push('vendors');
+                updateObject.values.push(vendor);
             }
         }
         if (avatar) {
@@ -229,6 +245,11 @@ exports.vendorUpdate = async (request, response, next) => {
             user.updateOnColumn = JSON.stringify(updateObject);
         }
         user.updateBy = updateBy;
+        user.updatedAt = database.currentTimeStamp();
+        if (updateObject.columns.length > 0) {
+            user.adminConfirmOn = 0;
+            user.updateOnColumn = JSON.stringify(updateObject);
+        }
         const connection = await database.transaction();
         await connection.beginTransaction();
         const [result, deliveryUpdateError] = await connection.query('update ?? set ? where ?', [deliveryTable, user, {id: userId}]);
@@ -238,7 +259,7 @@ exports.vendorUpdate = async (request, response, next) => {
             throw new Error("Failed To Update Delivery");
         }
         if (userObject.mobileNumber !== mobileNumber) {
-            const [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {mobileNumber: mobileNumber}, {DeliveryBoyId: userId}])
+            const [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {mobileNumber: mobileNumber,updatedAt:database.currentTimeStamp()}, {DeliveryBoyId: userId}])
             if (userAuthError) {
                 await connection.rollback();
                 connection.release();
@@ -251,7 +272,7 @@ exports.vendorUpdate = async (request, response, next) => {
         await connection.commit();
         connection.release()
         return response.status(200).json({
-            body: "Create Category Successfully"
+            body: "Update delivery boy details successfully"
         })
 
     } catch (error) {
@@ -262,57 +283,75 @@ exports.vendorUpdate = async (request, response, next) => {
 }
 
 
-exports.deleteDeliveryBoy = (request, response, next) => {
+exports.deleteDeliveryBoy = async (request, response, next) => {
 
     let userId = request.body.deliveryBoyId;
 
-    try{
-        user
-
-    }catch (error) {
-        next(error)
-    }
-    DeliveryBoy.findByPk(userId).then(user => {
-        if (!user) {
+    try {
+        const connection = await database.transaction();
+        await connection.beginTransaction();
+        let [delivery,meta]= await connection.query("select id,photo,licensePhoto,bikeRcPhoto from ?? where id=?", [deliveryTable, userId]);
+        if (delivery.length ===0) {
+            connection.release();
             let error = new Error("User Not Found");
             error.statusCode = 404;
             throw error;
         }
-        console.log(user)
-        clearImage(user.avatar);
-        return user.destroy()
-    }).then(count => {
-        if (!count) {
-            let error = new Error("Failed to delete Delivery Boy")
-            error.statusCode = 500;
+
+        let [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {activeStatus: 0}, {DeliveryBoyId: delivery[0].id}]);
+        if (userAuthError) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed To Delete Delivery Boy");
+            error.statusCode = 401;
             throw error;
         }
+
+        let [deliveryResult, deliveryError] = await connection.query("update ?? set ? where ?",
+            [deliveryTable, {activeStatus: 0,deletedAt:database.currentTimeStamp()}, {id: delivery[0].id}]);
+        if (deliveryError) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed To Delete Delivery Boy");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        await connection.commit();
+        if (delivery[0].photo) {
+            clearImage(delivery[0].photo);
+        }
+        if (delivery[0].licensePhoto) {
+            clearImage(delivery[0].licensePhoto);
+        }
+        if (delivery[0].bikeRcPhoto) {
+            clearImage(delivery[0].bikeRcPhoto);
+        }
+        connection.release()
         response.status(200).json({
-            body: "Successfully delete Delivery Boy"
+            body: "Delete Delivery Boy Successfully"
         })
-    }).catch(error => {
+    } catch (error) {
         next(error)
-    })
+    }
 }
 
 
 exports.getVendor = (request, response, next) => {
     let userId = request.body.vendorId;
-    Vendor.findByPk(userId, {
-        attributes: ["id", "name", "email", "mobileNumber", "avatar", "shopName", "gstNumber", "foodLicense",
-            "area", "accountStatus"],
-        include: [{
-            model: UserAuth,
-            attributes: ["userType", "loginAt"]
-        }]
-    }).then(user => {
-        if (!user) {
-            let error = new Error("User Not Found")
-            error.statusCode = 404;
-            throw error;
-        }
-        return response.status(200).json(user);
-    }).catch(error => {
+    database.select(deliveryTable, {id: userId},
+        ["id", "name", "email", "mobileNumber", "photo", "address", "bikeRc", "license",
+            "accountStatus",
+            "(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors",
+            "(select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas"])
+        .then(user => {
+            if (user.length === 0) {
+                let error = new Error("User Not Found")
+                error.statusCode = 404;
+                throw error;
+            }
+            return response.status(200).json(user[0]);
+        }).catch(error => {
         next(error)
     })
 }
@@ -321,12 +360,15 @@ exports.getAllDeliveryBoyTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
 
-    database.findAllCount(vendorTable, {activeStatus: 1})
+    database.findAllCount(deliveryTable)
         .then(totalCount => {
-            database.dataTableSource(vendorTable, ["id", "name", "email", "mobileNumber", "gstNumber", "foodLicense",
-                    "avatar", "accountStatus", "createdAt", "adminConfirmOn",
-                    "(select group_concat(name) from location where id in(select locationId from vendor_locations where vendorId=vendor_user.id)) as area"],
-                {activeStatus: 1},
+            database.dataTableSource(deliveryTable, [
+                    "id", "name", "email", "mobileNumber", "license", "bikeRc",
+                    "photo",  "createdAt", "adminConfirmOn",
+                    "(select group_concat(shopName) from vendor_user  where activeStatus=1 and id in(select vendorId from delivery_boys_vendors where deliveryBoyId=delivery_boy.id)) as vendors",
+                    "(select group_concat(name) from location where active_status=1 and id in(select locationId from delivery_boys_locations where deliveryBoyId=delivery_boy.id)) as areas",
+                ],
+                {activeStatus:1},
                 'createdAt', 'name', search, "desc", parseInt(start), parseInt(length), false)
                 .then(result => {
                     return response.status(200).json({
@@ -337,40 +379,11 @@ exports.getAllDeliveryBoyTables = (request, response, next) => {
                     });
                 })
         }).catch(error => {
-        response.status(400).json({
-            body: "Not Found",
-            exception: error
+        return response.status(200).json({
+            draw: 1,
+            recordsTotal: 0,
+            recordsFiltered: 0,
+            data: []
         });
-    })
-    DeliveryBoy.count().then(totalCount => {
-        DeliveryBoy.findAll({
-            attributes: ["id", "name", "email", "mobileNumber", "license", "bikeRc",
-                "avatar", "createdAt"],
-            include: [{model: UserAuth, attributes: ["id"]},
-                {
-                    model: Location, as: 'DeliveryBoysLocations'
-                }],
-            where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-            order: [["createdAt", "DESC"]],
-            limit: parseInt(length) || 10,
-            offset: parseInt(start) || 0
-        })
-            .then((categories) => {
-                response.status(200).json({
-                    draw: parseInt(draw),
-                    recordsTotal: totalCount,
-                    recordsFiltered: categories.length,
-                    data: categories
-                });
-            }).catch(error => {
-            response.status(500).json({
-                body: error.message
-            })
-        })
-    }).catch(error => {
-        response.status(400).json({
-            body: "Not Found",
-            exception: error
-        });
-    })
+    });
 }
