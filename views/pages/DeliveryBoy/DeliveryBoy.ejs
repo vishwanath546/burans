@@ -4,6 +4,7 @@
     <div class="col-12 col-md-6 col-lg-6">
         <div class="card">
             <form id="deliveryBoyForm" method="post" data-form-valid="saveDeliveryBoyDetails">
+                <input type="hidden" name="deliveryBoyId" id="deliveryBoyId" value="<%=deliveryBoyId%>" />
             <div class="card-header">
                 <h4>Delivery boy Details</h4>
             </div>
@@ -88,7 +89,7 @@
                             <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-sun"></i></span>
                         </label>
                         Active
-                        <label class="selectgroup- pl-2">
+                        <label class="selectgroup-item pl-2">
                             <input type="radio" name="status" value="2" class="selectgroup-input">
                             <span class="selectgroup-button selectgroup-button-icon"><i class="fas fa-moon"></i></span>
                         </label>

@@ -1,8 +1,7 @@
 function getLocationOptions(element) {
 
     return app.request("getAllLocationOptions",null).then(response=>{
-        [{id:'',text:''}]
-        app.selectOption(element, 'Select Category', null, response.results);
+        app.selectOption(element, 'Select Location', null, response.results);
         return Promise.resolve();
     })
 

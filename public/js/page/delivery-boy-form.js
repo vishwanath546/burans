@@ -1,13 +1,23 @@
 $(document).ready(function () {
     app.formValidation();
-    previewUpload("#profile-image-label","#profile-image-preview","#profile-image");
-    previewUpload("#license-image-label","#license-image-preview","#license-image");
-    previewUpload("#rc-image-label","#rc-image-preview","#rc-image");
-    getLocationOptions('area');
-    getVendorsOptions('vendor');
+    app.removeValidation('profile-image','required');
+    previewUpload("#profile-image-label", "#profile-image-preview", "#profile-image");
+    previewUpload("#license-image-label", "#license-image-preview", "#license-image");
+    previewUpload("#rc-image-label", "#rc-image-preview", "#rc-image");
+    let deliveryBoyId = parseInt($("#deliveryBoyId").val());
+
+    if (deliveryBoyId !== 0) {
+        getDeliveryBoy(deliveryBoyId);
+
+
+    } else {
+        getLocationOptions('area').catch(error => console.log("location Fetch error", error));
+        getVendorsOptions('vendor').catch(error => console.log("vendor fetch error", error));
+    }
+
 });
 
-function previewUpload(label_field,preview_box,input_field) {
+function previewUpload(label_field, preview_box, input_field) {
     $.uploadPreview({
         input_field: input_field,   // Default: .image-upload
         preview_box: preview_box,  // Default: .image-preview
@@ -19,33 +29,49 @@ function previewUpload(label_field,preview_box,input_field) {
     });
 }
 
-function isSubcategory(element) {
-    if (element.checked) {
-        $("#subcategorySelectionBox").removeClass("d-none");
+function getDeliveryBoy(deliveryBoyId) {
+    let formData = new FormData();
+    formData.set("vendorId", deliveryBoyId)
+    app.request("getDeliveryBoy", formData).then(response => {
+        $("#name").val(response.name);
+        $("#mobileNumber").val(response.mobileNumber);
+        $("#email").val(response.email);
+        $("#address").val(response.address);
+        $("#license").val(response.license);
+        $("#bikeRc").val(response.bikeRc);
 
-        app.selectOption('category_id', 'Select Category', {
-            url: baseURL + "getAllCategoriesOptions",
-            method: 'POST',
-            delay: 250,
-        });
+        getLocationOptions('area')
+            .then(() => {
+                $("#area").val(response.areas.split(",")).trigger('change');
+            })
+            .catch(error => console.log("location Fetch error", error));
 
-        app.setValidation('category_id', {
-            required: true,
-            messages: {
-                required: "Select category"
-            }
-        });
-    } else {
-        $("#subcategorySelectionBox").addClass("d-none");
-        app.removeValidation('category_id')
-    }
+        getVendorsOptions("vendor").then(() => {
+            $("#vendor").val(response.vendors.split(",")).trigger('change');
+        }).catch(error => console.log(error))
+
+        if (response.status === 1) {
+            $("input[type='radio'][value='1']").attr("checked", true);
+        } else {
+            $("input[type='radio'][value='0']").attr("checked", true);
+        }
+    })
+
 }
 
 function saveDeliveryBoyDetails(form) {
-
-    app.request("saveDeliveryBoyDetails", new FormData(form)).then(response => {
+    let delivery = parseInt($("#deliveryBoyId").val());
+    let requestUrl = "saveDeliveryBoyDetails"
+    let type="post";
+    if(delivery!==0){
+        requestUrl = "saveUpdateDeliveryDetails/"+delivery;
+    }
+    app.request(requestUrl, new FormData(form),type).then(response => {
         app.successToast(response.body)
         $("#deliveryBoyForm").trigger('reset');
+        $('#profile-image-preview').css("background-image", "none");
+        $('#license-image-preview').css("background-image", "none");
+        $('#rc-image-preview').css("background-image", "none");
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -54,50 +80,5 @@ function saveDeliveryBoyDetails(form) {
         }
 
     })
-}
-
-function listOfCategory() {
-
-    // let data =new FormData();
-    // data.set("categoryId",categoryId);
-    app.request("getAllCategories", null, "get").then(response => {
-        let accordionTemplate = response.map(getAccordion).join("");
-        $("#accordion").empty();
-        $("#accordion").append(accordionTemplate);
-    }).catch(error => {
-        if (error.status === 500) {
-            app.errorToast("something went wrong");
-        } else {
-            app.errorToast(error.message);
-        }
-    })
-}
-
-function getSubCategoryAccordionBody(subcategories) {
-    return ` <li class="list-group-item">
-                <p class="mb-1">${subcategories.name}</p>
-                <small class="text-muted">${subcategories.description}</small>
-             </li>`;
-}
-
-function getAccordion(category, index) {
-
-    return `<div class="accordion">
-                <div class="accordion-header" role="button" data-toggle="collapse" 
-                    data-target="#panel-body-${category.category.id}"
-                     aria-expanded="${index === 0}">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h4>${category.category.name}</h4>
-                        <span class="badge badge-white">${category.subCategories.length}</span>
-                    </div>
-                </div>
-                <div class="accordion-body collapse ${index === 0 ? 'show' : ''}" 
-                    id="panel-body-${category.category.id}" 
-                    data-parent="#accordion">
-                    <ul class="list-group">
-                       ${category.subCategories.map(getSubCategoryAccordionBody).join("")}
-                    </ul>
-                </div>
-            </div>`
 }
 

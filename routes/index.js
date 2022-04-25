@@ -175,7 +175,7 @@ router.get('/update-delivery-boy/:updateId', function(req, res, next) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url:'/' + segments[1],vendorId:deliveryBoyId });
+    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url:'/' + segments[1],deliveryBoyId:deliveryBoyId });
 });
 
 router.get('/view-delivery-boys', function (req, res, next) {
@@ -183,6 +183,9 @@ router.get('/view-delivery-boys', function (req, res, next) {
 });
 router.post('/getAllDeliveryBoysTables', DeliveryBoyController.getAllDeliveryBoyTables);
 router.post('/saveDeliveryBoyDetails', DeliveryBoyController.DeliveryBoyRegistration);
+router.post('/getDeliveryBoy', DeliveryBoyController.getVendor);
+router.post("/saveUpdateDeliveryDetails/:userId",
+    DeliveryBoyController.deliveryBoyUpdate);
 
 router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
 

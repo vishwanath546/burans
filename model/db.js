@@ -37,19 +37,24 @@ async function findAllCount(tableName,where){
 async function dataTableSource(tableName,selectAttribute,where,orderColumn,searchColumn,searchValue="",
                                direction="desc",offset=0,length=10,isFormat=true){
     let sql;
-    if(!where){
-        sql = mysql.format(`select ?? from ?? where ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-            [selectAttribute,tableName,searchColumn]);
-    }else{
         if(isFormat){
-            sql = mysql.format(`select ?? from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-                [selectAttribute,tableName,where,searchColumn]);
-        }else{
-            sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
-                [tableName,where,searchColumn]);
-        }
+            if(!where){
+                sql = mysql.format(`select ?? from ?? where ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [selectAttribute,tableName,searchColumn]);
+            }else{
+                sql = mysql.format(`select ?? from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [selectAttribute,tableName,where,searchColumn]);
+            }
 
-    }
+        }else{
+            if(where) {
+                sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where ? and ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [tableName, where, searchColumn]);
+            }else{
+                sql = mysql.format(`select ${selectAttribute.join(',')} from ?? where  ? like '%${searchValue}%' order by ${orderColumn} ${direction} limit ${offset},${length}`,
+                    [tableName, searchColumn]);
+            }
+        }
     console.log(sql);
     const [records] = await pool.query(sql)
     return emptyOrRows(records);
@@ -58,14 +63,20 @@ async function dataTableSource(tableName,selectAttribute,where,orderColumn,searc
 
 async function select(tableName, where, selectAttributes) {
     let sql;
-    if (where && selectAttributes)
-        sql = mysql.format(`select ?? from ??  where ${Object.keys(where).map((key,index)=>`${key}=${where[key]}`).join(" and ")}`, [selectAttributes, tableName, where]);
-    if (!selectAttributes && where)
-        sql = mysql.format(`select * from ??  where ${Object.keys(where).map((key,index)=>`${key}=${where[key]}`).join(" and ")}`, [tableName, where]);
-    if(!where && selectAttributes)
-        sql = mysql.format('select ?? from ??', [selectAttributes, tableName]);
-    if(!where && !selectAttributes)
-        sql = mysql.format('select * from ??', [tableName]);
+
+    let whereCondition =``;
+    if(where){
+        whereCondition=Object.keys(where).map((key) => `${key}=${where[key]}`).join(" and ");
+    }
+        if (where && selectAttributes)
+            sql = mysql.format(`select ${selectAttributes.join(',')} from ??  where ${whereCondition}`, [tableName]);
+        if (!selectAttributes && where)
+            sql = mysql.format(`select * from ??  where ${whereCondition}`, [tableName]);
+        if (!where && selectAttributes)
+            sql = mysql.format(`select ${selectAttributes.join(',')} from ??`, [tableName]);
+        if (!where && !selectAttributes)
+            sql = mysql.format('select * from ??', [tableName]);
+
     console.log(sql);
     const [records] = await pool.query(sql)
     return emptyOrRows(records);

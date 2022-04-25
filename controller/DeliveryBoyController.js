@@ -1,22 +1,15 @@
-const {Connection} = require("../sequlizerModel/Database");
-const {Op} = require('sequelize');
-const {DeliveryBoy} = require("../sequlizerModel/DeliveryBoy");
-const {Location} = require("../sequlizerModel/Location");
-const {Vendor} = require("../sequlizerModel/Vendor");
-const {UserAuth} = require('../sequlizerModel/UserAuth');
+const database = require('../model/db');
+const {clearImage} = require('../util/helpers');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const path = require('path');
-const fs = require('fs');
 
-const clearImage = imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath);
-    fs.unlink(filePath, error => {
-        if (error) console.log("Failed to delete image at update", error)
-    })
-}
 
-exports.login_vendor =  (request, response, next) => {
+const deliveryTable = 'delivery_boy';
+const userAuthTable = 'user_auth';
+const deliveryLocationTable = "delivery_boys_locations";
+const deliveryVendorTable = "delivery_boys_vendors";
+
+exports.login_vendor = (request, response, next) => {
     let {username, password} = request.body;
     UserAuth.findOne({
         where: {mobileNumber: username, userType: 2},
@@ -66,219 +59,299 @@ exports.login_vendor =  (request, response, next) => {
         });
 };
 
-exports.DeliveryBoyRegistration = (request, response, next) => {
-    let {name, address, email, mobileNumber, license, bikeRc, area,vendor} = request.body;
+exports.DeliveryBoyRegistration = async (request, response, next) => {
+    let {name, address, email, mobileNumber, license, bikeRc, area, vendor} = request.body;
 
-    Connection.transaction(async (trans) => {
-        const hashPassword = await bcrypt.hash("123456", 12);
+    if (!request.files) {
+        return response.status(401).json({
+            status: 401,
+            body: "no image provided"
+        })
+    }
+    let avatar, licenseImage, bikeRcImage;
+    if (request.files && request.files.profileImage) {
+        avatar = request.files.profileImage[0].path;
+    }
+    if (request.files && request.files.licenseImage) {
+        licenseImage = request.files.licenseImage[0].path;
+    }
+    if (request.files && request.files.bikeRcImage) {
+        bikeRcImage = request.files.bikeRcImage[0].path;
+    }
 
-        if (!request.files) {
-            return response.status(401).json({
-                status: 401,
-                body: "no image provided"
-            })
-        }
-        let avatar,licenseImage,bikeRcImage;
-        if (request.files && request.files.profileImage) {
-            avatar = request.files.profileImage[0].path;
-        }
-        if (request.files && request.files.licenseImage) {
-            licenseImage = request.files.licenseImage[0].path;
-        }
-        if (request.files && request.files.bikeRcImage) {
-            bikeRcImage = request.files.bikeRcImage[0].path;
+    try {
+
+        const user = await database.query("select id from user_auth where mobileNumber=? and activeStatus=1  and DeliveryBoyId is not null", [mobileNumber])
+
+        if (user.length > 0) {
+            let error = new Error("User Already register with mobile number");
+            error.statusCode = 403;
+            throw error;
         }
 
-        let newDeliveryBoy = await DeliveryBoy.create({
+        let connection = await database.transaction();
+        await connection.beginTransaction()
+        let deliveryBoyObject = {
             name: name,
             address: address,
             mobileNumber: mobileNumber,
             license: license,
-            licensePhoto:licenseImage,
-            bikeRcPhoto:bikeRcImage,
+            photo: avatar,
+            licensePhoto: licenseImage,
+            bikeRcPhoto: bikeRcImage,
             email: email,
             bikeRc: bikeRc,
-            avatar: avatar,
-        }, {transaction: trans});
-        let locations = await Location.findAll({
-            where: {
-                id: {
-                    [Op.in]: [...area]
-                }
-            }
-        });
-        if(locations)
-        newDeliveryBoy.addDeliveryBoysLocations([...locations])
+        };
 
-        if(vendor) {
-            let vendors = await Vendor.findAll({
-                where: {
-                    id: {
-                        [Op.in]:[...vendor]
-                    }
-                }
-            });
-            if (vendors)
-                newDeliveryBoy.addDeliveryBoysVendors([...vendors])
+        const [deliveryResult, deliveryError] = await connection.query("insert into ?? set ?", [deliveryTable, deliveryBoyObject])
+        if (deliveryError) {
+            await connection.rollback();
+            connection.release()
+            throw new Error("Failed To Create Delivery Boy");
         }
-
-        return await newDeliveryBoy.createUserAuth({
+        if (area) {
+            let allAreas = area.map(a => {
+                return connection.query("insert into ?? set ?", [deliveryLocationTable,
+                    {locationId: a, deliveryBoyId: deliveryResult.insertId}
+                ]);
+            });
+            Promise.all(allAreas).then(async (areaResult, areaError) => {
+                if (areaError) {
+                    await connection.rollback();
+                    connection.release()
+                    throw new Error("Failed To Create Vendor Areas");
+                }
+            })
+        }
+        if (vendor) {
+            let allVendor = vendor.map(a => {
+                return connection.query("insert into ?? set ?", [deliveryVendorTable,
+                    {vendorId: a, deliveryBoyId: deliveryResult.insertId}
+                ]);
+            });
+            Promise.all(allVendor).then(async (areaResult, areaError) => {
+                if (areaError) {
+                    await connection.rollback();
+                    connection.release()
+                    throw new Error("Failed To Create Vendor Areas");
+                }
+            })
+        }
+        const hashPassword = await bcrypt.hash("123456", 12);
+        const [userAuthResult, userAuthError] = await connection.query("insert into ?? set ?", [userAuthTable, {
             userType: 3,
             mobileNumber: mobileNumber,
             password: hashPassword,
-        }, {transaction: trans});
-    }).then(() => {
+            DeliveryBoyId: deliveryResult.insertId,
+            createdAt: database.currentTimeStamp()
+        }])
+        if (userAuthError) {
+            await connection.rollback();
+            connection.release()
+            throw new Error("Failed To Create Delivery Boy");
+        }
+
+
+        await connection.commit();
+        connection.release()
         response.status(200).json({
-            status: 200,
-            body: "Delivery Boy Register successfully!",
-        });
-    }).catch(error => {
+            body: "Delivery Boy Register successfully!"
+        })
+    } catch (error) {
         next(error)
-    });
+    }
 };
 
-exports.vendorUpdate = (request, response, next) => {
+exports.deliveryBoyUpdate = async (request, response, next) => {
 
-    console.log("hii");
     let userId = request.params.userId;
-    let updateBy =1; //request.userId;
-    let {name, shopName, email, mobileNumber, gstNumber, foodLicense, area} = request.body;
-    let avatar;
-    if (request.files) {
-        avatar = request.files.shopImage[0].path;
+    let updateBy = 1; //request.userId;
+    let {name, address, email, mobileNumber, license, bikeRc, area, vendor} = request.body;
+
+    let avatar, licenseImage, bikeRcImage;
+    if (request.files && request.files.profileImage) {
+        avatar = request.files.profileImage[0].path;
     }
 
-    UserAuth.findOne({where: {VendorId: updateBy}}).then(requestUser => {
-        if (!requestUser) {
+    try {
+        const userResult = await database.query("select *,(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors, (select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas from ?? where id=(select deliveryBoyId from user_auth where deliveryBoyId=? and activeStatus=1)",
+            [deliveryTable, userId]);
+
+        if (userResult.length === 0) {
             let error = new Error("Unauthorized access");
             error.statusCode = 401;
             throw error;
         }
-        Connection.transaction(async (trans) => {
-            return Vendor.findByPk(userId, {
-                include: [{model: UserAuth}]
-            }).then(user => {
-                if (!user) {
-                    let error = new Error("User Not Found");
-                    error.statusCode = 404;
-                    throw error;
-                }
-                let updateObject = {columns: [], values: []};
-                if (user.updateOnColumn != null && user.updateOnColumn !=="") {
-                    updateObject = JSON.parse(user.updateOnColumn);
-                }
-                user.name = name;
-                user.email = email;
-                if (user.mobileNumber !== mobileNumber) {
-                    if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
-                        updateObject.columns.push('mobileNumber');
-                        updateObject.values.push(mobileNumber);
-                    }
-                }
-                if (user.shopName !== shopName) {
-                    if (updateObject.columns.findIndex(i => i === 'shopName') === -1) {
-                        updateObject.columns.push('shopName');
-                        updateObject.values.push(shopName);
-                    }
-                }
-                if (user.gstNumber !== gstNumber) {
-                    if (updateObject.columns.findIndex(i => i === 'gstNumber') === -1) {
-                        updateObject.columns.push('gstNumber');
-                        updateObject.values.push(gstNumber);
-                    }
-                }
-                if (user.foodLicense !== foodLicense) {
-                    if (updateObject.columns.findIndex(i => i === 'foodLicense') === -1) {
-                        updateObject.columns.push('foodLicense');
-                        updateObject.values.push(foodLicense);
-                    }
-                }
-                if (user.area !== area) {
-                    if (updateObject.columns.findIndex(i => i === 'area') === -1) {
-                        updateObject.columns.push('area');
-                        updateObject.values.push(area);
-                    }
-                }
-                if (avatar) {
-                    clearImage(user.avatar);
-                    user.avatar = avatar;
-                }
-                if (updateObject.columns.length > 0) {
-                    user.adminConfirmOn = 0;
-                    user.updateOnColumn = JSON.stringify(updateObject);
-                }
+        let userObject = userResult[0];
+        let updateObject = {columns: [], values: []};
+        let user = {};
+        if (userObject.updateOnColumn != null && userObject.updateOnColumn !== "") {
+            updateObject = JSON.parse(userObject.updateOnColumn);
+        }
 
-                user.updateBy = requestUser.id;
-                return user.save({transaction: trans});
-            }).then(user => {
-                if (user.UserAuth.mobileNumber !== mobileNumber) {
-                    user.UserAuth.mobileNumber = mobileNumber
-                }
-                return user.UserAuth.save({transaction: trans})
-            }).catch(error => {
-                throw error;
-            })
-        }).then(result => {
-            response.status(200).json({
-                status: 200,
-                body: "Vendor create successfully!"
-            })
-        }).catch(error => {
-            if (avatar) clearImage(avatar);
-            next(error);
+        user.name = name;
+        user.email = email;
+        user.address = address;
+        if (userObject.mobileNumber !== mobileNumber) {
+            if (updateObject.columns.findIndex(i => i === 'mobileNumber') === -1) {
+                updateObject.columns.push('mobileNumber');
+                updateObject.values.push(mobileNumber);
+            }
+        }
+        if (userObject.license !== license) {
+            if (updateObject.columns.findIndex(i => i === 'license') === -1) {
+                updateObject.columns.push('license');
+                updateObject.values.push(license);
+            }
+        }
+        if (userObject.bikeRc !== bikeRc) {
+            if (updateObject.columns.findIndex(i => i === 'bikeRc') === -1) {
+                updateObject.columns.push('bikeRc');
+                updateObject.values.push(bikeRc);
+            }
+        }
+        if (request.files && request.files.licenseImage) {
+            licenseImage = request.files.licenseImage[0].path;
+            if (updateObject.columns.findIndex(i => i === 'licenseImage') === -1) {
+                updateObject.columns.push('licenseImage');
+                updateObject.values.push(licenseImage);
+            }
+        }
+        if (request.files && request.files.bikeRcImage) {
+            bikeRcImage = request.files.bikeRcImage[0].path;
+            if (updateObject.columns.findIndex(i => i === 'bikeRcImage') === -1) {
+                updateObject.columns.push('bikeRcImage');
+                updateObject.values.push(bikeRcImage);
+            }
+        }
+
+        if (user.areas !== area) {
+            if (updateObject.columns.findIndex(i => i === 'area') === -1) {
+                updateObject.columns.push('area');
+                updateObject.values.push(area);
+            }
+        }
+        if (user.vendors !== vendor) {
+            if (updateObject.columns.findIndex(i => i === 'vendors') === -1) {
+                updateObject.columns.push('vendors');
+                updateObject.values.push(vendor);
+            }
+        }
+        if (avatar) {
+            user.photo = avatar;
+        }
+        if (updateObject.columns.length > 0) {
+            user.adminConfirmOn = 0;
+            user.updateOnColumn = JSON.stringify(updateObject);
+        }
+        user.updateBy = updateBy;
+        user.updatedAt = database.currentTimeStamp();
+        if (updateObject.columns.length > 0) {
+            user.adminConfirmOn = 0;
+            user.updateOnColumn = JSON.stringify(updateObject);
+        }
+        const connection = await database.transaction();
+        await connection.beginTransaction();
+        const [result, deliveryUpdateError] = await connection.query('update ?? set ? where ?', [deliveryTable, user, {id: userId}]);
+        if (deliveryUpdateError) {
+            await connection.rollback();
+            connection.release();
+            throw new Error("Failed To Update Delivery");
+        }
+        if (userObject.mobileNumber !== mobileNumber) {
+            const [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {mobileNumber: mobileNumber,updatedAt:database.currentTimeStamp()}, {DeliveryBoyId: userId}])
+            if (userAuthError) {
+                await connection.rollback();
+                connection.release();
+                throw new Error("Failed To Update Delivery");
+            }
+        }
+        if (avatar) {
+            clearImage(userObject.photo)
+        }
+        await connection.commit();
+        connection.release()
+        return response.status(200).json({
+            body: "Update delivery boy details successfully"
         })
-    }).catch(error => {
+
+    } catch (error) {
         next(error);
-    })
+    }
+
 
 }
 
 
-exports.deleteDeliveryBoy = (request, response,next) => {
+exports.deleteDeliveryBoy = async (request, response, next) => {
 
     let userId = request.body.deliveryBoyId;
 
-    DeliveryBoy.findByPk(userId).then(user => {
-        if (!user) {
+    try {
+        const connection = await database.transaction();
+        await connection.beginTransaction();
+        let [delivery,meta]= await connection.query("select id,photo,licensePhoto,bikeRcPhoto from ?? where id=?", [deliveryTable, userId]);
+        if (delivery.length ===0) {
+            connection.release();
             let error = new Error("User Not Found");
-            error.statusCode =404;
-            throw error;
-        }
-        console.log(user)
-        clearImage(user.avatar);
-        return user.destroy()
-    }).then(count => {
-        if (!count) {
-            let error = new Error("Failed to delete Delivery Boy")
-            error.statusCode = 500;
-            throw error;
-        }
-        response.status(200).json({
-            body: "Successfully delete Delivery Boy"
-        })
-    }).catch(error => {
-        next(error)
-    })
-}
-
-
-exports.getVendor=(request,response,next)=>{
-    let userId = request.body.vendorId;
-    Vendor.findByPk(userId,{
-        attributes:["id","name","email","mobileNumber","avatar","shopName","gstNumber","foodLicense",
-            "area","accountStatus"],
-        include:[{
-            model:UserAuth,
-            attributes:["userType","loginAt"]
-        }]
-    }).then(user=>{
-        if(!user){
-            let error = new Error("User Not Found")
             error.statusCode = 404;
             throw error;
         }
-        return response.status(200).json(user);
-    }).catch(error=>{
+
+        let [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {activeStatus: 0}, {DeliveryBoyId: delivery[0].id}]);
+        if (userAuthError) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed To Delete Delivery Boy");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        let [deliveryResult, deliveryError] = await connection.query("update ?? set ? where ?",
+            [deliveryTable, {activeStatus: 0,deletedAt:database.currentTimeStamp()}, {id: delivery[0].id}]);
+        if (deliveryError) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed To Delete Delivery Boy");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        await connection.commit();
+        if (delivery[0].photo) {
+            clearImage(delivery[0].photo);
+        }
+        if (delivery[0].licensePhoto) {
+            clearImage(delivery[0].licensePhoto);
+        }
+        if (delivery[0].bikeRcPhoto) {
+            clearImage(delivery[0].bikeRcPhoto);
+        }
+        connection.release()
+        response.status(200).json({
+            body: "Delete Delivery Boy Successfully"
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+exports.getVendor = (request, response, next) => {
+    let userId = request.body.vendorId;
+    database.select(deliveryTable, {id: userId},
+        ["id", "name", "email", "mobileNumber", "photo", "address", "bikeRc", "license",
+            "accountStatus",
+            "(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors",
+            "(select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas"])
+        .then(user => {
+            if (user.length === 0) {
+                let error = new Error("User Not Found")
+                error.statusCode = 404;
+                throw error;
+            }
+            return response.status(200).json(user[0]);
+        }).catch(error => {
         next(error)
     })
 }
@@ -286,35 +359,31 @@ exports.getVendor=(request,response,next)=>{
 exports.getAllDeliveryBoyTables = (request, response, next) => {
     let {start, length, draw} = request.body;
     let search = request.body['search[value]'];
-    DeliveryBoy.count().then(totalCount => {
-        DeliveryBoy.findAll({
-            attributes: ["id", "name", "email","mobileNumber","license","bikeRc",
-                "avatar", "createdAt"],
-            include:[{model:UserAuth,attributes:["id"]},
-                {
-                    model:Location,as: 'DeliveryBoysLocations'
-                }],
-            where: search ? {name: {[Op.like]: "%" + search + "%"}} : {},
-            order: [["createdAt", "DESC"]],
-            limit: parseInt(length) || 10,
-            offset: parseInt(start) || 0
-        })
-            .then((categories) => {
-                response.status(200).json({
-                    draw: parseInt(draw),
-                    recordsTotal: totalCount,
-                    recordsFiltered: categories.length,
-                    data: categories
-                });
-            }).catch(error => {
-            response.status(500).json({
-                body: error.message
-            })
-        })
-    }).catch(error => {
-        response.status(400).json({
-            body: "Not Found",
-            exception: error
+
+    database.findAllCount(deliveryTable)
+        .then(totalCount => {
+            database.dataTableSource(deliveryTable, [
+                    "id", "name", "email", "mobileNumber", "license", "bikeRc",
+                    "photo",  "createdAt", "adminConfirmOn",
+                    "(select group_concat(shopName) from vendor_user  where activeStatus=1 and id in(select vendorId from delivery_boys_vendors where deliveryBoyId=delivery_boy.id)) as vendors",
+                    "(select group_concat(name) from location where active_status=1 and id in(select locationId from delivery_boys_locations where deliveryBoyId=delivery_boy.id)) as areas",
+                ],
+                {activeStatus:1},
+                'createdAt', 'name', search, "desc", parseInt(start), parseInt(length), false)
+                .then(result => {
+                    return response.status(200).json({
+                        draw: parseInt(draw),
+                        recordsTotal: totalCount,
+                        recordsFiltered: result.length,
+                        data: result
+                    });
+                })
+        }).catch(error => {
+        return response.status(200).json({
+            draw: 1,
+            recordsTotal: 0,
+            recordsFiltered: 0,
+            data: []
         });
-    })
+    });
 }

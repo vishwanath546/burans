@@ -161,8 +161,8 @@ const app = (function () {
             $(`#${elementID}`).rules('add', rule);
         }
 
-        const removeValidation = (elementID) => {
-            $(`#${elementID}`).rules('remove');
+        const removeValidation = (elementID,rule) => {
+            $(`#${elementID}`).rules('remove',rule);
         }
 
         const catchHandler = (error) => {
@@ -262,7 +262,7 @@ const app = (function () {
             formValidation: () => formValidation(),
             catchHandler: (error) => catchHandler(error),
             setValidation: (elementID, rules) => addValidation(elementID, rules),
-            removeValidation: (elementID) => removeValidation(elementID),
+            removeValidation: (elementID,rule) => removeValidation(elementID,rule),
             getDate: (string) => getDate(string),
             imagePreview: (url, title, id) => imagePreview(url, title, id),
             deleteImage: (id) => deleteImage(id)

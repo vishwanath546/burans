@@ -1,6 +1,6 @@
 $(document).ready(function () {
     app.formValidation();
-    getLocationOptions('area');
+
     $.uploadPreview({
         input_field: "#shop-image",   // Default: .image-upload
         preview_box: "#shop-image-preview",  // Default: .image-preview
@@ -13,6 +13,8 @@ $(document).ready(function () {
     let vendor = parseInt($("#updateVendorId").val());
     if(vendor!==0){
         getVendorDetails(vendor);
+    }else{
+        getLocationOptions('area');
     }
 });
 
@@ -47,7 +49,10 @@ function getVendorDetails(vendor) {
             $("#name").val(response.name);
             $("#mobileNumber").val(response.mobileNumber);
             $("#email").val(response.email);
-            $("#area").val(response.area);
+            getLocationOptions('area').then(()=>{
+                $("#area").val(response.area.split(",")).trigger('change');
+            });
+
             $("#shopName").val(response.shopName);
             $("#address").val(response.address);
             $("#gstNumber").val(response.gstNumber);
