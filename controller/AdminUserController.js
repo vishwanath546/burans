@@ -1,70 +1,155 @@
 require('dotenv').config();
-const {clearImage} = require('../util/helpers');
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
-
-const {Connection} = require('../sequlizerModel/Database');
-
-const {AdminUser} = require('../sequlizerModel/AdminUser');
-const {UserAuth} = require('../sequlizerModel/UserAuth');
-
+const database = require('../model/db');
+const tableName = 'user_auth';
+const adminTable = 'admin_user';
+const {clearImage} = require('../util/helpers');
 
 
-exports.loginVerification = (request, response) => {
+exports.loginVerification = (request, response, next) => {
     let {username, password} = request.body;
 
-    UserAuth.findOne({
-        where: {mobileNumber: username, userType: 4}
-    }).then(User => {
-        if (!User) {
-            response.status(401).json({
-                body: "User Not Found"
-            })
-        } else {
-            bcrypt.compare(password, User.password).then(async isMatch => {
-                if (isMatch) {
-                    User.loginAt = Date.now();
-                    User.save({fields: ["loginAt"]});
+    database.select(tableName, {mobileNumber: username, userType: 4},
+        ["id", "password", "AdminUserId", "userType", "rememberToken"])
+        .then(User => {
+            if (User.length === 0) {
+                let error = new Error('User Not Found');
+                error.statusCode = 404;
+                throw error;
+            } else {
+                return bcrypt.compare(password, User[0].password)
+                    .then(async isMatch => {
+                        if (isMatch) {
+                            let token = jwt.sign({
+                                username: username,
+                                userId: User[0].AdminUserId
+                            }, process.env.JWT_SECRET, {expiresIn: '1h'})
+                            return database.update(tableName, {
+                                loginAt: Date.now(),
+                                rememberToken: token
+                            }, {id: User[0].id})
+                                .then(result => {
+                                    if (!result.status) {
+                                        let error = new Error('incorrect password');
+                                        error.statusCode = 401;
+                                        throw error;
+                                    }
+                                    return database.select(adminTable, {id: User[0].AdminUserId},
+                                        ["id", "name", "email", "mobileNumber", "avatar"])
+                                })
+                                .then(adminUser => {
+                                    if (adminUser.length === 0) {
+                                        let error = new Error('User Not Found');
+                                        error.statusCode = 404;
+                                        throw error;
+                                    }
+                                    request.session.token = token;
+                                    request.session.user = {
+                                        userType: User[0].userType,
+                                        authId: User[0].id, ...adminUser[0]
+                                    };
+                                    console.log("login session",request.session);
+                                    return Promise.resolve(true);
+                                })
+                                .catch(error => {
+                                    next(error);
+                                });
+                        } else {
+                            let error = new Error('incorrect password');
+                            error.statusCode = 401;
+                            throw error;
 
-                    let token = jwt.sign({
-                        username: username,
-                        userId: User.AdminUserId
-                    }, process.env.JWT_SECRET, {expiresIn: '1h'})
-
-                    response.status(200).json({
-                        status: 200,
-                        token: token,
-                        body: await AdminUser.findByPk(User.AdminUserId, {
-                            include: [{model: UserAuth, attributes: ["userType", "rememberToken"]}],
-                            attributes: ["id", "name", "email", "mobileNumber", "avatar"]
+                        }
+                    }).then(result => {
+                        response.status(200).json({
+                            body: "Authenticated User"
                         })
                     })
-                } else {
-                    response.status(401).json({
-                        body: "incorrect password"
-                    })
-                }
-            }).catch(error => {
-                response.status(200).json({
-                    status: 201,
-                    body: "Something went wrong",
-                    error: error
-                })
-            })
-        }
-    }).catch(error => {
-        response.status(200).json({
-            status: 201,
-            body: "Something went wrong",
-            error: error
+                    .catch(error => {
+                        next(error);
+                    });
+            }
         })
-    });
+        .catch(error => {
+            next(error);
+        });
 }
 
-exports.updateAdmin = (request, response,next) => {
+exports.updateAdmin = (request, response, next) => {
     let userId = request.params.userId;
-    let updateBy = request.userId;
+    let updateBy = request.session.id;
     let {name, email, mobileNumber, setting} = request.body;
+    let avatar;
+    if (request.files) {
+        avatar = request.files.profileImage[0].path;
+    }
+
+    try {
+        database.select(tableName, {AdminUserId: userId, activeStatus: 1, userType: 4},
+            ["id", "mobileNumber"])
+            .then(async AuthUser => {
+                if (AuthUser.length === 0) {
+                    let error = new Error("Unauthorized access");
+                    error.statusCode = 401;
+                    throw error;
+                }
+
+                const connection = await database.transaction();
+                await connection.beginTransaction();
+                let user = {};
+                user.name = name;
+                user.email = email;
+                user.mobileNumber = mobileNumber;
+                user.settings = setting;
+                user.updateBy = updateBy;
+                user.updatedAt = database.currentTimeStamp();
+                if (user.avatar !== avatar) {
+                    clearImage(user.avatar);
+                    user.avatar = avatar;
+                }
+
+                const [result, error] = await connection.query("update ?? set ? where ?", [adminTable, user, {id: userId}]);
+                if (error) {
+                    await connection.rollback();
+                    connection.release();
+                    let error = new Error("Failed to update");
+                    error.statusCode = 401;
+                    throw error;
+                }
+                let authUserObject = {
+                    updatedAt: database.currentTimeStamp()
+
+                };
+                if (AuthUser[0].mobileNumber !== mobileNumber) {
+                    authUserObject.mobileNumber = mobileNumber;
+                }
+                const [authResult, AuthError] = await connection.query("update ?? set ? where ?",
+                    [tableName, authUserObject, {AdminUserId: userId, activeStatus: 1, userType: 4}]);
+                if (AuthError) {
+                    await connection.rollback();
+                    connection.release();
+                    let error = new Error("Failed to update");
+                    error.statusCode = 401;
+                    throw error;
+                }
+                await connection.commit();
+                connection.release()
+                response.status(200).json({
+                    body: "Update admin user successfully"
+                })
+            })
+            .catch(error => {
+                next(error);
+            })
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.saveAdmin = async (request, response, next) => {
+    let {name, email, mobileNumber, password} = request.body;
     if (!request.files) {
         return response.status(401).json({
             status: 401,
@@ -72,90 +157,51 @@ exports.updateAdmin = (request, response,next) => {
         })
     }
     const avatar = request.files.profileImage[0].path;
-
-    AdminUser.findByPk(updateBy).then(requestUser=>{
-        if(!requestUser){
-            let error=new Error("Unauthorized access");
-            error.statusCode=401;
-            throw error;
-        }
-        Connection.transaction(async (trans) => {
-            return AdminUser.findByPk(userId,{
-                include:[{model:UserAuth}]
-            }).then(user => {
-                if (!user) {
-                    return response.status(404).json({
-                        body: "User Not Found"
-                    });
-                }
-                user.name = name;
-                user.email = email;
-                user.mobileNumber = mobileNumber;
-                user.settings = setting;
-                user.updateBy = requestUser.id;
-                if (user.avatar !== avatar) {
-                    clearImage(user.avatar);
-                    user.avatar = avatar;
-                }
-                return user.save({transaction: trans});
-            }).then(user => {
-                if(user.UserAuth.mobileNumber !== mobileNumber) {
-                    user.UserAuth.mobileNumber = mobileNumber
-                }
-                return user.UserAuth.save({transaction: trans})
-            })
-        }).then(result => {
-            response.status(200).json({
-                status: 200,
-                body: "User create successfully!"
-            })
-        }).catch(error => {
-            clearImage(avatar);
-            error.statusCode=500;
-            next(error);
-        })
-    }).catch(error=>{
-        next(error);
-    })
-}
-
-exports.saveAdmin = (request, response) => {
-    let {name, email, mobileNumber, password} = request.body;
-    Connection.transaction(async (trans) => {
+    try {
         const hashPassword = await bcrypt.hash(password, 12);
-
-        if (!request.files) {
-            return response.status(401).json({
-                status: 401,
-                body: "no image provided"
-            })
-        }
-        const avatar = request.files.profileImage[0].path;
-        let AdminUserObject = await AdminUser.create({
+        const adminUserObject = {
             name: name,
             email: email,
             mobileNumber: mobileNumber,
             settings: "1",
             avatar: avatar,
-        }, {transaction: trans});
+            createdAt: database.currentTimeStamp()
+        }
+        const connection = await database.transaction();
+        await connection.beginTransaction();
 
-        await AdminUserObject.createUserAuth({
+        const [result, error] = await connection.query("insert into ?? set ?", [adminTable, adminUserObject]);
+        if (error) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed to create admin user");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        const adminAuthUserObject = {
             userType: 4,
             mobileNumber: mobileNumber,
             password: hashPassword,
-        }, {transaction: trans});
-    }).then(() => {
+            AdminUserId: result.insertId,
+            createdAt: database.currentTimeStamp()
+        }
+        const [authResult, authError] = await connection.query("insert into ?? set ?", [tableName, adminAuthUserObject]);
+        if (authError) {
+            await connection.rollback();
+            connection.release();
+            let error = new Error("Failed to create admin user");
+            error.statusCode = 401;
+            throw error;
+        }
+        await connection.commit();
+        connection.release()
         response.status(200).json({
-            status: 200,
-            body: "User Register successfully!"
+            body: "Create admin user successfully"
         })
-    }).catch(error => {
-        response.status(500).json({
-            status: 201,
-            body: error
-        })
-    })
-
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.deleteAdminUser = (request, response) => {
@@ -184,30 +230,30 @@ exports.deleteAdminUser = (request, response) => {
             body: "Successfully delete user"
         })
     }).catch(error => {
-       return  response.status(500).json({
+        return response.status(500).json({
             body: error
         })
     })
 }
 
 
-exports.getUser=(request,response)=>{
+exports.getUser = (request, response) => {
     let userId = request.params.userId;
-    AdminUser.findByPk(userId,{
-        attributes:["id","name","email","mobileNumber","avatar","status"],
-        include:[{
-            model:UserAuth,
-            attributes:["userType","loginAt"]
+    AdminUser.findByPk(userId, {
+        attributes: ["id", "name", "email", "mobileNumber", "avatar", "status"],
+        include: [{
+            model: UserAuth,
+            attributes: ["userType", "loginAt"]
         }]
-    }).then(user=>{
-        if(!user){
+    }).then(user => {
+        if (!user) {
             return response.status(404).json({
-                body:"User Not Found"
+                body: "User Not Found"
             })
         }
         return response.status(200).json(user);
-    }).catch(error=>{
-        return  response.status(500).json({
+    }).catch(error => {
+        return response.status(500).json({
             body: error.message
         })
     })

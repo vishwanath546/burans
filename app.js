@@ -4,7 +4,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const multer = require('multer');
-
+const session = require('express-session');
 // const db = require('./model/db')
 
 const app = express();
@@ -16,7 +16,7 @@ app.set("view engine", "ejs");
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-
+app.use(session({secret:'burans',resave:false,saveUninitialized:false,cookie:{maxAge:3600000}}));
 const diskStorage = multer.diskStorage({
     destination: (request, file, callback) => {
         let destinationPath = "public/";

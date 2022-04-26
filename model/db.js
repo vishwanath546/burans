@@ -66,7 +66,7 @@ async function select(tableName, where, selectAttributes) {
 
     let whereCondition =``;
     if(where){
-        whereCondition=Object.keys(where).map((key) => `${key}=${where[key]}`).join(" and ");
+        whereCondition=Object.keys(where).map((key) => `${key}='${where[key]}'`).join(" and ");
     }
         if (where && selectAttributes)
             sql = mysql.format(`select ${selectAttributes.join(',')} from ??  where ${whereCondition}`, [tableName]);

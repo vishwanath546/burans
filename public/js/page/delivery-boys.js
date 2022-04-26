@@ -1,5 +1,10 @@
 $(document).ready(function () {
     loadDeliveryTable()
+    $("#fire-modal-approval").on("shown.bs.modal", (e) => {
+
+        let id = parseInt($(e.relatedTarget).data('id'));
+        getDeliveryBoy(id);
+    });
 })
 
 function loadDeliveryTable() {
@@ -40,9 +45,9 @@ function loadDeliveryTable() {
         {
             data: "id",
             render: (d, t, r, m) => {
-                let confirm=``;
-                if(r["adminConfirmOn"] === 0){
-                    confirm=  `<button class="btn btn-primary">
+                let confirm = ``;
+                if (r["adminConfirmOn"] === 0) {
+                    confirm = `<button class="btn btn-primary" data-toggle="modal" data-id="${d}" data-target="#fire-modal-approval">
                             <i class="fa fa-check"></i>    
                      </button> `
                 }
@@ -98,4 +103,116 @@ function statusUpdate(categoryId, status) {
             app.errorToast(error.message);
         }
     });
+}
+
+function getDeliveryBoy(deliveryBoyId) {
+    let formData = new FormData();
+    formData.set("deliveryBoyId", deliveryBoyId)
+    app.request("getDeliveryBoy", formData).then(response => {
+        if (parseInt(response.adminConfirmOn) === 0) {
+            if (response.updateOnColumn !== null && response.updateOnColumn !== "") {
+                let object = JSON.parse(response.updateOnColumn);
+                let template = object.columns.map((item, index) => {
+                    switch (item) {
+                        case "mobileNumber":
+                            return getApprovalTemplate(object.values[index], response.mobileNumber, 'mobileNumber', index);
+                        case "license":
+                            return getApprovalTemplate(object.values[index], response.license, 'license', index);
+                        case "licenseImage":
+                            return getApprovalTemplate(object.values[index], response.licenseImage, 'licenseImage', index);
+                        case "bikeRc":
+                            return getApprovalTemplate(object.values[index], response.bikeRc, 'bikeRc', index);
+                        case "bikeRcImage":
+                            return getApprovalTemplate(object.values[index], response.bikeRcImage, 'bikeRcImage', index);
+                        case "area":
+                            return app.request("getAllLocationOptions", null)
+                                .then(options => {
+                                    let newValue = [];
+                                    let oldValue = [];
+                                    let oldIdValues = response.areas.split(",");
+                                    for (let area of options.results) {
+                                        if (Array.isArray(object.values[index])) {
+                                            if (object.values[index].some((areaValue) => parseInt(areaValue) === parseInt(area.id))) {
+                                                newValue.push(area.text);
+                                            }
+                                        } else {
+                                            if (object.values[index] === area.id) {
+                                                newValue.push(area.text);
+                                            }
+                                        }
+                                        // old values
+                                        if (oldIdValues.some((areaValue) => parseInt(areaValue) === parseInt(area.id))) {
+                                            oldValue.push(area.text);
+                                        }
+                                    }
+                                    return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'area', index);
+                                }).catch(error => {
+                                    console.log(error);
+                                    return ``;
+                                })
+                        case "vendors":
+                            return app.request("vendor/getAllVendorOptions", null)
+                                .then(options => {
+                                    let newValue = [];
+                                    let oldValue = [];
+                                    let oldIdValues = response.areas.split(",");
+                                    for (let vendor of options.results) {
+                                        if (Array.isArray(object.values[index])) {
+                                            if (object.values[index].some((vendorValue) => vendorValue === vendor.id)) {
+                                                newValue.push(vendor.text);
+                                            }
+                                        } else {
+                                            if (object.values[index] === vendor.id) {
+                                                newValue.push(vendor.text);
+                                            }
+                                        }
+                                        // old values
+                                        if (oldIdValues.some((vendorValue) => vendorValue === vendor.id)) {
+                                            oldValue.push(vendor.text);
+                                        }
+                                    }
+                                    if(newValue.length !==0) {
+                                        return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'vendors', index);
+                                    }else{
+                                        return ``;
+
+                                    }
+                                }).catch(error => {
+                                    console.log(error);
+                                    return ``;
+                                });
+                        default:
+                            return ``;
+
+                    }
+                })
+                Promise.all(template).then(result=>{
+                    $("#approvalPendingList").empty();
+
+                    $("#approvalPendingList").append(result.join(" "));
+
+                }).catch(error=>{
+                    console.log(error);
+                    $("#approvalPendingList").empty();
+
+                })
+
+            }
+        }
+    })
+}
+
+function getApprovalTemplate(newValue, oldValue, column, index) {
+
+    return `<li class="media">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" value="column" id="cbx-${index}">
+                    <label class="custom-control-label" for="cbx-${index}"></label>
+                </div>
+                <div class="media-body">
+                    <div class="badge badge-pill badge-primary mb-1 float-right">${column}</div>    
+                    <h6 class="media-title">${newValue}</h6>
+                    <div class="text-small text-muted">${oldValue}</div>
+                </div>
+            </li>`
 }

@@ -337,11 +337,11 @@ exports.deleteDeliveryBoy = async (request, response, next) => {
 }
 
 
-exports.getVendor = (request, response, next) => {
-    let userId = request.body.vendorId;
+exports.getDeliveryBoy = (request, response, next) => {
+    let userId = request.body.deliveryBoyId;
     database.select(deliveryTable, {id: userId},
         ["id", "name", "email", "mobileNumber", "photo", "address", "bikeRc", "license",
-            "accountStatus",
+            "accountStatus","updateOnColumn","adminConfirmOn",
             "(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors",
             "(select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas"])
         .then(user => {

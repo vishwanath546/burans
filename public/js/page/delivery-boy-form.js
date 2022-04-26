@@ -31,7 +31,7 @@ function previewUpload(label_field, preview_box, input_field) {
 
 function getDeliveryBoy(deliveryBoyId) {
     let formData = new FormData();
-    formData.set("vendorId", deliveryBoyId)
+    formData.set("deliveryBoyId", deliveryBoyId)
     app.request("getDeliveryBoy", formData).then(response => {
         $("#name").val(response.name);
         $("#mobileNumber").val(response.mobileNumber);

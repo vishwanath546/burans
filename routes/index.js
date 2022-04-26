@@ -16,7 +16,10 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/dashboard', function (req, res, next) {
-    res.render('pages/dashboard', {title: 'Burans Login', url: req.url});
+    if(!req.session.user){
+        res.redirect("/");
+    }
+    res.render('pages/dashboard', {title: 'Dashboard', url: req.url, session:req.session});
 });
 
 router.get('/customer', function (req, res, next) {
@@ -168,6 +171,9 @@ router.get('/create-delivery-boy', function(req, res, next) {
 });
 
 router.get('/update-delivery-boy/:updateId', function(req, res, next) {
+    if(!req.session.user){
+        res.redirect("/");
+    }
     let deliveryBoyId= req.params.updateId;
     if(!deliveryBoyId){
         let error = new Error('Not Found');
@@ -175,15 +181,21 @@ router.get('/update-delivery-boy/:updateId', function(req, res, next) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url:'/' + segments[1],deliveryBoyId:deliveryBoyId });
+    res.render('pages/DeliveryBoy/DeliveryBoy', {
+        title: 'Create Delivery Boys', url:'/' + segments[1],deliveryBoyId:deliveryBoyId, session:req.session, });
 });
 
 router.get('/view-delivery-boys', function (req, res, next) {
-    res.render('pages/DeliveryBoy/ViewDeliveryBoy', {title: 'View Delivery Boys',url:req.url});
+    if(!req.session.user){
+        res.redirect("/");
+    }
+    res.render('pages/DeliveryBoy/ViewDeliveryBoy', {title: 'View Delivery Boys',
+        session:req.session,
+        url:req.url});
 });
 router.post('/getAllDeliveryBoysTables', DeliveryBoyController.getAllDeliveryBoyTables);
 router.post('/saveDeliveryBoyDetails', DeliveryBoyController.DeliveryBoyRegistration);
-router.post('/getDeliveryBoy', DeliveryBoyController.getVendor);
+router.post('/getDeliveryBoy', DeliveryBoyController.getDeliveryBoy);
 router.post("/saveUpdateDeliveryDetails/:userId",
     DeliveryBoyController.deliveryBoyUpdate);
 
