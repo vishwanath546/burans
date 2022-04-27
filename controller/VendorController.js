@@ -86,11 +86,25 @@ exports.otpVerification = (request, response, next) => {
             shopName: vendordata[0].shopName,
             avatar: vendordata[0].avatar,
           };
-          console.log(request.session.user);
-          response.status(200).json({
-            status: true,
-            body: "Vendor login Sucessfully",
+          let timedata = {
+            loginAt: database.currentTimeStamp(),
+          };
+          return database.update(userAuthTable, timedata, {
+            VendorId: vendordata[0].id,
           });
+        })
+        .then((result) => {
+          if (result.affectedRows > 0) {
+            response.status(200).json({
+              status: true,
+              body: "Vendor login Sucessfully",
+            });
+          } else {
+            response.status(401).json({
+              status: false,
+              body: "Failed to login Vendor",
+            });
+          }
         })
         .catch((error) => {
           next(error);
