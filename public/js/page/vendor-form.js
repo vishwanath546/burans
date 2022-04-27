@@ -57,6 +57,14 @@ function getVendorDetails(vendor) {
             $("#address").val(response.address);
             $("#gstNumber").val(response.gstNumber);
             $("#foodLicense").val(response.foodLicense);
+            if (response.avatar && response.avatar !== "") {
+                $("#shop-image-preview").css({
+                    "background-image": `url("${baseURL + response.avatar.replace("public", "").split("\\").join("/")}")`,
+                    "background-repeat": " no-repeat",
+                    "background-position": "left center",
+                    "background-size": "cover"
+                })
+            }
 
         }).catch(error => {
             if (error.status === 500) {

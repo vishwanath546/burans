@@ -1,10 +1,11 @@
 const database = require('../model/db');
 const tableName = 'addons_products';
+const mappingTableName = 'addons_category_mapping';
 const {clearImage} = require('../util/helpers');
 
 exports.saveAddOnsProduct = (request, response, next) => {
     let {
-        name, description, price, status,
+        name, description, price, status,category,
         updateProductId
     } = request.body;
 
@@ -17,6 +18,7 @@ exports.saveAddOnsProduct = (request, response, next) => {
         description: description,
         price: price,
         status: status,
+        categoryId:category
     };
 
     database.select(tableName, {id: updateProductId})

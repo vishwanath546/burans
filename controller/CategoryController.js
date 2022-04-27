@@ -41,7 +41,7 @@ exports.getAllCategoriesTables = (request, response, next) => {
     database.findAllCount(tableName, {
         activeStatus: 1
     }).then(totalCount => {
-        database.dataTableSource(tableName, ["id", "name", "description", "photo", "status","isSubcategory", "createdAt"]
+        database.dataTableSource(tableName, ["id", "name", "description", "photo", "status", "isSubcategory", "createdAt"]
             , {activeStatus: 1}, 'createdAt', 'name', search, 'desc',
             parseInt(start), parseInt(length)).then(result => {
             return response.status(200).json({
@@ -64,9 +64,9 @@ exports.getAllCategories = (request, response, next) => {
     database.select(tableName, {status: 1, isSubcategory: 0}, ["id", "name", "description", "photo"])
         .then(categories => {
             if (categories.length > 0) {
-                let allCategories = categories.map(async(category) => {
+                let allCategories = categories.map(async (category) => {
                     return {
-                        category:category,
+                        category: category,
                         subCategory: await database.query(`select id, name,description, photo from ${tableName} 
                     where id in (select subcategoryId from ${mappingTableName} where CategoryId=${category.id}) 
                     and activeStatus=1 and status=1`),
@@ -104,7 +104,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
         status: status,
     };
 
-    try{
+    try {
         if (parseInt(updateCategoryId) !== 0) {
 
             const existingCategoryObject = await database.query(`select *,(select CategoryId from subcategory_mapping where subcategoryId =s.id) as categoryID from category s where id = ${updateCategoryId}`);
@@ -116,7 +116,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
             const connection = await database.transaction()
             await connection.beginTransaction();
             if (existingCategoryObject[0].isSubcategory === 1) {
-                let [deleteResult,error] = await connection.query(`delete from ${mappingTableName} where subcategoryId =${existingCategoryObject[0].id}`);
+                let [deleteResult, error] = await connection.query(`delete from ${mappingTableName} where subcategoryId =${existingCategoryObject[0].id}`);
                 if (error) {
                     await connection.rollback();
                     let error = new Error("Failed to update");
@@ -125,7 +125,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
                 }
             }
             object.updatedAt = database.currentTimeStamp();
-            let [updateResult,updateError] = await connection.query('update ?? set ? where ? ', [tableName, object, {id: updateCategoryId}]);
+            let [updateResult, updateError] = await connection.query('update ?? set ? where ? ', [tableName, object, {id: updateCategoryId}]);
 
             if (updateError) {
                 await connection.rollback();
@@ -143,7 +143,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
                 body: "Update Service Successfully"
             })
 
-        }else{
+        } else {
             const connection = await database.transaction();
             await connection.beginTransaction();
             object.createdAt = database.currentTimeStamp();
@@ -156,7 +156,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
             }
 
             if (chkIsSubcategory === "on") {
-                const [mapError] = await connection.query("insert into ?? set ?",[mappingTableName, {
+                const [mapError] = await connection.query("insert into ?? set ?", [mappingTableName, {
                     CategoryId: category_id,
                     subcategoryId: results.insertId
                 }])
@@ -174,7 +174,7 @@ exports.saveCategorySubcategory = async (request, response, next) => {
             })
         }
 
-    }catch (error) {
+    } catch (error) {
         next(error)
     }
 
@@ -183,8 +183,16 @@ exports.saveCategorySubcategory = async (request, response, next) => {
 exports.getCategoryById = (request, response, next) => {
 
     let {categoryId} = request.body;
-    database.query(`select id,name,description,isSubcategory,status,photo,sequenceNumber,
-       (select CategoryId from subcategory_mapping where subcategoryId=s.id) as category_id from ?? s where id=?`,[tableName,categoryId])
+    database.query(`select id,
+                           name,
+                           description,
+                           isSubcategory,
+                           status,
+                           photo,
+                           sequenceNumber,
+                           (select CategoryId from subcategory_mapping where subcategoryId = s.id) as category_id
+                    from ? ? s
+                    where id=?`, [tableName, categoryId])
         .then(category => {
             if (category.length > 0) {
                 response.status(200).json(category[0])
@@ -200,16 +208,16 @@ exports.getCategoryById = (request, response, next) => {
 
 exports.deleteCategory = (request, response, next) => {
     let {categoryId} = request.body;
-    database.select(tableName,{id:categoryId}).then(category=>{
-        if(category.length===0){
+    database.select(tableName, {id: categoryId}).then(category => {
+        if (category.length === 0) {
             let error = new Error("Category Not Found");
             error.status = 404;
             throw  error;
         }
-        if(category[0].photo){
+        if (category[0].photo) {
             clearImage(category[0].photo);
         }
-        return database.update(tableName,{activeStatus:0},{id:categoryId})
+        return database.update(tableName, {activeStatus: 0}, {id: categoryId})
     })
         .then(results => {
             if (!results.status) {
@@ -250,3 +258,24 @@ exports.updateCategoryStatus = (request, response, next) => {
 
 }
 
+exports.sequenceUpdate = (request, response, next) => {
+    let categories =[[1,6],[2,5],[3,4],[4,3],[5,2],[6,1]] ;//request.body.categories;
+    database.query(`INSERT INTO ?? (id, sequenceNumber)
+                    VALUES ?
+                    ON DUPLICATE KEY
+    UPDATE sequenceNumber =
+    VALUES (sequenceNumber)`, [tableName, categories])
+        .then(results => {
+            if (!results) {
+                let error = new Error("Failed to update")
+                error.statusCode = 401;
+                throw  error;
+            }
+            return response.status(200).json({
+                body: "Save Category sequence"
+            })
+        })
+        .catch(error => {
+            next(error);
+        })
+}

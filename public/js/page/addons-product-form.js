@@ -13,6 +13,7 @@ $(document).ready(function () {
     if (productId !== 0) {
         getProductDetails(productId);
     } else {
+        getCategoryOption('ddl_addons_category');
     }
 });
 
@@ -42,14 +43,25 @@ function getProductDetails(productId) {
         $("#description").val(response.description);
         $("#price").val(response.price);
         $('#alreadyUploadImage').empty();
-        if(response.photo && response.photo !==""){
-            $('#alreadyUploadImage').append(previousImage(response.photo));
+
+        if (response.photo && response.photo !== "") {
+            $("#product-image-preview").css({
+                "background-image": `url("${baseURL + response.photo.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
         }
+        getCategoryOption('ddl_addons_category')
+            .then(()=>{
+                $("#ddl_addons_category").val(response.category).trigger('change');
+            }).catch(error=>console.log("Failed to load category options",error));
         if(response.status === 1){
             $("input[type='radio'][value='1']").attr("checked",true);
         }else{
             $("input[type='radio'][value='0']").attr("checked",true);
         }
+
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");

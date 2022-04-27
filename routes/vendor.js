@@ -18,7 +18,7 @@ router.post(
 router.post("/saveUpdateVendorDetails/:userId",
     Validator(Schemas.vendorRegistration),
     vendorController.vendorUpdate);
-
+router.post("/vendorApprovalConfirmation", vendorController.approval)
 router.post("/getAllVendors",
     vendorController.getAllVendorsTables);
 

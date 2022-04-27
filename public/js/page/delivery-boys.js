@@ -115,15 +115,15 @@ function getDeliveryBoy(deliveryBoyId) {
                 let template = object.columns.map((item, index) => {
                     switch (item) {
                         case "mobileNumber":
-                            return getApprovalTemplate(object.values[index], response.mobileNumber, 'mobileNumber', index);
+                            return getApprovalTemplate(object.values[index], response.mobileNumber, 'mobileNumber', index, response.id);
                         case "license":
-                            return getApprovalTemplate(object.values[index], response.license, 'license', index);
-                        case "licenseImage":
-                            return getApprovalTemplate(object.values[index], response.licenseImage, 'licenseImage', index);
+                            return getApprovalTemplate(object.values[index], response.license, 'license', index, response.id);
+                        case "licensePhoto":
+                            return getApprovalTemplate(object.values[index], response.licensePhoto, 'licensePhoto', index, response.id,1);
                         case "bikeRc":
-                            return getApprovalTemplate(object.values[index], response.bikeRc, 'bikeRc', index);
-                        case "bikeRcImage":
-                            return getApprovalTemplate(object.values[index], response.bikeRcImage, 'bikeRcImage', index);
+                            return getApprovalTemplate(object.values[index], response.bikeRc, 'bikeRc', index, response.id);
+                        case "bikeRcPhoto":
+                            return getApprovalTemplate(object.values[index], response.bikeRcPhoto, 'bikeRcPhoto', index, response.id,1);
                         case "area":
                             return app.request("getAllLocationOptions", null)
                                 .then(options => {
@@ -136,7 +136,7 @@ function getDeliveryBoy(deliveryBoyId) {
                                                 newValue.push(area.text);
                                             }
                                         } else {
-                                            if (object.values[index] === area.id) {
+                                            if (parseInt(object.values[index]) === parseInt(area.id)) {
                                                 newValue.push(area.text);
                                             }
                                         }
@@ -145,7 +145,7 @@ function getDeliveryBoy(deliveryBoyId) {
                                             oldValue.push(area.text);
                                         }
                                     }
-                                    return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'area', index);
+                                    return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'area', index, response.id);
                                 }).catch(error => {
                                     console.log(error);
                                     return ``;
@@ -155,25 +155,25 @@ function getDeliveryBoy(deliveryBoyId) {
                                 .then(options => {
                                     let newValue = [];
                                     let oldValue = [];
-                                    let oldIdValues = response.areas.split(",");
+                                    let oldIdValues = response.vendors.split(",");
                                     for (let vendor of options.results) {
                                         if (Array.isArray(object.values[index])) {
-                                            if (object.values[index].some((vendorValue) => vendorValue === vendor.id)) {
+                                            if (object.values[index].some((vendorValue) => parseInt(vendorValue) === parseInt(vendor.id))) {
                                                 newValue.push(vendor.text);
                                             }
                                         } else {
-                                            if (object.values[index] === vendor.id) {
+                                            if (parseInt(object.values[index]) === parseInt(vendor.id)) {
                                                 newValue.push(vendor.text);
                                             }
                                         }
                                         // old values
-                                        if (oldIdValues.some((vendorValue) => vendorValue === vendor.id)) {
+                                        if (oldIdValues.some((vendorValue) => parseInt(vendorValue) === parseInt(vendor.id))) {
                                             oldValue.push(vendor.text);
                                         }
                                     }
-                                    if(newValue.length !==0) {
-                                        return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'vendors', index);
-                                    }else{
+                                    if (newValue.length !== 0) {
+                                        return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'vendors', index, response.id);
+                                    } else {
                                         return ``;
 
                                     }
@@ -186,33 +186,42 @@ function getDeliveryBoy(deliveryBoyId) {
 
                     }
                 })
-                Promise.all(template).then(result=>{
+                Promise.all(template).then(result => {
                     $("#approvalPendingList").empty();
-
                     $("#approvalPendingList").append(result.join(" "));
-
-                }).catch(error=>{
+                    app.confirmationBox();
+                }).catch(error => {
                     console.log(error);
                     $("#approvalPendingList").empty();
 
                 })
 
+            }else{
+                $("#approvalPendingList").empty();
             }
+        } else {
+            $("#approvalPendingList").empty();
+            loadDeliveryTable();
         }
     })
 }
 
-function getApprovalTemplate(newValue, oldValue, column, index) {
+function confirmOperation(column, deliveryBoyId) {
 
-    return `<li class="media">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" value="column" id="cbx-${index}">
-                    <label class="custom-control-label" for="cbx-${index}"></label>
-                </div>
-                <div class="media-body">
-                    <div class="badge badge-pill badge-primary mb-1 float-right">${column}</div>    
-                    <h6 class="media-title">${newValue}</h6>
-                    <div class="text-small text-muted">${oldValue}</div>
-                </div>
-            </li>`
+    let form = new FormData();
+    form.set("column", column);
+    form.set("deliveryBoyId", deliveryBoyId);
+
+    app.request("deliveryBoyApprovalConfirmation", form).then(response => {
+        app.successToast(response.message);
+        getDeliveryBoy(deliveryBoyId);
+    }).catch(error => {
+        console.log(error);
+        if (error.status === 500) {
+            app.errorToast("something went wrong");
+        } else {
+            app.errorToast(error.message);
+        }
+    })
 }
+

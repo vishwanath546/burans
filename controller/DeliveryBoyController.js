@@ -212,15 +212,15 @@ exports.deliveryBoyUpdate = async (request, response, next) => {
         }
         if (request.files && request.files.licenseImage) {
             licenseImage = request.files.licenseImage[0].path;
-            if (updateObject.columns.findIndex(i => i === 'licenseImage') === -1) {
-                updateObject.columns.push('licenseImage');
+            if (updateObject.columns.findIndex(i => i === 'licensePhoto') === -1) {
+                updateObject.columns.push('licensePhoto');
                 updateObject.values.push(licenseImage);
             }
         }
         if (request.files && request.files.bikeRcImage) {
             bikeRcImage = request.files.bikeRcImage[0].path;
-            if (updateObject.columns.findIndex(i => i === 'bikeRcImage') === -1) {
-                updateObject.columns.push('bikeRcImage');
+            if (updateObject.columns.findIndex(i => i === 'bikeRcPhoto') === -1) {
+                updateObject.columns.push('bikeRcPhoto');
                 updateObject.values.push(bikeRcImage);
             }
         }
@@ -259,7 +259,10 @@ exports.deliveryBoyUpdate = async (request, response, next) => {
             throw new Error("Failed To Update Delivery");
         }
         if (userObject.mobileNumber !== mobileNumber) {
-            const [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {mobileNumber: mobileNumber,updatedAt:database.currentTimeStamp()}, {DeliveryBoyId: userId}])
+            const [userAuthResult, userAuthError] = await connection.query("update ?? set ? where ?", [userAuthTable, {
+                mobileNumber: mobileNumber,
+                updatedAt: database.currentTimeStamp()
+            }, {DeliveryBoyId: userId}])
             if (userAuthError) {
                 await connection.rollback();
                 connection.release();
@@ -282,7 +285,6 @@ exports.deliveryBoyUpdate = async (request, response, next) => {
 
 }
 
-
 exports.deleteDeliveryBoy = async (request, response, next) => {
 
     let userId = request.body.deliveryBoyId;
@@ -290,8 +292,8 @@ exports.deleteDeliveryBoy = async (request, response, next) => {
     try {
         const connection = await database.transaction();
         await connection.beginTransaction();
-        let [delivery,meta]= await connection.query("select id,photo,licensePhoto,bikeRcPhoto from ?? where id=?", [deliveryTable, userId]);
-        if (delivery.length ===0) {
+        let [delivery, meta] = await connection.query("select id,photo,licensePhoto,bikeRcPhoto from ?? where id=?", [deliveryTable, userId]);
+        if (delivery.length === 0) {
             connection.release();
             let error = new Error("User Not Found");
             error.statusCode = 404;
@@ -308,7 +310,7 @@ exports.deleteDeliveryBoy = async (request, response, next) => {
         }
 
         let [deliveryResult, deliveryError] = await connection.query("update ?? set ? where ?",
-            [deliveryTable, {activeStatus: 0,deletedAt:database.currentTimeStamp()}, {id: delivery[0].id}]);
+            [deliveryTable, {activeStatus: 0, deletedAt: database.currentTimeStamp()}, {id: delivery[0].id}]);
         if (deliveryError) {
             await connection.rollback();
             connection.release();
@@ -336,12 +338,11 @@ exports.deleteDeliveryBoy = async (request, response, next) => {
     }
 }
 
-
 exports.getDeliveryBoy = (request, response, next) => {
     let userId = request.body.deliveryBoyId;
     database.select(deliveryTable, {id: userId},
         ["id", "name", "email", "mobileNumber", "photo", "address", "bikeRc", "license",
-            "accountStatus","updateOnColumn","adminConfirmOn",
+            "accountStatus", "updateOnColumn", "adminConfirmOn","licensePhoto","bikeRcPhoto",
             "(select group_concat(vendorId) from delivery_boys_vendors where deliveryBoyId=delivery_boy.id) as vendors",
             "(select group_concat(locationId) from delivery_boys_locations where deliveryBoyId=delivery_boy.id) as areas"])
         .then(user => {
@@ -364,11 +365,11 @@ exports.getAllDeliveryBoyTables = (request, response, next) => {
         .then(totalCount => {
             database.dataTableSource(deliveryTable, [
                     "id", "name", "email", "mobileNumber", "license", "bikeRc",
-                    "photo",  "createdAt", "adminConfirmOn",
+                    "photo", "createdAt", "adminConfirmOn",
                     "(select group_concat(shopName) from vendor_user  where activeStatus=1 and id in(select vendorId from delivery_boys_vendors where deliveryBoyId=delivery_boy.id)) as vendors",
                     "(select group_concat(name) from location where active_status=1 and id in(select locationId from delivery_boys_locations where deliveryBoyId=delivery_boy.id)) as areas",
                 ],
-                {activeStatus:1},
+                {activeStatus: 1},
                 'createdAt', 'name', search, "desc", parseInt(start), parseInt(length), false)
                 .then(result => {
                     return response.status(200).json({
@@ -386,4 +387,132 @@ exports.getAllDeliveryBoyTables = (request, response, next) => {
             data: []
         });
     });
+}
+
+exports.approval = (request, response, next) => {
+    let userId = request.body.deliveryBoyId;
+    let column = request.body.column;
+
+    database.select(deliveryTable, {id: userId, adminConfirmOn: 0}, ["id", "updateOnColumn", "adminConfirmOn"])
+        .then(async deliveryBoy => {
+            if (deliveryBoy.length === 0) {
+                let error = new Error("User Not Found");
+                error.statusCode = 404;
+                throw error;
+            }
+            if (parseInt(deliveryBoy[0].adminConfirmOn) === 0) {
+                let object = JSON.parse(deliveryBoy[0].updateOnColumn);
+                let updateObject = {};
+                let columnIndex =-1;
+                let columnValue;
+                if (object.columns.length !== 0) {
+                    columnIndex = object.columns.findIndex(value => value === column);
+                    if (columnIndex !== -1) {
+                        if(column !== "area" && column !=="vendors") {
+                            updateObject[column] = object.values[columnIndex];
+                        }
+                        columnValue= object.values[columnIndex];
+                        object.columns.splice(columnIndex,1);
+                        object.values.splice(columnIndex,1);
+                    }
+                    if (object.columns.length === 0) {
+                        updateObject.updateOnColumn=null;
+                        updateObject.adminConfirmOn = 1;
+                    }else{
+                        updateObject.updateOnColumn=JSON.stringify(object);
+                    }
+                } else {
+                    updateObject.adminConfirmOn = 1;
+                }
+                if(column === "area"){
+                    let connection = await database.transaction();
+                    await connection.beginTransaction();
+                    const [result,error]= await connection.query("delete from ?? where ?",[deliveryLocationTable,{deliveryBoyId:userId}]);
+                    if(error){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    let updateArea=[];
+                    if(Array.isArray(columnValue)){
+                        updateArea=columnValue.map(i=>[userId,i]);
+                    }else{
+                        updateArea.push([userId,columnValue]);
+                    }
+                    const [insertResult,insertError] =await connection.query("insert into ?? (deliveryBoyId,locationId) values ?",[deliveryLocationTable,updateArea])
+                    if(insertError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    const [updateResult,updateError]=await connection.query("update ?? set ? where ?",[deliveryTable,updateObject,{id: userId}]);
+                    if(updateError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    await connection.commit();
+                    connection.release();
+                    return Promise.resolve({error:null});
+                }else if(column === "vendors"){
+                    let connection = await database.transaction();
+                    await connection.beginTransaction();
+                    const [result,error]= await connection.query("delete from ?? where ?",[deliveryVendorTable,{deliveryBoyId:userId}]);
+                    if(error){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    let updateVendor=[];
+                    if(Array.isArray(columnValue)){
+                        updateVendor=columnValue.map(i=>[userId,i]);
+                    }else{
+                        updateVendor.push([userId,columnValue]);
+                    }
+                    const [insertResult,insertError] =await connection.query("insert into ?? (deliveryBoyId,vendorId) values ?",[deliveryVendorTable,updateVendor])
+                    if(insertError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    const [updateResult,updateError]=await connection.query("update ?? set ? where ?",[deliveryTable,updateObject,{id: userId}]);
+                    if(updateError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    await connection.commit();
+                    connection.release();
+                    return Promise.resolve({error:null});
+                }else{
+                    return database.update(deliveryTable, updateObject, {id: userId});
+                }
+
+            } else {
+                return database.update(deliveryTable, {adminConfirmOn: 1}, {id: userId});
+            }
+        })
+        .then(result => {
+            if (result.error) {
+                let error = new Error("Failed To update");
+                error.statusCode = 401;
+                throw error;
+            }
+            return response.status(200).json({message: "Save Changes"});
+        })
+        .catch(error => {
+            next(error);
+        })
 }

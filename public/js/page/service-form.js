@@ -9,7 +9,6 @@ $(document).ready(function () {
         no_label: false,                // Default: false
         success_callback: null          // Default: null
     });
-    listOfServices();
     let serviceId = parseInt($("#updateServiceId").val());
     if(serviceId!==0){
         getServiceDetails(serviceId);
@@ -58,7 +57,6 @@ function saveServiceDetails(form) {
         $('#alreadyUploadImage').empty();
         $("#subServiceSelectionBox").addClass("d-none");
         app.removeValidation('service_id')
-        listOfServices();
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -98,12 +96,13 @@ function getServiceDetails(serviceId) {
         }else{
             $("#ck_isService").attr("checked",false);
         }
-
-
-        $('#alreadyUploadImage').empty();
-
-        if(response.photo && response.photo !==""){
-            $('#alreadyUploadImage').append(previousImage(response.photo));
+        if (response.photo && response.photo !== "") {
+            $("#service-image-preview").css({
+                "background-image": `url("${baseURL + response.photo.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
         }
 
         if(parseInt(response.status) === 1){
@@ -115,22 +114,6 @@ function getServiceDetails(serviceId) {
 
 }
 
-function listOfServices() {
-
-    // let data =new FormData();
-    // data.set("categoryId",categoryId);
-    app.request("getAllService", null, "get").then(response => {
-        let accordionTemplate = response.map(getAccordion).join("");
-        $("#serviceAccordion").empty();
-        $("#serviceAccordion").append(accordionTemplate);
-    }).catch(error => {
-        if (error.status === 500) {
-            app.errorToast("something went wrong");
-        } else {
-            app.errorToast(error.message);
-        }
-    })
-}
 
 function getSubCategoryAccordionBody(subcategories) {
     return ` <li class="list-group-item">

@@ -9,7 +9,6 @@ $(document).ready(function () {
         no_label: false,                // Default: false
         success_callback: null          // Default: null
     });
-    listOfCategory();
     let categoryId = parseInt($("#updateCategoryId").val());
     if(categoryId!==0){
         getCategoryDetails(categoryId);
@@ -58,7 +57,6 @@ function saveCategorySubCategoryDetails(form) {
         $('#alreadyUploadImage').empty();
         $("#subcategorySelectionBox").addClass("d-none");
         app.removeValidation('category_id')
-        listOfCategory();
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -99,11 +97,13 @@ function getCategoryDetails(categoryId) {
             $("#ck_isService").attr("checked",false);
         }
 
-
-        $('#alreadyUploadImage').empty();
-
-        if(response.photo && response.photo !==""){
-            $('#alreadyUploadImage').append(previousImage(response.photo));
+        if (response.photo && response.photo !== "") {
+            $("#category-image-preview").css({
+                "background-image": `url("${baseURL + response.photo.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
         }
 
         if(response.status === 1){
@@ -113,50 +113,5 @@ function getCategoryDetails(categoryId) {
         }
     })
 
-}
-
-function listOfCategory() {
-
-    // let data =new FormData();
-    // data.set("categoryId",categoryId);
-    app.request("getAllCategories", null, "get").then(response => {
-        let accordionTemplate = response.map(getAccordion).join("");
-        $("#accordion").empty();
-        $("#accordion").append(accordionTemplate);
-    }).catch(error => {
-        if (error.status === 500) {
-            app.errorToast("something went wrong");
-        } else {
-            app.errorToast(error.message);
-        }
-    })
-}
-
-function getSubCategoryAccordionBody(subcategories) {
-    return ` <li class="list-group-item">
-                <p class="mb-1">${subcategories.name}</p>
-                <small class="text-muted">${subcategories.description}</small>
-             </li>`;
-}
-
-function getAccordion(category, index) {
-
-    return `<div class="accordion">
-                <div class="accordion-header" role="button" data-toggle="collapse" 
-                    data-target="#panel-body-${category.category.id}"
-                     aria-expanded="${index === 0}">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h4>${category.category.name}</h4>
-                        <span class="badge badge-white">${category.subCategory.length}</span>
-                    </div>
-                </div>
-                <div class="accordion-body collapse ${index === 0 ? 'show' : ''}" 
-                    id="panel-body-${category.category.id}" 
-                    data-parent="#accordion">
-                    <ul class="list-group">
-                       ${category.subCategory.map(getSubCategoryAccordionBody).join("")}
-                    </ul>
-                </div>
-            </div>`
 }
 

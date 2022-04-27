@@ -329,3 +329,95 @@ exports.getAllVendorOptions = (request, response, next) => {
         })
     })
 }
+
+exports.approval = (request,response,next)=>{
+    let userId = request.body.vendorId;
+    let column = request.body.column;
+
+    database.select(vendorTable, {id: userId, adminConfirmOn: 0}, ["id", "updateOnColumn", "adminConfirmOn"])
+        .then(async deliveryBoy => {
+            if (deliveryBoy.length === 0) {
+                let error = new Error("User Not Found");
+                error.statusCode = 404;
+                throw error;
+            }
+            if (parseInt(deliveryBoy[0].adminConfirmOn) === 0) {
+                let object = JSON.parse(deliveryBoy[0].updateOnColumn);
+                let updateObject = {};
+                let columnIndex =-1;
+                let columnValue;
+                if (object.columns.length !== 0) {
+                    columnIndex = object.columns.findIndex(value => value === column);
+                    if (columnIndex !== -1) {
+                        if(column !== "area") {
+                            updateObject[column] = object.values[columnIndex];
+                        }
+                        columnValue= object.values[columnIndex];
+                        object.columns.splice(columnIndex,1);
+                        object.values.splice(columnIndex,1);
+                    }
+                    if (object.columns.length === 0) {
+                        updateObject.updateOnColumn=null;
+                        updateObject.adminConfirmOn = 1;
+                    }else{
+                        updateObject.updateOnColumn=JSON.stringify(object);
+                    }
+                } else {
+                    updateObject.adminConfirmOn = 1;
+                }
+                if(column === "area"){
+                    let connection = await database.transaction();
+                    await connection.beginTransaction();
+                    const [result,error]= await connection.query("delete from ?? where ?",[vendorLocationTable,{vendorId:userId}]);
+                    if(error){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    let updateArea=[];
+                    if(Array.isArray(columnValue)){
+                        updateArea=columnValue.map(i=>[userId,i]);
+                    }else{
+                        updateArea.push([userId,columnValue]);
+                    }
+                    const [insertResult,insertError] =await connection.query("insert into ?? (vendorId,locationId) values ?",[vendorLocationTable,updateArea])
+                    if(insertError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    const [updateResult,updateError]=await connection.query("update ?? set ? where ?",[vendorTable,updateObject,{id: userId}]);
+                    if(updateError){
+                        let error = new Error("Failed To update");
+                        await connection.rollback();
+                        connection.release();
+                        error.statusCode = 401;
+                        throw error;
+                    }
+                    await connection.commit();
+                    connection.release();
+                    return Promise.resolve({error:null});
+                }else{
+                    return database.update(vendorTable, updateObject, {id: userId});
+                }
+
+            } else {
+                return database.update(vendorTable, {adminConfirmOn: 1}, {id: userId});
+            }
+        })
+        .then(result => {
+            if (result.error) {
+                let error = new Error("Failed To update");
+                error.statusCode = 401;
+                throw error;
+            }
+            return response.status(200).json({message: "Save Changes"});
+        })
+        .catch(error => {
+            next(error);
+        })
+}

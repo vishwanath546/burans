@@ -11,32 +11,35 @@ const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('login', { title: 'Burans Login' });
+router.get('/', function (req, res, next) {
+    res.render('login', {title: 'Burans Login'});
 });
 
 router.get('/dashboard', function (req, res, next) {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.redirect("/");
     }
-    res.render('pages/dashboard', {title: 'Dashboard', url: req.url, session:req.session});
+    res.render('pages/dashboard', {title: 'Dashboard', url: req.url, session: req.session});
 });
 
 router.get('/customer', function (req, res, next) {
-    res.render('pages/customer/view_customer', {title: 'View customer', url: req.url});
+    res.render('pages/customer/view_customer', {title: 'View customer', url: req.url,session: req.session});
 });
 // ---------------------------- Category ---------------------------------
 router.get('/categories', function (req, res, next) {
-    res.render('pages/product/category', {title: 'View product', url: req.url});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/category', {title: 'View product', url: req.url,session: req.session});
 });
 
 router.get('/create-categories', function (req, res, next) {
-    res.render('pages/product/CategoryForm', {title: 'View product', url: req.url, categoryId: 0});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/CategoryForm', {title: 'View product', url: req.url, categoryId: 0,session: req.session});
 });
 router.get('/update-categories/:updateID', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
     let categoryId = req.params.updateID;
     let segments = req.url.split('/');
-    res.render('pages/product/CategoryForm', {title: 'View product', url: '/' + segments[1], categoryId: categoryId});
+    res.render('pages/product/CategoryForm', {title: 'View product', url: '/' + segments[1], categoryId: categoryId,session: req.session});
 });
 
 router.get('/getAllCategories', CategoryController.getAllCategories);
@@ -45,20 +48,24 @@ router.post("/saveCategorySubcategory", Validator(Schemas.categoryValidation), C
 router.post('/getAllCategoriesOptions', CategoryController.getAllCategoriesOption);
 router.post('/getAllSubcategoriesOption/:categoryId', CategoryController.getAllSubcategoriesOption);
 router.post('/getAllCategoriesTables', CategoryController.getAllCategoriesTables);
+router.get('/updateCategoryRanking', CategoryController.sequenceUpdate);
 router.put("/updateCategoryStatus", CategoryController.updateCategoryStatus);
 router.delete("/deleteCategory", CategoryController.deleteCategory);
 
 // --------------------------- product --------------------------------------
 
 router.get('/products', function (req, res, next) {
-    res.render('pages/product/ViewProducts', {title: 'View product', url: req.url});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/ViewProducts', {title: 'View product', url: req.url,session: req.session});
 });
 
 router.get('/create-product', function (req, res) {
-    res.render('pages/product/ProductForm', {title: 'Create Product', url: req.url, productId: 0});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/ProductForm', {title: 'Create Product', url: req.url, productId: 0,session: req.session});
 });
 
-router.get('/update-product/:updateID', function(req, res) {
+router.get('/update-product/:updateID', function (req, res) {
+    if (!req.session.user) res.redirect("/");
     let productId = req.params.updateID;
     if (!productId) {
         let error = new Error('Not Found');
@@ -66,7 +73,7 @@ router.get('/update-product/:updateID', function(req, res) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/product/ProductForm', {title: 'Create Product', url: '/' + segments[1], productId: productId});
+    res.render('pages/product/ProductForm', {title: 'Create Product', url: '/' + segments[1], productId: productId,session: req.session});
 });
 
 router.post("/uploadProductsImages", ProductController.uploadProductsImages);
@@ -78,13 +85,15 @@ router.delete("/deleteProduct", ProductController.deleteProduct);
 
 
 router.get('/add-ons-products', function (req, res) {
-    console.log(req.url)
-    res.render('pages/product/ViewAddOnsProduct', {title: 'View add ons product', url: req.url});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/ViewAddOnsProduct', {title: 'View add ons product', url: req.url,session: req.session});
 });
-router.get("/create-add-ons-product",function (req,res) {
-    res.render('pages/product/AddOnsProductForm', {title: 'Create Product', url: req.url, addOnProductId: 0});
+router.get("/create-add-ons-product", function (req, res) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/AddOnsProductForm', {title: 'Create Product', url: req.url, addOnProductId: 0,session: req.session});
 })
-router.get("/update-add-ons-product/:updateID",function (req,res) {
+router.get("/update-add-ons-product/:updateID", function (req, res) {
+    if (!req.session.user) res.redirect("/");
     let productId = req.params.updateID;
     if (!productId) {
         let error = new Error('Not Found');
@@ -92,7 +101,12 @@ router.get("/update-add-ons-product/:updateID",function (req,res) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/product/AddOnsProductForm', {title: 'Create Add Ons Product', url: '/' + segments[1], addOnProductId: productId});
+    res.render('pages/product/AddOnsProductForm', {
+        title: 'Create Add Ons Product',
+        url: '/' + segments[1],
+        addOnProductId: productId,
+        session: req.session
+    });
 })
 
 
@@ -104,8 +118,9 @@ router.delete("/deleteAddOnsProduct", AddOnsProductController.deleteAddOnsProduc
 
 // --------------------------- Location ------------------------------------------
 
-router.get("/view-locations",function (req,res) {
-    res.render("pages/location/ViewLocations",{title:'View Location',url:req.url})
+router.get("/view-locations", function (req, res) {
+    if (!req.session.user) res.redirect("/");
+    res.render("pages/location/ViewLocations", {title: 'View Location', url: req.url,session: req.session})
 });
 router.post("/saveLocation", LocationController.saveLocation)
 router.post('/getAllLocationTables', LocationController.getAllLocationTables);
@@ -114,10 +129,12 @@ router.post('/getLocation', LocationController.getLocationById);
 router.delete("/deleteLocation", LocationController.deleteLocation)
 // ------------------------------ service ----------------------------------------
 
-router.get("/create-service",function (req,res) {
-    res.render('pages/service/ServiceForm', {title: 'Create Service', url: req.url, serviceId: 0});
+router.get("/create-service", function (req, res) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/service/ServiceForm', {title: 'Create Service', url: req.url, serviceId: 0,session: req.session});
 })
-router.get("/update-service/:updateID",function (req,res) {
+router.get("/update-service/:updateID", function (req, res) {
+    if (!req.session.user) res.redirect("/");
     let serviceId = req.params.updateID;
     if (!serviceId) {
         let error = new Error('Not Found');
@@ -125,12 +142,13 @@ router.get("/update-service/:updateID",function (req,res) {
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/service/ServiceForm', {title: 'Update Service', url: '/' + segments[1], serviceId: serviceId});
+    res.render('pages/service/ServiceForm', {title: 'Update Service', url: '/' + segments[1], serviceId: serviceId,session: req.session});
 })
 
 
-router.get("/view-service",function (req,res) {
-    res.render("pages/Service/ViewServices",{title:'View Services',url:req.url})
+router.get("/view-service", function (req, res) {
+    if (!req.session.user) res.redirect("/");
+    res.render("pages/Service/ViewServices", {title: 'View Services', url: req.url,session: req.session})
 });
 router.post("/saveService", ServiceController.saveServiceSubServices)
 router.post('/getAllServiceTables', ServiceController.getAllServicesTables);
@@ -140,79 +158,85 @@ router.post('/getService', ServiceController.getServiceById);
 router.delete("/deleteService", ServiceController.deleteService)
 
 
-
 // --------------------------- vendor ------------------------------------------
 
 router.get('/view-vendor', function (req, res, next) {
-    res.render('pages/vendor/vendors', {title: 'View vendor',url:req.url});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/vendor/vendors', {title: 'View vendor', url: req.url, session: req.session});
 });
 
 router.get('/create-vendor', function (req, res, next) {
-    res.render('pages/vendor/VendorForm', {title: 'create vendor',url:req.url,vendorId:0});
-});
-
-router.get('/create-vendor', function(req, res, next) {
-    res.render('pages/vendor/VendorForm', { title: 'View product', url: req.url });
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/vendor/VendorForm', {title: 'create vendor', url: req.url, vendorId: 0, session: req.session});
 });
 router.get('/update-vendor/:updateId', function (req, res, next) {
-    let vendorId= req.params.updateId;
-    if(!vendorId){
+    if (!req.session.user) res.redirect("/");
+    let vendorId = req.params.updateId;
+    if (!vendorId) {
         let error = new Error('Not Found');
-        error.statusCode=404;
+        error.statusCode = 404;
         throw error
     }
     let segments = req.url.split('/');
-    res.render('pages/vendor/VendorForm', {title: 'View product',url:'/' + segments[1],vendorId:vendorId});
+    res.render('pages/vendor/VendorForm', {
+        title: 'View product',
+        url: '/' + segments[1],
+        vendorId: vendorId,
+        session: req.session
+    });
 });
 
 // ----------------- delivery boy -----------------------------------------------
-router.get('/create-delivery-boy', function(req, res, next) {
-    res.render('pages/DeliveryBoy/DeliveryBoy', { title: 'Create Delivery Boys', url: req.url });
+router.get('/create-delivery-boy', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/DeliveryBoy/DeliveryBoy', {title: 'Create Delivery Boys', url: req.url,deliveryBoyId: 0, session: req.session});
 });
 
-router.get('/update-delivery-boy/:updateId', function(req, res, next) {
-    if(!req.session.user){
+router.get('/update-delivery-boy/:updateId', function (req, res, next) {
+    if (!req.session.user) {
         res.redirect("/");
     }
-    let deliveryBoyId= req.params.updateId;
-    if(!deliveryBoyId){
+    let deliveryBoyId = req.params.updateId;
+    if (!deliveryBoyId) {
         let error = new Error('Not Found');
-        error.statusCode=404;
+        error.statusCode = 404;
         throw error
     }
     let segments = req.url.split('/');
     res.render('pages/DeliveryBoy/DeliveryBoy', {
-        title: 'Create Delivery Boys', url:'/' + segments[1],deliveryBoyId:deliveryBoyId, session:req.session, });
+        title: 'Create Delivery Boys', url: '/' + segments[1], deliveryBoyId: deliveryBoyId, session: req.session,
+    });
 });
 
 router.get('/view-delivery-boys', function (req, res, next) {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.redirect("/");
     }
-    res.render('pages/DeliveryBoy/ViewDeliveryBoy', {title: 'View Delivery Boys',
-        session:req.session,
-        url:req.url});
+    res.render('pages/DeliveryBoy/ViewDeliveryBoy', {
+        title: 'View Delivery Boys',
+        session: req.session,
+        url: req.url
+    });
 });
 router.post('/getAllDeliveryBoysTables', DeliveryBoyController.getAllDeliveryBoyTables);
 router.post('/saveDeliveryBoyDetails', DeliveryBoyController.DeliveryBoyRegistration);
 router.post('/getDeliveryBoy', DeliveryBoyController.getDeliveryBoy);
 router.post("/saveUpdateDeliveryDetails/:userId",
     DeliveryBoyController.deliveryBoyUpdate);
-
+router.post("/deliveryBoyApprovalConfirmation", DeliveryBoyController.approval)
 router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
-
 
 
 // --------------------------- offers ------------------------------------------
 
-router.get('/offers', function(req, res, next) {
-    res.render('pages/offers/offers', { title: 'View product', url: req.url });
+router.get('/offers', function (req, res, next) {
+    res.render('pages/offers/offers', {title: 'View product', url: req.url});
 });
-router.get('/create-offer', function(req, res, next) {
-    res.render('pages/offers/offers', { title: 'View product', url: req.url });
+router.get('/create-offer', function (req, res, next) {
+    res.render('pages/offers/offers', {title: 'View product', url: req.url});
 });
-router.get('/create-coupons', function(req, res, next) {
-    res.render('pages/offers/coupon', { title: 'View product', url: req.url });
+router.get('/create-coupons', function (req, res, next) {
+    res.render('pages/offers/coupon', {title: 'View product', url: req.url});
 });
 module.exports = router;
 // --------------------------

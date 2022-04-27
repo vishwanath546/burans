@@ -1,6 +1,6 @@
 $(document).ready(function () {
     app.formValidation();
-    app.removeValidation('profile-image','required');
+    app.removeValidation('profile-image', 'required');
     previewUpload("#profile-image-label", "#profile-image-preview", "#profile-image");
     previewUpload("#license-image-label", "#license-image-preview", "#license-image");
     previewUpload("#rc-image-label", "#rc-image-preview", "#rc-image");
@@ -40,6 +40,31 @@ function getDeliveryBoy(deliveryBoyId) {
         $("#license").val(response.license);
         $("#bikeRc").val(response.bikeRc);
 
+        if (response.photo && response.photo !== "") {
+            $("#profile-image-preview").css({
+                "background-image": `url("${baseURL + response.photo.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
+        }
+        if (response.bikeRcPhoto && response.bikeRcPhoto !== "") {
+            $("#rc-image-preview").css({
+                "background-image": `url("${baseURL + response.bikeRcPhoto.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
+        }
+        if (response.licensePhoto && response.licensePhoto !== "") {
+            $("#license-image-preview").css({
+                "background-image": `url("${baseURL + response.licensePhoto.replace("public", "").split("\\").join("/")}")`,
+                "background-repeat": " no-repeat",
+                "background-position": "left center",
+                "background-size": "cover"
+            })
+        }
+
         getLocationOptions('area')
             .then(() => {
                 $("#area").val(response.areas.split(",")).trigger('change');
@@ -62,11 +87,11 @@ function getDeliveryBoy(deliveryBoyId) {
 function saveDeliveryBoyDetails(form) {
     let delivery = parseInt($("#deliveryBoyId").val());
     let requestUrl = "saveDeliveryBoyDetails"
-    let type="post";
-    if(delivery!==0){
-        requestUrl = "saveUpdateDeliveryDetails/"+delivery;
+    let type = "post";
+    if (delivery !== 0) {
+        requestUrl = "saveUpdateDeliveryDetails/" + delivery;
     }
-    app.request(requestUrl, new FormData(form),type).then(response => {
+    app.request(requestUrl, new FormData(form), type).then(response => {
         app.successToast(response.body)
         $("#deliveryBoyForm").trigger('reset');
         $('#profile-image-preview').css("background-image", "none");
@@ -82,3 +107,8 @@ function saveDeliveryBoyDetails(form) {
     })
 }
 
+function previousImage(imagePath) {
+    return `<div class="d-flex justify-content-center" style="width: 150px;height: 150px;">
+              <img alt="image" src="${baseURL + imagePath.replace("public", "")}" class="author-box-picture"> 
+            </div>`
+}

@@ -3,7 +3,7 @@ const {Op} = require('sequelize');
 const {Products} = require('../sequlizerModel/Products');
 const {ProductImages} = require('../sequlizerModel/ProductImages');
 const {Category} = require('../sequlizerModel/Category');
-
+const tableName="";
 const {clearImage} = require('../util/helpers');
 
 
@@ -271,6 +271,26 @@ exports.uploadProductsImages = (request, response, next) => {
     }
 
 }
-
+exports.sequenceUpdate = (request, response, next) => {
+    let categories =[[1,6],[2,5],[3,4],[4,3],[5,2],[6,1]] ;//request.body.categories;
+    database.query(`INSERT INTO ?? (id, sequenceNumber)
+                    VALUES ?
+                    ON DUPLICATE KEY
+    UPDATE sequenceNumber =
+    VALUES (sequenceNumber)`, [tableName, categories])
+        .then(results => {
+            if (!results) {
+                let error = new Error("Failed to update")
+                error.statusCode = 401;
+                throw  error;
+            }
+            return response.status(200).json({
+                body: "Save Category sequence"
+            })
+        })
+        .catch(error => {
+            next(error);
+        })
+}
 
 

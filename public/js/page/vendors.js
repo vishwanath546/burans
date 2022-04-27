@@ -1,9 +1,13 @@
 $(document).ready(function () {
-    loadCategoryTable();
+    loadVendorTable();
+    $("#fire-modal-approval").on("shown.bs.modal", (e) => {
+        let id = parseInt($(e.relatedTarget).data('id'));
+        getVendorDetails(id);
+    });
 });
 
 
-function loadCategoryTable() {
+function loadVendorTable() {
 
     app.dataTable("vendorsTable", {
         url: "vendor/getAllVendors"
@@ -47,9 +51,9 @@ function loadCategoryTable() {
         {
             data: "id",
             render: (d, t, r, m) => {
-                let confirm=``;
-                if(r["adminConfirmOn"] === 0){
-                    confirm=  `<button class="btn btn-primary">
+                let confirm = ``;
+                if (r["adminConfirmOn"] === 0) {
+                    confirm = `<button class="btn btn-primary"  data-toggle="modal" data-id="${d}" data-target="#fire-modal-approval">
                             <i class="fa fa-check"></i>    
                      </button> `
                 }
@@ -88,4 +92,100 @@ function deleteVendor(id) {
             app.errorToast(error.message);
         }
     });
+}
+
+
+function getVendorDetails(vendor) {
+
+
+    let form = new FormData();
+    form.set("vendorId", vendor);
+    app.request("vendor/getVendorDetails", form).then(response => {
+        if (parseInt(response.adminConfirmOn) === 0) {
+            if (response.updateOnColumn !== null && response.updateOnColumn !== "") {
+                let object = JSON.parse(response.updateOnColumn);
+                let template = object.columns.map((item, index) => {
+                    switch (item) {
+                        case "mobileNumber":
+                            return getApprovalTemplate(object.values[index], response.mobileNumber, 'mobileNumber', index, response.id);
+                        case "shopName":
+                            return getApprovalTemplate(object.values[index], response.shopName, 'shopName', index, response.id);
+                        case "gstNumber":
+                            return getApprovalTemplate(object.values[index], response.gstNumber, 'gstNumber', index, response.id);
+                        case "foodLicense":
+                            return getApprovalTemplate(object.values[index], response.foodLicense, 'foodLicense', index, response.id);
+                        case "area":
+                            return app.request("getAllLocationOptions", null)
+                                .then(options => {
+                                    let newValue = [];
+                                    let oldValue = [];
+                                    let oldIdValues = response.area.split(",");
+                                    for (let area of options.results) {
+                                        if (Array.isArray(object.values[index])) {
+                                            if (object.values[index].some((areaValue) => parseInt(areaValue) === parseInt(area.id))) {
+                                                newValue.push(area.text);
+                                            }
+                                        } else {
+                                            if (parseInt(object.values[index]) === parseInt(area.id)) {
+                                                newValue.push(area.text);
+                                            }
+                                        }
+                                        // old values
+                                        if (oldIdValues.some((areaValue) => parseInt(areaValue) === parseInt(area.id))) {
+                                            oldValue.push(area.text);
+                                        }
+                                    }
+                                    return getApprovalTemplate(newValue.join(" "), oldValue.join(" "), 'area', index, response.id);
+                                }).catch(error => {
+                                    console.log(error);
+                                    return ``;
+                                })
+                        default:
+                            return ``;
+
+                    }
+                })
+                Promise.all(template).then(result => {
+                    $("#approvalPendingList").empty();
+                    $("#approvalPendingList").append(result.join(" "));
+                    app.confirmationBox();
+                }).catch(error => {
+                    console.log(error);
+                    $("#approvalPendingList").empty();
+
+                })
+
+            } else {
+                $("#approvalPendingList").empty();
+            }
+        } else {
+            $("#approvalPendingList").empty();
+            loadVendorTable();
+        }
+
+    }).catch(error => {
+        if (error.status === 500) {
+            app.errorToast("something went wrong");
+        } else {
+            app.errorToast(error.message);
+        }
+    })
+}
+function confirmOperation(column, id) {
+
+    let form = new FormData();
+    form.set("column", column);
+    form.set("vendorId", id);
+
+    app.request("vendor/vendorApprovalConfirmation", form).then(response => {
+        app.successToast(response.message);
+        getVendorDetails(id);
+    }).catch(error => {
+        console.log(error);
+        if (error.status === 500) {
+            app.errorToast("something went wrong");
+        } else {
+            app.errorToast(error.message);
+        }
+    })
 }
