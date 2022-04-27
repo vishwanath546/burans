@@ -1,9 +1,15 @@
 const Joi = require("joi");
 const Schemas = {
-
   loginValidation: Joi.object({
     username: Joi.string().required(),
     password: Joi.string().required(),
+  }),
+  loginVendorValidation: Joi.object({
+    mobile_Number: Joi.number().integer().min(10).required(),
+  }),
+  otpVerification: Joi.object({
+    mobile_Number: Joi.number().integer().min(10).required(),
+    otp: Joi.number().integer().min(4).required(),
   }),
   adminRegistration: Joi.object({
     name: Joi.string().required(),
@@ -11,7 +17,7 @@ const Schemas = {
     mobileNumber: Joi.number().integer().min(10).required(),
     password: Joi.string().required(),
   }),
-  adminUpdate :Joi.object({
+  adminUpdate: Joi.object({
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     mobileNumber: Joi.number().integer().min(10).required(),
@@ -22,9 +28,8 @@ const Schemas = {
     email: Joi.string().email().required(),
     shopName: Joi.string().required(),
     mobileNumber: Joi.number().integer().min(10).required(),
-
   }),
-//      Category form schemas
+  //      Category form schemas
   categoryValidation: Joi.object({
     name: Joi.string().required(),
   }),
@@ -33,11 +38,10 @@ const Schemas = {
     category: Joi.string().required(),
     price: Joi.number().required(),
     sale_price: Joi.number().required(),
-    price_quantity: Joi.string().required()
+    price_quantity: Joi.string().required(),
   }),
   productImageValidation: Joi.object({
     product_id: Joi.number().required(),
   }),
-
 };
 module.exports = Schemas;
