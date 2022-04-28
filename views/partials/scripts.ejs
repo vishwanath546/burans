@@ -49,6 +49,9 @@
     <script src="/modules/jquery-validation/js/jquery.validate.js"></script>
     <script src="/modules/upload-preview/assets/js/jquery.uploadPreview.js"></script>
 <% } %>
+<% if (url === "/categoryRanking"  || url ==="/serviceRanking" || url==="/productRanking") {  %>
+    <script src="/modules/jquery-ui/jquery-ui.js"></script>
+<% } %>
 
 <!-- Template JS File -->
 <script>
@@ -84,11 +87,17 @@
     <script src="/js/page/offers.js"></script>
 <% } %>
 
+<% if (url === "/categoryRanking") {  %>
+    <script src="/js/page/category-rank.js"></script>
+<% } %>
 
+<% if (url === "/productRanking") {  %>
+    <script src="/js/page/product-rank.js"></script>
+<% } %>
 
-
-
-
+<% if (url === "/serviceRanking") {  %>
+    <script src="/js/page/service-rank.js"></script>
+<% } %>
 
 <% if (url === "/categories") {  %>
     <script src="/js/page/category.js"></script>
