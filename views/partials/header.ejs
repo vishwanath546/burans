@@ -23,7 +23,9 @@
     ) { %>
         <link rel="stylesheet" href="/modules/select2/dist/css/select2.min.css">
     <% } %>
-
+    <% if (url === "/categoryRanking" || url ==="/serviceRanking" || url==="/productRanking") {  %>
+        <link rel="stylesheet" href="/modules/jquery-ui/jquery-ui.css"/>
+    <% } %>
 
     <link rel="stylesheet" href="/modules/datatables/datatables.css">
     <!-- Template CSS -->

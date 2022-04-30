@@ -1,276 +1,291 @@
 <%- include("../../partials/header") %>
 <style>
-    #ddl_addOnsProduct ul.select2-selection__rendered{
-        display: flex!important;
+    #ddl_addOnsProduct ul.select2-selection__rendered {
+        display: flex !important;
         flex-direction: column;
     }
 </style>
-<div class="row">
-    <form id="productDetailsForm" method="post" data-form-valid="saveProductDetails"></form>
-    <div class="col-12 col-md-6 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4>Product Details</h4>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="hidden" name="product_id" id="updateProductId" value=<%= productId %>/>
-                    <input type="text" class="form-control" name="product_name" id="product_name"
-                           data-valid="required" data-msg="Please enter name">
+    <form id="productDetailsForm" class="row" method="post" data-form-valid="saveProductDetails">
+        <div class="col-12 col-md-6 col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Product Details</h4>
                 </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea type="text" class="form-control form-control-sm" name="product_description"
-                              id="product_description"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Category</label>
-                        <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
-                                data-valid="required" data-msg="Please select category"
-                                data-error="#category-error"
-                                name="category">
-
-                        </select>
-                        <div id="category-error"></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="hidden" name="product_id" id="updateProductId" value="<%= productId %>"/>
+                        <input type="text" class="form-control" name="product_name" id="product_name"
+                               data-valid="required" data-msg="Please enter name">
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Sub Category</label>
-                        <select class="form-control" id="ddl_sub_category" name="subcategory">
-
-                        </select>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea type="text" class="form-control form-control-sm" name="product_description"
+                                  id="product_description"></textarea>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <div class="selectgroup selectgroup-pills">
-                        <label class="selectgroup-item">
-                            <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
-                            <span class="selectgroup-button selectgroup-button-icon"><i
-                                        class="fas fa-sun"></i></span>
-                        </label>
-                        Active
-                        <label class="selectgroup- pl-2">
-                            <input type="radio" name="status" value="0" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i
-                                        class="fas fa-moon"></i></span>
-                        </label>
-                        Inactive
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Type</label>
-                    <div class="selectgroup selectgroup-pills">
-                        <label class="selectgroup-item">
-                            <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
-                            <span class="selectgroup-button selectgroup-button-icon"><i
-                                        class="fas fa-tree"></i></span>
-                        </label>
-                        Veg
-                        <label class="selectgroup- pl-2">
-                            <input type="radio" name="status" value="0" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i
-                                        class="fas fa-meteor"></i></span>
-                        </label>
-                        Non-Veg
-                        <label class="selectgroup- pl-2">
-                            <input type="radio" name="status" value="0" class="selectgroup-input">
-                            <span class="selectgroup-button selectgroup-button-icon"><i
-                                        class="fas fa-question"></i></span>
-                        </label>
-                        Other
-                    </div>
-                </div>
-            </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Category</label>
+                            <select class="form-control" onchange="subCategory(this.value)" id="ddl_category"
+                                    data-valid="required" data-msg="Please select category"
+                                    data-error="#category-error"
+                                    name="category">
 
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h4>Add-Ons and suggestion product</h4>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Add-Ons Product</label>
-                    <select class="form-control d-flex flex-column" id="ddl_addOnsProduct"
-                            multiple
-                            data-valid="required" data-msg="Please select category"
-                            data-error="#addOnProduct-error"
-                            name="addOnsProduct">
-
-                    </select>
-                    <div id="addOnProduct-error"></div>
-                </div>
-                <div class="section-title">Suggestion Products / Category</div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Suggestion Products</label>
-                        <select class="form-control" id="ddl_sub_category" name="subcategory">
-
-                        </select>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Suggestion Category</label>
-                        <select class="form-control" id="ddl_addons_category" name="subcategory">
-
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h4>Extra Details</h4>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Meta Title</label>
-                    <input type="text" class="form-control" name="product_meta_title" id="product_meta_title">
-                </div>
-                <div class="form-group">
-                    <label>Meta Description</label>
-                    <textarea class="form-control form-control-sm" name="product_meta_description"
-                              id="product_meta_description"></textarea>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="dropzone dz-clickable" id="productImageDropZone">
-                    <input type="hidden" id="imageProduct" name="product_id"/>
-                    <div class="dz-default dz-message"><span>Drop image here to upload</span></div>
-                </div>
-                <button class="btn btn-primary d-none" id="productImagesSubmit">Save Images</button>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="section-title">Price Details</div>
-                <div class="form-row mt-3">
-                    <div class="form-group col-md-6">
-                        <label>Price</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    &#8377;
-                                </div>
-                            </div>
-                            <input type="number" min="0" class="form-control currency" name="price"
-                                   data-valid="required" data-msg="Please enter price"
-                                   data-error="#price-error"
-                                   id="price">
+                            </select>
+                            <div id="category-error"></div>
                         </div>
-                        <div id="price-error"></div>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Sale Price</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    &#8377;
-                                </div>
-                            </div>
-                            <input type="number" min="0" class="form-control currency" name="sale_price" id="sale_price"
-                                   data-error="#sale-price-error"
-                                   data-valid="required" data-msg="Please enter sale price">
-                        </div>
-                        <div id="sale-price-error"></div>
-                        <small id="passwordHelpBlock" class="form-text text-muted">
-                            Note: Display to customer
-                        </small>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Price Quantity</label>
-                        <input type="text" class="form-control currency" name="price_quantity" id="price_quantity"
-                               data-valid="required" data-msg="Please enter price quantity"/>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Special delivery charges</label>
-                        <input type="number" min="0" class="form-control currency" name="special_delivery_charges"
-                               id="special_delivery_charges"
-                        />
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Inventory Quantity</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    <i class="fas fa-cart-plus"></i>
-                                </div>
-                            </div>
-                            <input type="number" class="form-control currency" name="price_quantity" id="price_quantity"
-                                   data-valid="required" data-msg="Please enter price quantity"/>
+                        <div class="form-group col-md-6">
+                            <label>Sub Category</label>
+                            <select class="form-control" id="ddl_sub_category" name="subcategory">
+
+                            </select>
                         </div>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Inventory Type</label>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
                         <div class="selectgroup selectgroup-pills">
                             <label class="selectgroup-item">
                                 <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-sun"></i></span>
                             </label>
-                            Daily
+                            Active
                             <label class="selectgroup- pl-2">
-                                <input type="radio" name="status" value="2" class="selectgroup-input">
+                                <input type="radio" name="status" value="0" class="selectgroup-input">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
-                                            class="fas fa-chess-pawn"></i></span>
+                                            class="fas fa-moon"></i></span>
                             </label>
-                            Onetime
+                            Inactive
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <div class="selectgroup selectgroup-pills">
+                            <label class="selectgroup-item">
+                                <input type="radio" name="type" value="1" class="selectgroup-input" checked="">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-tree"></i></span>
+                            </label>
+                            Veg
+                            <label class="selectgroup- pl-2">
+                                <input type="radio" name="type" value="0" class="selectgroup-input">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-meteor"></i></span>
+                            </label>
+                            Non-Veg
+                            <label class="selectgroup- pl-2">
+                                <input type="radio" name="type" value="0" class="selectgroup-input">
+                                <span class="selectgroup-button selectgroup-button-icon"><i
+                                            class="fas fa-question"></i></span>
+                            </label>
+                            Other
                         </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Duration</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    <i class="fas fa-clock"></i>
+
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Add-Ons and suggestion product</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Add-Ons Product</label>
+                            <select class="form-control d-flex flex-column" id="ddl_addOnsProduct"
+                                    multiple
+                                    data-valid="required" data-msg="Please select category"
+                                    data-error="#addOnProduct-error"
+                                    name="addOnsProduct">
+
+                            </select>
+                            <div id="addOnProduct-error"></div>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label class="custom-switch mt-2">
+                                <input type="checkbox" name="loadAllAddonProduct" class="custom-switch-input">
+                                <span class="custom-switch-indicator"></span>
+                                <span class="custom-switch-description">load All addon products</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Suggestion Products / Category</div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Suggestion Products</label>
+                            <select class="form-control" id="ddl_suggested_product" multiple name="suggestedProduct">
+
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Suggestion Category</label>
+                            <select class="form-control" id="ddl_suggested_category" multiple name="suggestedCategory">
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Extra Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Meta Title</label>
+                        <input type="text" class="form-control" name="product_meta_title" id="product_meta_title">
+                    </div>
+                    <div class="form-group">
+                        <label>Meta Description</label>
+                        <textarea class="form-control form-control-sm" name="product_meta_description"
+                                  id="product_meta_description"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="dropzone dz-clickable" id="productImageDropZone">
+                        <input type="hidden" id="imageProduct" name="imageProductId"/>
+                        <div class="dz-default dz-message"><span>Drop image here to upload</span></div>
+                    </div>
+                    <button class="btn btn-primary d-none" id="productImagesSubmit">Save Images</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="section-title">Price Details</div>
+                    <div class="form-row mt-3">
+                        <div class="form-group col-md-6">
+                            <label>Price</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        &#8377;
+                                    </div>
                                 </div>
+                                <input type="number" min="0" class="form-control currency" name="price"
+                                       data-valid="required" data-msg="Please enter price"
+                                       data-error="#price-error"
+                                       id="price">
                             </div>
-                            <input type="number" class="form-control currency" name="price_quantity" id="price_quantity"
+                            <div id="price-error"></div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Sale Price</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        &#8377;
+                                    </div>
+                                </div>
+                                <input type="number" min="0" class="form-control currency" name="sale_price"
+                                       id="sale_price"
+                                       data-error="#sale-price-error"
+                                       data-valid="required" data-msg="Please enter sale price">
+                            </div>
+                            <div id="sale-price-error"></div>
+                            <small id="passwordHelpBlock" class="form-text text-muted">
+                                Note: Display to customer
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Price Quantity</label>
+                            <input type="text" class="form-control currency" name="price_quantity" id="price_quantity"
                                    data-valid="required" data-msg="Please enter price quantity"/>
                         </div>
-                        <small class="text-muted">Vendor making duration in min</small>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Minimum stock quantity</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    <i class="fas fa-bell"></i>
-                                </div>
-                            </div>
+                        <div class="form-group col-md-6">
+                            <label>Special delivery charges</label>
                             <input type="number" min="0" class="form-control currency" name="special_delivery_charges"
                                    id="special_delivery_charges"
                             />
                         </div>
-                        <small class="text-muted">Trigger warning to assign vendor</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Inventory Quantity</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </div>
+                                </div>
+                                <input type="number" class="form-control currency" name="inventoryQuantity"
+                                       id="inventoryQuantity"
+                                       data-valid="required" data-msg="Please enter price quantity"/>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Inventory Type</label>
+                            <div class="selectgroup selectgroup-pills">
+                                <label class="selectgroup-item">
+                                    <input type="radio" name="inventoryType" value="1" class="selectgroup-input"
+                                           checked="">
+                                    <span class="selectgroup-button selectgroup-button-icon"><i
+                                                class="fas fa-sun"></i></span>
+                                </label>
+                                Daily
+                                <label class="selectgroup- pl-2">
+                                    <input type="radio" name="inventoryType" value="2" class="selectgroup-input">
+                                    <span class="selectgroup-button selectgroup-button-icon"><i
+                                                class="fas fa-chess-pawn"></i></span>
+                                </label>
+                                Onetime
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Duration</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                </div>
+                                <input type="number" class="form-control currency" name="duration" id="duration"
+                                       data-valid="required" data-msg="Please enter duration in min"/>
+                            </div>
+                            <small class="text-muted">Vendor making duration in min</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Minimum stock quantity</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                </div>
+                                <input type="number" min="0" class="form-control currency" name="minStockQuantity"
+                                       id="minStockQuantity"
+                                />
+                            </div>
+                            <small class="text-muted">Trigger warning to assign vendor</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        <select class="form-control" id="ddl_vendor"
+                                data-valid="required" data-msg="Please select vendor"
+                                data-error="#vendor-error"
+                                name="vendor">
+                        </select>
+                        <div id="vendor-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary">Save Change</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Vendor</label>
-                    <select class="form-control" id="ddl_vendor"
-                            data-valid="required" data-msg="Please select vendor"
-                            data-error="#vendor-error"
-                            name="vendor">
-                    </select>
-                    <div id="vendor-error"></div>
-                </div>
+
             </div>
 
         </div>
-
-    </div>
-</div>
+    </form>
 
 
 <%- include("../../partials/footer") %>

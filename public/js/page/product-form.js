@@ -3,13 +3,15 @@ $(document).ready(function () {
     subCategoryId = null
     app.formValidation();
     setup();
-    addOnsProduct();
+    addOnsProduct().catch(error=>console.log(error));
     let productId = parseInt($("#updateProductId").val());
 
     if (productId !== 0) {
         getProductDetails(productId);
     } else {
         category();
+        getProductOption("ddl_suggested_product");
+        getVendorsOptions('ddl_vendor');
     }
 });
 
@@ -75,7 +77,7 @@ function setup() {
 function category() {
     return app.request("getAllCategoriesOptions", null).then(response => {
         app.selectOption('ddl_category', 'Select Category', null, response.results);
-        app.selectOption('ddl_addons_category', 'Select Category', null, response.results);
+        app.selectOption('ddl_suggested_category', 'Select Category', null, response.results);
         return Promise.resolve();
     })
 
@@ -160,7 +162,7 @@ function saveProductDetails(form) {
         $("#productDetailsForm").trigger('reset');
         $("#ddl_category").empty().trigger('change')
         if ($('.dropzone .dz-preview .dz-filename [data-dz-name]').length > 0) {
-            $("#imageProduct").val(response.product.id);
+            $("#imageProduct").val(response.id);
             $("#productImagesSubmit").click();
         } else {
             app.successToast(response.body);

@@ -61,23 +61,10 @@ exports.getAllServicesTables = (request, response, next) => {
 
 exports.getAllServices = (request, response, next) => {
 
-    database.select(tableName, {status: 1, isSubService: 0}, ["id", "name", "description", "photo"])
+    database.select(tableName, {status: 1, isSubService: 0}, ["id", "name", "description", "photo","sequenceNumber"])
         .then(services => {
             if (services.length > 0) {
-                let allServices = services.map( (service) => {
-                    return {
-                        service:service,
-                        subService: database.query(`select id, name,description, photo from ${tableName} 
-                    where id in (select subcategoryId from ${mappingTableName} where serviceId=${service.id}) 
-                    and activeStatus=1 and status=1`),
-                    }
-                })
-                Promise.all(allServices).then(res => {
-                    return response.status(200).json(res);
-                }).catch(error => {
-                    next(error)
-                });
-
+                return response.status(200).json(services.sort((a,b)=>a.sequenceNumber-b.sequenceNumber));
             } else {
                 let error = new Error("Service Not Found");
                 error.statusCode = 404;
@@ -259,3 +246,26 @@ exports.updateServiceStatus = (request, response, next) => {
 
 }
 
+exports.sequenceUpdate = (request, response, next) => {
+    let services =JSON.parse(request.body.services);
+    let servicesObject = services.map((service,index)=>[service,index]);
+
+    database.query(`INSERT INTO ?? (id, sequenceNumber)
+                    VALUES ?
+                    ON DUPLICATE KEY
+    UPDATE sequenceNumber =
+    VALUES (sequenceNumber)`, [tableName, servicesObject])
+        .then(results => {
+            if (!results) {
+                let error = new Error("Failed to update")
+                error.statusCode = 401;
+                throw  error;
+            }
+            return response.status(200).json({
+                message: "Save service sequence"
+            })
+        })
+        .catch(error => {
+            next(error);
+        })
+}

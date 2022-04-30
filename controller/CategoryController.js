@@ -7,7 +7,7 @@ exports.getAllCategoriesOption = (request, response, next) => {
     database.query('select id, name as text from ?? where status=1 and isSubcategory=0 and activeStatus=1', [tableName])
         .then(categories => {
             response.status(200).json({
-                results: [{id: -1, text: "", selected: true, disabled: true}, ...categories]
+                results: [{id: -1, text: "",  disabled: true}, ...categories]
             });
         }).catch(error => {
         response.status(500).json({
@@ -61,22 +61,10 @@ exports.getAllCategoriesTables = (request, response, next) => {
 
 exports.getAllCategories = (request, response, next) => {
 
-    database.select(tableName, {status: 1, isSubcategory: 0}, ["id", "name", "description", "photo"])
+    database.select(tableName, {status: 1, isSubcategory: 0}, ["id", "name", "description", "photo","sequenceNumber"])
         .then(categories => {
             if (categories.length > 0) {
-                let allCategories = categories.map(async (category) => {
-                    return {
-                        category: category,
-                        subCategory: await database.query(`select id, name,description, photo from ${tableName} 
-                    where id in (select subcategoryId from ${mappingTableName} where CategoryId=${category.id}) 
-                    and activeStatus=1 and status=1`),
-                    }
-                })
-                Promise.all(allCategories).then(res => {
-                    return response.status(200).json(res);
-                }).catch(error => {
-                    next(error)
-                });
+                return response.status(200).json(categories.sort((a,b)=>a.sequenceNumber-b.sequenceNumber));
             } else {
                 let error = new Error("Service Not Found");
                 error.statusCode = 404;
@@ -259,12 +247,14 @@ exports.updateCategoryStatus = (request, response, next) => {
 }
 
 exports.sequenceUpdate = (request, response, next) => {
-    let categories =[[1,6],[2,5],[3,4],[4,3],[5,2],[6,1]] ;//request.body.categories;
+    let categories =JSON.parse(request.body.categories);
+    let categoriesObject = categories.map((category,index)=>[category,index]);
+
     database.query(`INSERT INTO ?? (id, sequenceNumber)
                     VALUES ?
                     ON DUPLICATE KEY
     UPDATE sequenceNumber =
-    VALUES (sequenceNumber)`, [tableName, categories])
+    VALUES (sequenceNumber)`, [tableName, categoriesObject])
         .then(results => {
             if (!results) {
                 let error = new Error("Failed to update")
@@ -272,7 +262,7 @@ exports.sequenceUpdate = (request, response, next) => {
                 throw  error;
             }
             return response.status(200).json({
-                body: "Save Category sequence"
+                message: "Save Category sequence"
             })
         })
         .catch(error => {

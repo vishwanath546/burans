@@ -30,25 +30,27 @@ router.get('/categories', function (req, res, next) {
     if (!req.session.user) res.redirect("/");
     res.render('pages/product/category', {title: 'View product', url: req.url,session: req.session});
 });
-
+router.get('/categoryRanking', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/CategoryRanking', {title: 'Category Ranking', url: req.url,session: req.session});
+});
 router.get('/create-categories', function (req, res, next) {
     if (!req.session.user) res.redirect("/");
-    res.render('pages/product/CategoryForm', {title: 'View product', url: req.url, categoryId: 0,session: req.session});
+    res.render('pages/product/CategoryForm', {title: 'Crate Category', url: req.url, categoryId: 0,session: req.session});
 });
 router.get('/update-categories/:updateID', function (req, res, next) {
     if (!req.session.user) res.redirect("/");
     let categoryId = req.params.updateID;
     let segments = req.url.split('/');
-    res.render('pages/product/CategoryForm', {title: 'View product', url: '/' + segments[1], categoryId: categoryId,session: req.session});
+    res.render('pages/product/CategoryForm', {title: 'Update Category', url: '/' + segments[1], categoryId: categoryId,session: req.session});
 });
-
 router.get('/getAllCategories', CategoryController.getAllCategories);
 router.post('/getCategoryById', CategoryController.getCategoryById);
 router.post("/saveCategorySubcategory", Validator(Schemas.categoryValidation), CategoryController.saveCategorySubcategory);
 router.post('/getAllCategoriesOptions', CategoryController.getAllCategoriesOption);
 router.post('/getAllSubcategoriesOption/:categoryId', CategoryController.getAllSubcategoriesOption);
 router.post('/getAllCategoriesTables', CategoryController.getAllCategoriesTables);
-router.get('/updateCategoryRanking', CategoryController.sequenceUpdate);
+router.post('/updateCategoryRanking', CategoryController.sequenceUpdate);
 router.put("/updateCategoryStatus", CategoryController.updateCategoryStatus);
 router.delete("/deleteCategory", CategoryController.deleteCategory);
 
@@ -57,6 +59,11 @@ router.delete("/deleteCategory", CategoryController.deleteCategory);
 router.get('/products', function (req, res, next) {
     if (!req.session.user) res.redirect("/");
     res.render('pages/product/ViewProducts', {title: 'View product', url: req.url,session: req.session});
+});
+
+router.get('/productRanking', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/product/ProductRanking', {title: 'Product Ranking', url: req.url,session: req.session});
 });
 
 router.get('/create-product', function (req, res) {
@@ -80,6 +87,8 @@ router.post("/uploadProductsImages", ProductController.uploadProductsImages);
 router.post("/saveProductDetails", Validator(Schemas.productValidation), ProductController.saveProductDetails);
 router.post('/getProductById', ProductController.getProductById);
 router.post('/getAllProductsTables', ProductController.getAllProductTables);
+router.post('/getAllProducts', ProductController.getAllProduct);
+router.post('/getAllProductsOptions', ProductController.getAllProductOption);
 router.delete("/deleteProduct", ProductController.deleteProduct);
 // -------------------------- Add ons products --------------------------------------
 
@@ -129,6 +138,10 @@ router.post('/getLocation', LocationController.getLocationById);
 router.delete("/deleteLocation", LocationController.deleteLocation)
 // ------------------------------ service ----------------------------------------
 
+router.get('/serviceRanking', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/service/ServiceRanking', {title: 'Service Ranking', url: req.url,session: req.session});
+});
 router.get("/create-service", function (req, res) {
     if (!req.session.user) res.redirect("/");
     res.render('pages/service/ServiceForm', {title: 'Create Service', url: req.url, serviceId: 0,session: req.session});
@@ -144,8 +157,6 @@ router.get("/update-service/:updateID", function (req, res) {
     let segments = req.url.split('/');
     res.render('pages/service/ServiceForm', {title: 'Update Service', url: '/' + segments[1], serviceId: serviceId,session: req.session});
 })
-
-
 router.get("/view-service", function (req, res) {
     if (!req.session.user) res.redirect("/");
     res.render("pages/Service/ViewServices", {title: 'View Services', url: req.url,session: req.session})
@@ -153,6 +164,7 @@ router.get("/view-service", function (req, res) {
 router.post("/saveService", ServiceController.saveServiceSubServices)
 router.post('/getAllServiceTables', ServiceController.getAllServicesTables);
 router.post('/getAllServiceOptions', ServiceController.getAllServiceOption);
+router.post('/updateServiceRanking', ServiceController.sequenceUpdate);
 router.get('/getAllService', ServiceController.getAllServices);
 router.post('/getService', ServiceController.getServiceById);
 router.delete("/deleteService", ServiceController.deleteService)

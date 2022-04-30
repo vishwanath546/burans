@@ -24,6 +24,15 @@ function getCategoryOption(element) {
 
 }
 
+
+function getProductOption(element) {
+    return app.request("getAllProductsOptions", null).then(response => {
+        app.selectOption(element, 'Select Product', null, response.results);
+        return Promise.resolve();
+    })
+}
+
+
 function getApprovalTemplate(newValue, oldValue, column, index, id,type=0) {
 
     if(type!==0){
