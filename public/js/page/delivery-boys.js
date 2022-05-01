@@ -31,6 +31,8 @@ function loadDeliveryTable() {
             render: (d, t, r, m) => {
                 if (d !== null && d !== "") {
                     return d.split(',').map(i => `<small><span class="badge badge-success">${i}</span></small>`).join(" ")
+                }else{
+                    return ``;
                 }
             }
         },
@@ -129,7 +131,7 @@ function getDeliveryBoy(deliveryBoyId) {
                                 .then(options => {
                                     let newValue = [];
                                     let oldValue = [];
-                                    let oldIdValues = response.areas.split(",");
+                                    let oldIdValues = response.areas ?response.areas.split(","):[];
                                     for (let area of options.results) {
                                         if (Array.isArray(object.values[index])) {
                                             if (object.values[index].some((areaValue) => parseInt(areaValue) === parseInt(area.id))) {
@@ -155,7 +157,7 @@ function getDeliveryBoy(deliveryBoyId) {
                                 .then(options => {
                                     let newValue = [];
                                     let oldValue = [];
-                                    let oldIdValues = response.vendors.split(",");
+                                    let oldIdValues = response.vendors ? response.vendors.split(","):[];
                                     for (let vendor of options.results) {
                                         if (Array.isArray(object.values[index])) {
                                             if (object.values[index].some((vendorValue) => parseInt(vendorValue) === parseInt(vendor.id))) {

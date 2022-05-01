@@ -45,13 +45,13 @@
                         <label class="form-label">Status</label>
                         <div class="selectgroup selectgroup-pills">
                             <label class="selectgroup-item">
-                                <input type="radio" name="status" value="1" class="selectgroup-input" checked="">
+                                <input type="radio" name="status" value="1" class="selectgroup-input" id="ck_isActiveStatus" checked="">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-sun"></i></span>
                             </label>
                             Active
                             <label class="selectgroup- pl-2">
-                                <input type="radio" name="status" value="0" class="selectgroup-input">
+                                <input type="radio" name="status" value="0" id="ck_isInActiveStatus" class="selectgroup-input">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-moon"></i></span>
                             </label>
@@ -62,19 +62,19 @@
                         <label class="form-label">Type</label>
                         <div class="selectgroup selectgroup-pills">
                             <label class="selectgroup-item">
-                                <input type="radio" name="type" value="1" class="selectgroup-input" checked="">
+                                <input type="radio" name="type" value="1" id="ck_isVeg" class="selectgroup-input" checked="">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-tree"></i></span>
                             </label>
                             Veg
                             <label class="selectgroup- pl-2">
-                                <input type="radio" name="type" value="0" class="selectgroup-input">
+                                <input type="radio" name="type" value="2" id="ck_isNonVeg" class="selectgroup-input">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-meteor"></i></span>
                             </label>
                             Non-Veg
                             <label class="selectgroup- pl-2">
-                                <input type="radio" name="type" value="0" class="selectgroup-input">
+                                <input type="radio" name="type" value="0" id="ck_isOther" class="selectgroup-input">
                                 <span class="selectgroup-button selectgroup-button-icon"><i
                                             class="fas fa-question"></i></span>
                             </label>
@@ -224,14 +224,14 @@
                             <label>Inventory Type</label>
                             <div class="selectgroup selectgroup-pills">
                                 <label class="selectgroup-item">
-                                    <input type="radio" name="inventoryType" value="1" class="selectgroup-input"
+                                    <input type="radio" name="inventoryType" id="inventoryTypeDaily" value="1" class="selectgroup-input"
                                            checked="">
                                     <span class="selectgroup-button selectgroup-button-icon"><i
                                                 class="fas fa-sun"></i></span>
                                 </label>
                                 Daily
                                 <label class="selectgroup- pl-2">
-                                    <input type="radio" name="inventoryType" value="2" class="selectgroup-input">
+                                    <input type="radio" name="inventoryType" value="2" d="inventoryTypeOneTime"  class="selectgroup-input">
                                     <span class="selectgroup-button selectgroup-button-icon"><i
                                                 class="fas fa-chess-pawn"></i></span>
                                 </label>

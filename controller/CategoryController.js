@@ -7,7 +7,7 @@ exports.getAllCategoriesOption = (request, response, next) => {
     database.query('select id, name as text from ?? where status=1 and isSubcategory=0 and activeStatus=1', [tableName])
         .then(categories => {
             response.status(200).json({
-                results: [{id: -1, text: "",  disabled: true}, ...categories]
+                results: [{id: -1, text: ""}, ...categories]
             });
         }).catch(error => {
         response.status(500).json({

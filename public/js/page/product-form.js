@@ -3,15 +3,16 @@ $(document).ready(function () {
     subCategoryId = null
     app.formValidation();
     setup();
-    addOnsProduct().catch(error=>console.log(error));
+
     let productId = parseInt($("#updateProductId").val());
 
     if (productId !== 0) {
         getProductDetails(productId);
     } else {
-        category();
-        getProductOption("ddl_suggested_product");
-        getVendorsOptions('ddl_vendor');
+        category()
+        addOnsProduct().catch(error => console.log(error));
+        getProductOption("ddl_suggested_product").catch(error => console.log("while Product option fetch", error));
+        getVendorsOptions('ddl_vendor').catch(error => console.log("while Vendor option fetch", error));
     }
 });
 
@@ -78,24 +79,24 @@ function category() {
     return app.request("getAllCategoriesOptions", null).then(response => {
         app.selectOption('ddl_category', 'Select Category', null, response.results);
         app.selectOption('ddl_suggested_category', 'Select Category', null, response.results);
-        return Promise.resolve();
+        return Promise.resolve(1);
     })
 
 }
 
 function subCategory(id) {
     $('#ddl_sub_category').empty().trigger('change');
-    if(id) {
+    if (id) {
         app.request("getAllSubcategoriesOption/" + id, null).then(response => {
             app.selectOption('ddl_sub_category', 'Select Category', null, response.results);
             if (subCategoryId !== null) {
-                $('#ddl_sub_category').val().trigger('change');
+                $('#ddl_sub_category').val(subCategoryId).trigger('change');
             }
         })
     }
 }
 
-function formatRepo (repo) {
+function formatRepo(repo) {
     if (repo.loading) {
         return repo.text;
     }
@@ -103,7 +104,7 @@ function formatRepo (repo) {
     var $container = $(
         `
               <div class="align-items-center d-flex justify-content-center">
-                <img class="mr-3 rounded-circle" width="50" src="${baseURL+repo.photo.replace("public","")}" alt="avatar">
+                <img class="mr-3 rounded-circle" width="50" src="${baseURL + repo.photo.replace("public", "")}" alt="avatar">
                   <div class="media-body">
                     <div class="badge badge-pill badge-dark float-right">${repo.price}</div>
                     <h6 class="media-title">${repo.name}</h6>
@@ -114,7 +115,7 @@ function formatRepo (repo) {
     return $container;
 }
 
-function formatRepoSelection (repo) {
+function formatRepoSelection(repo) {
     return repo.name || repo.text;
 }
 
@@ -137,16 +138,67 @@ function getProductDetails(productId) {
         $("#sale_price").val(response.salePrice);
         $("#price_quantity").val(response.priceQuantity);
         $("#special_delivery_charges").val(response.specialDeliveryCharges);
-
-
         $("#product_meta_title").val(response.metaTitle);
         $("#product_meta_description").val(response.metaDescription);
+        $("#minStockQuantity").val(response.minStockQty);
+        $("#inventoryQuantity").val(response.inventoryQuantity);
+        $("#duration").val(response.duration);
+
+        subCategoryId = response.subcategoryId
+        addOnsProduct().then(() => {
+            if (response.addOnsProducts) {
+                $('#ddl_addOnsProduct').val(response.addOnsProducts.split(",")).trigger('change');
+            }
+        }).catch(error => console.log(error));
         category().then(() => {
             $('#ddl_category').val(response.categoryId).trigger('change');
+            subCategory(response.categoryId);
+            if (response.suggestedCategory) {
+                $('#ddl_suggested_category').val(response.suggestedCategory.split(",")).trigger('change');
+            }
         })
-        subCategoryId = response.subCategoryId
+        getProductOption("ddl_suggested_product")
+            .then(() => {
+                if (response.suggestedProducts) {
+                    $('#ddl_suggested_product').val(response.suggestedProducts.split(",")).trigger('change');
+                }
+            })
+            .catch(error => console.log("while Product option fetch", error));
+        getVendorsOptions('ddl_vendor')
+            .then(() => {
+                if (response.vendor) {
+                    $('#ddl_vendor').val(response.vendor).trigger('change');
+                }
+            })
+            .catch(error => console.log("while Vendor option fetch", error));
 
-
+        if(parseInt(response.status)===1){
+            $("#ck_isActiveStatus").attr("checked",true);
+            $("#ck_isInActiveStatus").attr("checked",false);
+        }else{
+            $("#ck_isInActiveStatus").attr("checked",true);
+            $("#ck_isActiveStatus").attr("checked",false);
+        }
+        if(parseInt(response.type)===1){
+            $("#ck_isVeg").attr("checked",true);
+            $("#ck_isNonVeg").attr("checked",false);
+            $("#ck_isOther").attr("checked",false);
+        }else if(parseInt(response.type) ===2){
+            $("#ck_isNonVeg").attr("checked",true);
+            $("#ck_isVeg").attr("checked",false);
+            $("#ck_isOther").attr("checked",false);
+        }else{
+            $("#ck_isNonVeg").attr("checked",false);
+            $("#ck_isVeg").attr("checked",false);
+            $("#ck_isOther").attr("checked",true);
+        }
+        if(parseInt(response.status)===1){
+            $("#inventoryTypeDaily").attr("checked",true);
+            $("#inventoryTypeOneTime").attr("checked",false);
+        }else{
+            $("#inventoryTypeOneTime").attr("checked",true);
+            $("#inventoryTypeDaily").attr("checked",false);
+        }
     }).catch(error => {
         if (error.status === 500) {
             app.errorToast("something went wrong");
@@ -161,11 +213,15 @@ function saveProductDetails(form) {
     app.request("saveProductDetails", new FormData(form)).then(response => {
         $("#productDetailsForm").trigger('reset');
         $("#ddl_category").empty().trigger('change')
+        $("#ddl_addOnsProduct").empty().trigger('change')
+        $("#ddl_suggested_product").empty().trigger('change')
+        $("#ddl_suggested_category").empty().trigger('change')
+        $("#ddl_vendor").empty().trigger('change')
         if ($('.dropzone .dz-preview .dz-filename [data-dz-name]').length > 0) {
             $("#imageProduct").val(response.id);
             $("#productImagesSubmit").click();
         } else {
-            app.successToast(response.body);
+            app.successToast(response.message);
         }
 
     }).catch(error => {
