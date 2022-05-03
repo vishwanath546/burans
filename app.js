@@ -37,6 +37,9 @@ const diskStorage = multer.diskStorage({
             case "productImages":
                 destinationPath += "images/products";
                 break;
+            case "offersImage":
+                destinationPath += "images/offers";
+                break;
             case "shopImage":
                 destinationPath += "images/vendor";
                 break;
@@ -74,7 +77,8 @@ app.use(multer({storage: diskStorage, fileFilter: fileFilter}).fields([
     {name: "productImages", maxCount: 4},
     {name: "addOnsProductImage", maxCount: 1},
     {name: "licenseImage", maxCount: 1},
-    {name: "bikeRcImage", maxCount: 1}
+    {name: "bikeRcImage", maxCount: 1},
+    {name: "offersImage", maxCount: 1}
 ]))
 
 
