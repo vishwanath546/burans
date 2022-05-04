@@ -7,6 +7,8 @@ const ServiceController = require('../controller/ServiceController');
 const ProductController = require('../controller/ProductController');
 const DeliveryBoyController = require('../controller/DeliveryBoyController');
 const AddOnsProductController = require("../controller/AddOnsProductController");
+const OfferController = require("../controller/OfferController");
+
 const Validator = require('../validator/Validation');
 const Schemas = require('../validator/Schemas');
 
@@ -242,13 +244,28 @@ router.delete("/deleteDeliveryBoy", DeliveryBoyController.deleteDeliveryBoy);
 // --------------------------- offers ------------------------------------------
 
 router.get('/offers', function (req, res, next) {
-    res.render('pages/offers/offers', {title: 'View product', url: req.url});
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/offers/ViewOffers', {title: 'View offers',session: req.session, url: req.url});
 });
-router.get('/create-offer', function (req, res, next) {
-    res.render('pages/offers/offers', {title: 'View product', url: req.url});
+router.get('/create-offers', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    res.render('pages/offers/offers', {title: 'View offers',session: req.session, url: req.url,offersId:0,});
 });
-router.get('/create-coupons', function (req, res, next) {
-    res.render('pages/offers/coupon', {title: 'View product', url: req.url});
+router.get('/update-offers/:updateId', function (req, res, next) {
+    if (!req.session.user) res.redirect("/");
+    let offersId = req.params.updateId;
+    if (!offersId) {
+        let error = new Error('Not Found');
+        error.statusCode = 404;
+        throw error
+    }
+    let segments = req.url.split('/');
+    res.render('pages/offers/offers', {title: 'View product',session: req.session,offersId:offersId, url: '/' + segments[1]});
 });
+router.post('/saveCouponCodeDetails', OfferController.saveCouponCode);
+router.post('/getAllCouponTables', OfferController.getAllCouponTables);
+router.delete('/deleteOffer', OfferController.deleteOffer);
+router.post('/getOfferById', OfferController.getOfferById);
+
 module.exports = router;
 // --------------------------

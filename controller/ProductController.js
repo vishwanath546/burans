@@ -60,7 +60,7 @@ exports.saveProductDetails = async (request, response, next) => {
             }
             if (suggestedCategory) {
                 if (Array.isArray(suggestedCategory)) {
-                    updateSuggestion = suggestedCategory.map(i => [product_id, database.currentTimeStamp(), null, i]);
+                    updateSuggestion =[...suggestedCategory,...suggestedCategory.map(i => [product_id, database.currentTimeStamp(), null, i])];
                 } else {
                     updateSuggestion.push([product_id, database.currentTimeStamp(), null, suggestedCategory]);
                 }
@@ -179,7 +179,7 @@ exports.saveProductDetails = async (request, response, next) => {
             }
             if (suggestedCategory) {
                 if (Array.isArray(suggestedCategory)) {
-                    updateSuggestion = suggestedCategory.map(i => [productResult.insertId, database.currentTimeStamp(), null, i]);
+                    updateSuggestion =[...updateSuggestion, ...suggestedCategory.map(i => [productResult.insertId, database.currentTimeStamp(), null, i])];
                 } else {
                     updateSuggestion.push([productResult.insertId, database.currentTimeStamp(), null, suggestedCategory]);
                 }
@@ -255,10 +255,10 @@ exports.getAllProductTables = (request, response, next) => {
         .then(totalCount => {
             return database.dataTableSource(productTableName,
                 ["id", "name", "description", "price", "salePrice", "status", "priceQuantity", "specialDeliveryCharges",
-                    "(select path from product_images where ProductId=id limit 1) as photo",
+                    "(select path from product_images where ProductId=products.id limit 1) as photo",
                     "(select name from category where id = categoryId) as category",
                     "(select name from category where id = subcategoryId and isSubcategory=1) as subcategory",
-                    "(select (select name from vendor_user where id=vp.VendorId) as name from vendor_product vp where vp.ProductId=id) as vendor",
+                    "(select (select name from vendor_user where id=vp.VendorId) as name from vendor_product vp where vp.ProductId=products.id) as vendor",
                     "createdAt"]
                 , {status: 1}, 'createdAt', 'name', search, 'desc',
                 parseInt(start), parseInt(length),false)
@@ -284,13 +284,13 @@ exports.getProductById = (request, response, next) => {
 
     database.select(productTableName, {status: 1, id: productId},
         ["id", "name", "description", "price", "salePrice", "categoryId", "subcategoryId",
-            "inventoryQuantity", "inventoryType", "type", "duration", "minStockQty",
+            "inventoryQuantity", "inventoryType", "type", "duration", "minStockQty","status",
             "metaTitle", "metaDescription", "priceQuantity", "specialDeliveryCharges",
-            "(select group_concat(path) from product_images where ProductId=id) as photo",
-            "(select VendorId as name from vendor_product vp where vp.ProductId=id) as vendor",
-            "(select group_concat(AddOnsProductId) as name from addon_product_mapping ap where ap.ProductId=id) as addOnsProducts",
-            "(select group_concat(SuggestedProductId) as name from suggested_item_mapping sp where sp.ProductId=id) as suggestedProducts",
-            "(select group_concat(CategoryId) as name from suggested_item_mapping si where si.ProductId=id) as suggestedCategory",
+            "(select group_concat(path) from product_images where ProductId=products.id) as photo",
+            "(select VendorId as name from vendor_product vp where vp.ProductId=products.id) as vendor",
+            "(select group_concat(AddOnsProductId) as name from addon_product_mapping ap where ap.ProductId=products.id) as addOnsProducts",
+            "(select group_concat(SuggestedProductId) as name from suggested_item_mapping sp where sp.ProductId=products.id) as suggestedProducts",
+            "(select group_concat(CategoryId) as name from suggested_item_mapping si where si.ProductId=products.id) as suggestedCategory",
 
         ])
         .then(result => {
@@ -299,7 +299,7 @@ exports.getProductById = (request, response, next) => {
                 error.statusCode = 404;
                 throw error;
             }
-            response.status(200).json(result);
+            response.status(200).json(result[0]);
         })
         .catch(error => {
             next(error);

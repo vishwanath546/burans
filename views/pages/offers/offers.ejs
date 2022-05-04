@@ -2,18 +2,28 @@
 
 <div class="row">
     <div class="col-12 col-md-6 col-lg-6">
-        <form id="category_form" method="post" data-form-valid="saveCategorySubCategoryDetails">
+        <form id="offers_form" method="post" data-form-valid="saveOffersDetails">
             <div class="card">
                 <div class="card-header">
                     <h4>Offer Details</h4>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
+                        <label>Photos</label>
+                        <div id="offers-image-preview" class="image-preview">
+                            <label for="offers-image" id="offers-image-label">Choose File</label>
+                            <input type="file" name="offersImage" id="offers-image"
+                                   data-valid="required"
+                                   data-msg="Please select offer image" data-error="#error-offers-image">
+                        </div>
+                        <div id="error-offers-image"></div>
+                    </div>
+                    <div class="form-group">
                         <label>Code</label>
-                        <input type="hidden" name="updateCategoryId" id="updateCategoryId" value="" />
-                        <input type="text" class="form-control" name="name"
-                               id="name"
-                               data-valid="required" data-msg="Please enter name"
+                        <input type="hidden" name="updateOfferId" id="updateOfferId" value="<%= offersId %>"/>
+                        <input type="text" class="form-control" name="code"
+                               id="code"
+                               data-valid="required" data-msg="Please enter code"
                         >
                     </div>
                     <div class="form-group">
@@ -24,9 +34,8 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Amount Off</label>
-                            <input type="hidden" name="updateCategoryId" id="updateCategoryId" value="" />
-                            <input type="text" class="form-control" name="name"
-                                   id="name"
+                            <input type="text" class="form-control" name="amountOff"
+                                   id="amountOff"
                                    data-valid="required" data-msg="Please enter name"
                             >
                         </div>
@@ -43,7 +52,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Apply To</label>
-                            <select  id="applyTo" name="applyTo" class="form-control">
+                            <select id="applyTo" name="applyTo" class="form-control">
                                 <option value="1">All Product</option>
                                 <option value="5">All Order</option>
                                 <option value="2">Specific Product</option>
@@ -53,20 +62,20 @@
                         </div>
                         <div class="form-group col-md-6 d-none" id="specifyProductSelectionBox">
                             <label>Specify product</label>
-                            <select  id="product" name="product" class="form-control">
+                            <select id="specifyProduct" name="specifyProduct" multiple class="form-control">
 
                             </select>
                         </div>
                         <div class="form-group col-md-6 d-none" id="specifyUserSelectionBox">
                             <label>Specify user</label>
-                            <select  id="user" name="user" class="form-control">
+                            <select id="specifyUser" name="specifyUser" class="form-control" multiple>
 
                             </select>
                         </div>
                         <div class="form-group col-md-6 d-none" id="minSubTotalAmountBox">
                             <label>Minimum subtotal amount</label>
-                            <input type="number" class="form-control" name="name"
-                                   id="name">
+                            <input type="number" class="form-control" name="minSubTotalAmount"
+                                   id="minSubTotalAmount">
                         </div>
                     </div>
 
@@ -74,14 +83,14 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Start Date</label>
-                            <input type="date" class="form-control" name="name"
-                                   id="name">
+                            <input type="date" class="form-control" name="startDate"
+                                   id="startDate">
                         </div>
                         <div class="form-group col-md-6">
 
-                                <label>end Date</label>
-                                <input type="date" class="form-control" name="name"
-                                       id="name">
+                            <label>end Date</label>
+                            <input type="date" class="form-control" name="endDate"
+                                   id="endDate">
                             <small id="passwordHelpBlock" class="form-text text-muted">
                                 Note: default Never expiry
                             </small>
@@ -89,8 +98,8 @@
                     </div>
                     <div class="form-group">
                         <label>Limit Users</label>
-                        <input type="number" class="form-control" name="name"
-                               id="name">
+                        <input type="number" class="form-control" min="0" value="1" name="limitUsers"
+                               id="limitUsers">
                     </div>
                 </div>
                 <div class="card-footer">
