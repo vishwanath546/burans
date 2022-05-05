@@ -1,76 +1,93 @@
 $(document).ready(function () {
+  getCategory();
+});
 
-    $('#category_list').slick({
-        centerMode: true,
-        centerPadding: '30px',
-        slidesToShow: 4,
-        arrows: false,
-        dots: false,
-        autoplay: true,
-        autoplaySpeed: 2500,
-        responsive: [{
-            breakpoint: 768,
-            settings: {
+function getCategory() {
+  app
+    .request("client/getCategory", "", "GET")
+    .then((response) => {
+      console.log(response);
+      $("#category_list").empty();
+      var category_list = "";
+      if (response.status) {
+        $("#category_list").slick({
+          centerMode: true,
+          centerPadding: "30px",
+          slidesToShow: 4,
+          arrows: false,
+          dots: false,
+          autoplay: true,
+          autoplaySpeed: 2500,
+          responsive: [
+            {
+              breakpoint: 768,
+              settings: {
                 arrows: false,
                 centerMode: true,
-                centerPadding: '40px',
-                slidesToShow: 4
-            }
-        },
+                centerPadding: "40px",
+                slidesToShow: 4,
+              },
+            },
             {
-                breakpoint: 480,
-                settings: {
-                    arrows: false,
-                    centerMode: true,
-                    centerPadding: '40px',
-                    slidesToShow: 4
-                }
-            }
-        ]
-    });
+              breakpoint: 480,
+              settings: {
+                arrows: false,
+                centerMode: true,
+                centerPadding: "40px",
+                slidesToShow: 4,
+              },
+            },
+          ],
+        });
 
-   [1, 2, 3, 4,5,6,7,8,9,10].map((i) => {
-        let template =`<div class="cat-item px-1 py-3">
-                <a class="bg-white rounded d-block p-2 text-center shadow" href="trending.html">
-                    <img src="img/icons/Fries.png" class="img-fluid mb-2">
-                    <p class="m-0 small">${i}</p>
-                </a>
-            </div>`;
-        $("#category_list").slick('slickAdd', template);
+        response.body.forEach((item, value) => {
+          category_list = `<div class="cat-item px-1 py-3">
+              <a class="bg-white rounded d-block p-2 text-center shadow" href="product?cat_id=${item.id}">
+                 <img src="${item.photo}" class="img-fluid mb-2">
+                 <p class="m-0 small">${item.name}</p>
+              </a>
+           </div>`;
+          $("#category_list").slick("slickAdd", category_list);
+        });
+        trendingList();
+      }
     })
-    trendingList();
-})
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 function trendingList() {
-    $('#trending-list').slick({
-        centerMode: true,
-        centerPadding: '30px',
-        slidesToShow: 2,
-        arrows: false,
-        autoplay: true,
-        responsive: [{
-            breakpoint: 768,
-            settings: {
-                arrows: false,
-                centerMode: true,
-                centerPadding: '40px',
-                slidesToShow: 2
-            }
+  $("#trending-list").slick({
+    centerMode: true,
+    centerPadding: "30px",
+    slidesToShow: 2,
+    arrows: false,
+    autoplay: true,
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          arrows: false,
+          centerMode: true,
+          centerPadding: "40px",
+          slidesToShow: 2,
         },
-            {
-                breakpoint: 480,
-                settings: {
-                    arrows: false,
-                    centerMode: true,
-                    centerPadding: '40px',
-                    slidesToShow: 2
-                }
-            }
-        ]
-    });
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          arrows: false,
+          centerMode: true,
+          centerPadding: "40px",
+          slidesToShow: 2,
+        },
+      },
+    ],
+  });
 
-    [1, 2, 3, 4,].map((i) => {
-        let template =` <div class="osahan-slider-item py-3 px-1">
+  [1, 2, 3, 4].map((i) => {
+    let template = ` <div class="osahan-slider-item py-3 px-1">
                 <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
                     <div class="list-card-image">
                         <div class="star position-absolute"><span class="badge badge-success"><i class="feather-star"></i> 3.1 (300+)</span></div>
@@ -94,6 +111,6 @@ function trendingList() {
                     </div>
                 </div>
             </div>`;
-        $("#trending-list").slick('slickAdd', template);
-    })
+    $("#trending-list").slick("slickAdd", template);
+  });
 }

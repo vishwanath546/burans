@@ -96,10 +96,9 @@ async function select(tableName, where, selectAttributes, limit = "") {
       [tableName]
     );
   if (!selectAttributes && where)
-    sql = mysql.format(
-      `select * from ??  where ${whereCondition} limit ${limit}`,
-      [tableName]
-    );
+    sql = mysql.format(`select * from ??  where ${whereCondition}`, [
+      tableName,
+    ]);
   if (!where && selectAttributes)
     sql = mysql.format(`select ${selectAttributes.join(",")} from ??`, [
       tableName,
