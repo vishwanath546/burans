@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+body{
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ebf1f6+0,ffffff+50,eaf6ff+50,d5ebfb+100 */
+background: #ffffff; /* Old browsers */
+  font-family: 'Poppins', sans-serif;
+}
+.phone-screen {
+  background: url(phone.jpg);
+  width: 475px;
+  height: 769px;
+  padding: 29px 0;
+  margin: auto;
+}
+iframe{
+  width: 400px;
+  height: 703px;
+  border: none;
+  background: #fff;
+  border-radius: 25px;
+  padding: 0px;
+}
+img.logo {
+  border-radius: 180px;
+  width: 120px;
+  margin: 29px 0;
+}
+.f-r{
+  border-radius: 25px;
+  overflow: hidden;
+}
+.hv-100{
+  height: 100vh;
+}
+.btn-primary {
+	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#d92662+0,e23744+100 */
+  background: #d92662;
+	/* Old browsers */
+  background: -moz-linear-gradient(45deg, #d92662 0%, #e23744 100%);
+	/* FF3.6-15 */
+  background: -webkit-linear-gradient(45deg, #d92662 0%, #e23744 100%);
+	/* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(45deg, #d92662 0%, #e23744 100%);
+	/* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#d92662', endColorstr='#e23744', GradientType=1);
+	/* IE6-9 fallback on horizontal gradient */
+  border-color: #d92662;
+}
+
+.btn-primary:hover {
+	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#d92662+0,e23744+100 */
+  background: #d92662;
+	/* Old browsers */
+  background: -moz-linear-gradient(-45deg, #d92662 0%, #e23744 100%);
+	/* FF3.6-15 */
+  background: -webkit-linear-gradient(-45deg, #d92662 0%, #e23744 100%);
+	/* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(135deg, #d92662 0%, #e23744 100%);
+	/* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#d92662', endColorstr='#e23744', GradientType=1);
+	/* IE6-9 fallback on horizontal gradient */
+  border-color: #e23744;
+}
+
+
+.qrcode {
+  width: 325px;
+}
+.btn {
+  border: none;
+  font-size: 15px;
+  border-radius: 6px;
+  padding: 12px 29px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.rounded{
+border-radius: 6px !important;
+}

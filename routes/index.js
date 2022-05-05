@@ -266,6 +266,9 @@ router.post('/saveCouponCodeDetails', OfferController.saveCouponCode);
 router.post('/getAllCouponTables', OfferController.getAllCouponTables);
 router.delete('/deleteOffer', OfferController.deleteOffer);
 router.post('/getOfferById', OfferController.getOfferById);
+router.get('/home', function (req, res, next) {
 
+    res.render('client/Home', {title: 'Home', url: req.url});
+});
 module.exports = router;
 // --------------------------
