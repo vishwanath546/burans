@@ -99,8 +99,6 @@ Version: 1.0
       arrows: false,
       dots: true
   });
-
-
   // osahan-slider-map
   $('.osahan-slider-map').slick({
       centerMode: true,
