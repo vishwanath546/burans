@@ -99,7 +99,6 @@ Version: 1.0
       arrows: false,
       dots: true
   });
-
   // osahan-slider-map
   $('.osahan-slider-map').slick({
       centerMode: true,
@@ -143,6 +142,6 @@ Version: 1.0
   };
 
   // call our plugin
-  var Nav = $main_nav.hcOffcanvasNav(defaultOptions);  
+  var Nav = $main_nav.hcOffcanvasNav(defaultOptions);
 
 })(jQuery); // End of use strict

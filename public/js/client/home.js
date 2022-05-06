@@ -6,7 +6,6 @@ function getCategory() {
   app
     .request("client/getCategory", "", "GET")
     .then((response) => {
-      console.log(response);
       $("#category_list").empty();
       var category_list = "";
       if (response.status) {
