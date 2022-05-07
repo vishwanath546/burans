@@ -414,6 +414,12 @@ router.get("/home", function (req, res, next) {
 router.get("/product", function (req, res, next) {
   res.render("client/pages/product", { title: "Product", url: req.url });
 });
+router.get("/checkout", function (req, res, next) {
+  res.render("client/pages/checkout", { title: "checkout", url: req.url });
+});
+router.get("/wishlist", function (req, res, next) {
+  res.render("client/pages/wishlist", { title: "wishlist", url: req.url });
+});
 
 router.post("/saveCouponCodeDetails", OfferController.saveCouponCode);
 router.post("/getAllCouponTables", OfferController.getAllCouponTables);

@@ -134,8 +134,48 @@ async function update(tableName, data, where) {
   };
 }
 
+async function updateall(tableName, data, where) {
+  if (data) {
+    dataCondition = Object.keys(data)
+      .map((key) => `${key}='${data[key]}'`)
+      .join(" and ");
+  }
+  if (where) {
+    whereCondition = Object.keys(where)
+      .map((key) => `${key}='${where[key]}'`)
+      .join(" and ");
+  }
+  let sql = mysql.format(
+    `update ?? set ${dataCondition} where ${whereCondition}`,
+    [tableName]
+  );
+  console.log(sql);
+  const [results, error] = await pool.query(sql);
+  return {
+    status: !error,
+    affectedRows: results.affectedRows,
+    changedRows: results.changedRows,
+    error: error,
+  };
+}
+
 async function _delete(tableName, where) {
   let sql = mysql.format("delete from ?? where ?", [tableName, where]);
+  console.log(sql);
+  const [results, error] = await pool.query(sql);
+  return {
+    status: !error,
+    affectedRows: results.affectedRows,
+  };
+}
+
+async function _deleteall(tableName, where) {
+  if (where) {
+    whereCondition = Object.keys(where)
+      .map((key) => `${key}='${where[key]}'`)
+      .join(" and ");
+  }
+  let sql = mysql.format(`delete from ?? where ${whereCondition}`, [tableName]);
   console.log(sql);
   const [results, error] = await pool.query(sql);
   return {
@@ -174,7 +214,9 @@ module.exports = {
   select,
   insert,
   update,
+  updateall,
   _delete,
+  _deleteall,
   dataTableSource,
   findAllCount,
   currentTimeStamp,
