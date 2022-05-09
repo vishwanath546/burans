@@ -88,7 +88,27 @@ exports.getSubCategoryProduct = (request, response, next) => {
       next(error);
     });
 };
-
+exports.delete_product_from_cart = (request, response, next) => {
+  var { ProductId } = request.body;
+  let cust_id = 1;
+  database
+    ._deleteall(addtocarttable, {
+      ProductId: +ProductId,
+      cust_id: cust_id,
+    })
+    .then((addtocart) => {
+      console.log(addtocart);
+      if (addtocart.affectedRows == 0) {
+        let error = new Error("Faild to Remove product");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: "Successfully product Removed",
+      });
+    });
+};
 exports.add_to_cart = (request, response, next) => {
   var { ProductId, qty, type, menutype } = request.body;
   let cust_id = 1;
@@ -104,33 +124,52 @@ exports.add_to_cart = (request, response, next) => {
         } else {
           qty = ++addtocartdata[0].qty;
         }
-
-        database
-          .updateall(
-            addtocarttable,
-            {
-              qty: qty,
-            },
-            {
+        if (qty > 0) {
+          database
+            .updateall(
+              addtocarttable,
+              {
+                qty: qty,
+              },
+              {
+                ProductId: +ProductId,
+                cust_id: cust_id,
+              }
+            )
+            .then((addtocart) => {
+              console.log(addtocart);
+              if (addtocart.affectedRows == 0) {
+                let error = new Error("Faild to update cart");
+                error.statusCode = 200;
+                throw error;
+              }
+              response.status(200).json({
+                status: true,
+                body: "Successfully product updated",
+              });
+            })
+            .catch((error) => {
+              next(error);
+            });
+        } else {
+          database
+            ._deleteall(addtocarttable, {
               ProductId: +ProductId,
               cust_id: cust_id,
-            }
-          )
-          .then((addtocart) => {
-            console.log(addtocart);
-            if (addtocart.affectedRows == 0) {
-              let error = new Error("Faild to update cart");
-              error.statusCode = 200;
-              throw error;
-            }
-            response.status(200).json({
-              status: true,
-              body: "Successfully product updated",
+            })
+            .then((addtocart) => {
+              console.log(addtocart);
+              if (addtocart.affectedRows == 0) {
+                let error = new Error("Faild to Remove product");
+                error.statusCode = 200;
+                throw error;
+              }
+              response.status(200).json({
+                status: true,
+                body: "Successfully product Removed",
+              });
             });
-          })
-          .catch((error) => {
-            next(error);
-          });
+        }
       } else {
         database
           .insert(addtocarttable, {
