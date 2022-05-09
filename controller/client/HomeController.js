@@ -8,6 +8,10 @@ const productTable = "products";
 const productImageTable = "product_images";
 const addtocarttable = "add_to_cart";
 const wish_listtable = "wish_list";
+const addonProductMappingTable = "addon_product_mapping";
+const addonsProductsTable = "addons_products";
+const suggestedItemMapping = "suggested_item_mapping";
+
 const adminTable = "admin_user";
 const { clearImage } = require("../../util/helpers");
 
@@ -216,30 +220,100 @@ exports.addtowishlist = (request, response, next) => {
 
 exports.getCartList = (request, response, next) => {
   var cust_id = 1;
-  var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
+  var query = `select ac.qty,p.*,pi.path as photo,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
     .query(query, {})
-    .then((carlust) => {
-      if (carlust.length == 0) {
+    .then((cartlist) => {
+      if (cartlist.length == 0) {
         let error = new Error("Empty Cart List");
         error.statusCode = 200;
         throw error;
       }
-      var total = 0;
-      carlust.forEach((item, value) => {
-        total += item.price;
+      var productIds = cartlist.map((item) => {
+        return item.id;
       });
-      console.log(carlust);
-      response.status(200).json({
-        status: true,
-        body: carlust,
-        totalPrice: total,
-      });
+
+      query = `select ap.*,apm.ProductId from ${addonProductMappingTable} as apm join ${addonsProductsTable} as ap on ap.id=apm.AddOnsProductId where apm.ProductId in (${productIds})`;
+
+      database
+        .query(query, {})
+        .then((addonlist) => {
+          if (addonlist.length == 0) {
+            return 0;
+          }
+          return 0;
+          response.status(200).json(get_new_cart_list(cartlist, addonlist));
+        })
+        .then(() => {
+          query = `select p.*,si.ProductId,pi.path as photo from ${suggestedItemMapping} as si join ${productTable} as p on p.id=si.SuggestedProductId Left join ${productImageTable} as  pi on p.id=pi.ProductId where si.ProductId in (${productIds})`;
+          database
+            .query(query, {})
+            .then((suggestedlist) => {
+              if (suggestedlist.length == 0) {
+                return 0;
+              }
+              response
+                .status(200)
+                .json(get_new_cart_list(cartlist, suggestedlist));
+            })
+            .catch((error) => {
+              next(error);
+            });
+        })
+        .then(() => {
+          query = `select p.*,si.ProductId,pi.path as photo from ${suggestedItemMapping} as si join ${productTable} as p on p.categoryId=si.CategoryId Left join ${productImageTable} as  pi on p.id=pi.ProductId  where si.ProductId in (${productIds}) limit 5`;
+          database
+            .query(query, {})
+            .then((categorylist) => {
+              if (categorylist.length == 0) {
+                return 0;
+              }
+              response
+                .status(200)
+                .json(get_new_cart_list(cartlist, categorylist));
+            })
+            .catch((error) => {
+              next(error);
+            });
+        })
+        .catch((error) => {
+          next(error);
+        })
+        .catch((error) => {
+          next(error);
+        })
+        .catch((error) => {
+          next(error);
+        });
     })
     .catch((error) => {
       next(error);
     });
 };
+
+function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
+  var total = 0;
+  var addonlistdata = [];
+  var cartlistdata = [];
+
+  cartlist.forEach((item, value) => {
+    total += item.price;
+    addonlist.forEach((item2, value) => {
+      if (item.id == item2.ProductId) {
+        addonlistdata.push(item2);
+      }
+    });
+    item[type] = addonlistdata;
+    addonlistdata = [];
+    cartlistdata.push(item);
+  });
+  return {
+    status: true,
+    body: cartlistdata,
+    totalPrice: total,
+  };
+}
+
 exports.getwishList = (request, response, next) => {
   var cust_id = 1;
   var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${wish_listtable} as ac join ${productTable} as p  on ac.Product_Id=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;

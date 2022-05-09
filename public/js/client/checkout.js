@@ -9,10 +9,10 @@ function getCartList() {
       $("#cart_list").empty();
       $("#total_pay").empty();
       var cart_list = "";
-      console.log(response.body);
+      var suggested_list = "";
       if (response.status) {
         response.body.forEach((item, value) => {
-          cart_list = `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+          cart_list += `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
           <div class="media align-items-center">
              <div class="mr-2 text-danger">&middot;</div>
              <div class="media-body">
@@ -24,7 +24,54 @@ function getCartList() {
           <p class="text-gray mb-0 float-right ml-2 text-muted small">Rs.${item.price}</p>
           </div>
        </div>`;
+          cart_list += `<div class="bg-light">
+       <div class="cat-slider border-bottom" id="suggested_list_${value}">
+
+       </div>
+       </div>`;
           $("#cart_list").append(cart_list);
+          item.addonlist.forEach((item2, value2) => {
+            $(`#suggested_list_${value}`).slick({
+              centerMode: true,
+              centerPadding: "30px",
+              slidesToShow: 4,
+              arrows: false,
+              dots: false,
+              autoplay: true,
+              autoplaySpeed: 2500,
+              responsive: [
+                {
+                  breakpoint: 768,
+                  settings: {
+                    arrows: false,
+                    centerMode: true,
+                    centerPadding: "40px",
+                    slidesToShow: 4,
+                  },
+                },
+                {
+                  breakpoint: 480,
+                  settings: {
+                    arrows: false,
+                    centerMode: true,
+                    centerPadding: "40px",
+                    slidesToShow: 4,
+                  },
+                },
+              ],
+            });
+
+            suggested_list = `<div class="cat-item px-1 py-3">
+          <a class="bg-white rounded d-block p-2 text-center shadow" >
+             <img src="${item2.photo}" class="img-fluid mb-2">
+             <p class="m-0 small">${item2.name}</p>
+             <button class="btn btn-danger" onclick="addtocart(${item2.id})">Add to cart</button>
+          </a>
+      
+       </div>`;
+
+            $(`#suggested_list_${value}`).slick("slickAdd", suggested_list);
+          });
         });
         $("#total_pay").append(`Rs.${response.totalPrice}`);
       }
