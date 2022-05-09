@@ -1,6 +1,7 @@
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const pagination = require("pagination");
 const database = require("../../model/db");
 const CategoryTable = "category";
 const SubCategoryTable = "subcategory_mapping";
@@ -79,9 +80,17 @@ exports.getSubCategoryProduct = (request, response, next) => {
         error.statusCode = 200;
         throw error;
       }
+      var paginator = new pagination.SearchPaginator({
+        prelink: "/",
+        current: request.body.page,
+        rowsPerPage: 10,
+        totalResult: subcategory.length,
+      });
+
       response.status(200).json({
         status: true,
         body: subcategory,
+        pagination: paginator.getPaginationData(),
       });
     })
     .catch((error) => {
