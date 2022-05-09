@@ -53,7 +53,8 @@ exports.signUp = (request, response, next) => {
                 await connection.commit();
                 connection.release()
                 response.status(200).json({
-                    body: "Registration of user successfully"
+                    body: "Registration of user successfully",
+                    data:result.insertId
                 })
             } catch (error) {
                 next(error);
@@ -66,10 +67,10 @@ exports.signUp = (request, response, next) => {
 }
 
 exports.otpVerification = (request, response, next) => {
-    const { mobile_Number, otp } = request.body;
+    const { mobileNumber, otp } = request.body;
     database
         .query("select UserId from ?? where activeStatus=1 and mobileNumber=? and otpToken=? and otpExpiredAt < ?",
-            [tableName, mobile_Number, otp,database.currentTimeStamp()]
+            [tableName, mobileNumber, otp,database.currentTimeStamp()]
         )
         .then(user => {
             if (user.length === 0) {
@@ -81,7 +82,7 @@ exports.otpVerification = (request, response, next) => {
         })
         .then(userAuth => {
            return database
-                .select(userTable, { id: userAuth[0].id })
+                .select(userTable, { id: userAuth[0].UserId })
 
         })
         .then(user => {
@@ -98,37 +99,29 @@ exports.otpVerification = (request, response, next) => {
                 mobileNumber: user.mobileNumber,
                 email: user.email,
                 avatar: user.avatar,
+                gender:user.gender
             };
-            let time = {
+            let UserAuthObject = {
                 loginAt: database.currentTimeStamp(),
             };
-            return database.update(userAuthTable, timedata, {
-                VendorId: vendordata[0].id,
-            });
+            let UserVerifyObject = {
+                verified:1,
+                emailVerifiedAt: database.currentTimeStamp(),
+            };
             try {
-                const UserObject = {
-                    name: name,
-                    verified: 0,
-                    mobileNumber: mobileNumber,
-                    createdAt: database.currentTimeStamp()
-                }
+
                 const connection = await database.transaction();
                 await connection.beginTransaction();
-                const [result, error] = await connection.query("insert into ?? set ?", [userTable, UserObject]);
+                const [result, error] = await connection.query("update ?? set ? where ?",
+                    [userTable, UserVerifyObject,{id:user.id}]);
                 if (error) {
                     await connection.rollback();
                     connection.release();
                     throw new Error("Failed to register");
                 }
-                const adminAuthUserObject = {
-                    userType: 1,
-                    mobileNumber: mobileNumber,
-                    password: hashPassword,
-                    UserId: result.insertId,
-                    otpToken: Math.floor(1000 + Math.random() * 9000),
-                    createdAt: database.currentTimeStamp()
-                }
-                const [authResult, authError] = await connection.query("insert into ?? set ?", [tableName, adminAuthUserObject]);
+
+                const [authResult, authError] = await connection.query("update ?? set ? where ?",
+                    [tableName, UserAuthObject,{UserId:user.id}]);
                 if (authError) {
                     await connection.rollback();
                     connection.release();
@@ -137,23 +130,10 @@ exports.otpVerification = (request, response, next) => {
                 await connection.commit();
                 connection.release()
                 response.status(200).json({
-                    body: "Registration of user successfully"
+                    body: "Verify Successfully"
                 })
             } catch (error) {
                 next(error);
-            }
-        })
-        .then((result) => {
-            if (result.affectedRows > 0) {
-                response.status(200).json({
-                    status: true,
-                    body: "Vendor login Sucessfully",
-                });
-            } else {
-                response.status(401).json({
-                    status: false,
-                    body: "Failed to login Vendor",
-                });
             }
         })
         .catch((error) => {

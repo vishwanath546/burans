@@ -5,7 +5,7 @@ $(document).ready(function () {
 function SignUp(from){
     app.request("client/signup",new FormData(from))
         .then(response=>{
-            location.href=baseURL+'client/otpVerification'
+            location.href=baseURL+'client/otpVerification/'+response.data;
         })
         .catch(error=>{
             if (error.status === 500) {
