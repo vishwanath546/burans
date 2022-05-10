@@ -421,10 +421,5 @@ router.get("/wishlist", function (req, res, next) {
   res.render("client/pages/wishlist", { title: "wishlist", url: req.url });
 });
 
-router.post("/saveCouponCodeDetails", OfferController.saveCouponCode);
-router.post("/getAllCouponTables", OfferController.getAllCouponTables);
-router.delete("/deleteOffer", OfferController.deleteOffer);
-router.post("/getOfferById", OfferController.getOfferById);
-
 module.exports = router;
 // --------------------------

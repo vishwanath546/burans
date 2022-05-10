@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Burans sign up">
+    <meta name="author" content="Burans sign up">
+    <link rel="icon" type="image/png" href="/img/fav.png">
+    <title>Sign up</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/modules/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/modules/izitoast/css/iziToast.css">
+    <!-- Custom styles for this template -->
+    <link href="/css/client/style.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="osahan-signup login-page">
+    <video loop autoplay muted id="vid">
+        <source src="/img/bg.mp4" type="video/mp4">
+        <source src="/img/bg.mp4" type="video/ogg">
+        Your browser does not support the video tag.
+    </video>
+    <div class="vh-100">
+        <div class="p-4">
+            <h2 class="text-white my-0">Hello There.</h2>
+            <p class="text-white text-50">Sign up to continue</p>
+            <form class="mt-5 mb-4" id="signUpForm" method="post" data-form-valid="SignUp">
+                <div class="form-group">
+                    <label for="customerName" class="text-white">Name</label>
+                    <input type="text" placeholder="Enter Name" class="form-control"
+                           data-valid="required" data-msg="Please enter name" name="name"
+                           id="customerName" aria-describedby="nameHelp">
+                </div>
+                <div class="form-group">
+                    <label for="mobileNumber" class="text-white">Mobile Number</label>
+                    <input type="number" placeholder="Enter Mobile" class="form-control"
+                           id="mobileNumber"
+                           name="mobileNumber"
+                           data-valid="required" data-msg="Please enter mobile number"
+                           aria-describedby="numberHelp">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="text-white">Password</label>
+                    <input type="password" placeholder="Enter Password" class="form-control"
+                           name="password"
+                           data-valid="required" data-msg="Please enter password"
+                           id="password">
+                </div>
+                <button class="btn btn-primary btn-lg btn-block">
+                    SIGN UP
+                </button>
+            </form>
+        </div>
+        <div class="new-acc fixed-bottom d-flex align-items-center justify-content-center">
+            <a href="/client/login"><p class="text-center text-white m-0">Already an account? Sign in</p></a>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap core JavaScript -->
+<script src="/modules/vendor/jquery/jquery.min.js"></script>
+<script src="/modules/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script src="/modules/izitoast/js/iziToast.js"></script>
+<script src="/modules/jquery-validation/js/jquery.validate.js"></script>
+<script src="/js/stisla.js"></script>
+<script>
+    const baseURL = '<%= process.env.BASE_URL %>';
+</script>
+<script src="/js/custom.js"></script>
+<script src="/js/client/singup.js"></script>
+</body>
+</html>
