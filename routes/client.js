@@ -13,5 +13,9 @@ Router.post("/add_to_cart", Homecontroller.add_to_cart);
 Router.post("/getCartList", Homecontroller.getCartList);
 Router.post("/addtowishlist", Homecontroller.addtowishlist);
 Router.post("/getwishList", Homecontroller.getwishList);
+Router.post(
+  "/delete_product_from_cart",
+  Homecontroller.delete_product_from_cart
+);
 
 module.exports = Router;

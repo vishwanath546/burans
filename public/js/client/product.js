@@ -60,19 +60,23 @@ function getSubCategory() {
     });
 }
 
-function getSubCategoryProduct(Subcat_id = "") {
+function getSubCategoryProduct(Subcat_id = "", page = "1") {
   const params = new URLSearchParams(window.location.search);
   const cat_id = params.get("cat_id");
   let data = new FormData();
   data.set("cat_id", cat_id);
   data.set("Subcat_id", Subcat_id);
+  data.set("page", page);
   app
     .request("client/getSubCategoryProduct", data, "POST")
     .then((response) => {
       $("#product_list").empty();
+      $("#pagination").empty();
       var product_list = "";
+      var paginationlist = "";
       console.log(response.body);
       if (response.status) {
+        var paginate = response.pagination;
         response.body.forEach((item, value) => {
           product_list += `<div class="col-6 pr-2" style="margin-bottom: 20px;">
           <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm grid-card">
@@ -106,6 +110,34 @@ function getSubCategoryProduct(Subcat_id = "") {
              </div>
           </div>
        </div>`;
+
+          paginationlist += `
+          <nav aria-label="Page navigation example">
+              <ul class="pagination">`;
+          if (paginate.previous != null) {
+            paginationlist += `
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>`;
+          }
+
+          paginate.range.forEach((itemval) => {
+            paginationlist += `<li class="page-item"><a class="page-link" onclick="getSubCategoryProduct(${item.subcategoryId},${itemval})">${itemval}</a></li>`;
+          });
+          if (paginate.next != null) {
+            paginationlist += `  <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>`;
+          }
+          $("#pagination").append(paginationlist);
           $("#product_list").append(product_list);
         });
       }
