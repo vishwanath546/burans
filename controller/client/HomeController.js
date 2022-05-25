@@ -62,15 +62,19 @@ exports.getSubCategoryProduct = (request, response, next) => {
   var searchbyid = "";
   var getwishlistid = "";
   if (request.body.Subcat_id != "") {
-    searchbyid = `subcategoryId=${request.body.Subcat_id}`;
+    searchbyid = `and subcategoryId=${request.body.Subcat_id}`;
   } else {
-    searchbyid = `categoryId=${request.body.cat_id}`;
+    searchbyid = `and categoryId=${request.body.cat_id}`;
+  }
+
+  if (request.body.Subcat_id != "" && request.body.cat_id != "") {
+    searchbyid = "";
   }
   if (cust_id != "") {
     getwishlistid = `(select id from ${wish_listtable} where cust_id=${cust_id} and product_id=${productTable}.id) as wishlisid`;
   }
 
-  let query = `select *,${getwishlistid},(select path from ${productImageTable} where ProductId=${productTable}.id) image from ${productTable} where status=1 and activeStatus=1 and ${searchbyid} order by sequenceNumber asc`;
+  let query = `select *,${getwishlistid},(select path from ${productImageTable} where ProductId=${productTable}.id) image from ${productTable} where status=1 and activeStatus=1  ${searchbyid} order by sequenceNumber asc`;
 
   database
     .query(query, {})
@@ -119,6 +123,11 @@ exports.delete_product_from_cart = (request, response, next) => {
     });
 };
 exports.add_to_cart = (request, response, next) => {
+  response.status(200).json({
+    status: true,
+    body: request.session.user,
+  });
+
   var { ProductId, qty, type, menutype } = request.body;
   let cust_id = 1;
   database
@@ -363,6 +372,27 @@ function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
 }
 
 exports.getwishList = (request, response, next) => {
+  var cust_id = 1;
+  var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${wish_listtable} as ac join ${productTable} as p  on ac.Product_Id=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
+  database
+    .query(query, {})
+    .then((wishlust) => {
+      if (wishlust.length == 0) {
+        let error = new Error("Empty Wish List");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: wishlust,
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.insertOrder = (request, response, next) => {
   var cust_id = 1;
   var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${wish_listtable} as ac join ${productTable} as p  on ac.Product_Id=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database

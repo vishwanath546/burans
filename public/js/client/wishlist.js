@@ -18,7 +18,7 @@ function getwishList() {
                 <div class="favourite-heart text-danger position-absolute"><a href="#" onclick="addtowishlist(${item.id})"><i class="feather-heart text-danger""></i></a></div>
                 <div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
                 <a href="restaurant.html">
-                <img src="${item.image}" class="img-fluid item-img w-100">
+                <img src="${item.path}" class="img-fluid item-img w-100">
                 </a>
              </div>
              <div class="p-3 position-relative">
