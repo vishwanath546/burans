@@ -52,4 +52,19 @@ Router.post(
   Homecontroller.delete_product_from_cart
 );
 
+
+Router.get("/home", function (req, res, next) {
+    console.log(req.url);
+    res.render("client/pages/Home", { title: "Home", url: req.url });
+});
+Router.get("/product", function (req, res, next) {
+    res.render("client/pages/product", { title: "Product", url: req.url });
+});
+Router.get("/checkout", function (req, res, next) {
+    res.render("client/pages/checkout", { title: "checkout", url: req.url });
+});
+Router.get("/wishlist", function (req, res, next) {
+    res.render("client/pages/wishlist", { title: "wishlist", url: req.url });
+});
+
 module.exports = Router;

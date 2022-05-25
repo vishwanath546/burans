@@ -1,39 +1,4 @@
-   <!-- Footer -->
-   <div class="osahan-menu-fotter fixed-bottom bg-white px-3 py-2 text-center">
-    <div class="row">
-       <div class="col">
-          <a href="home.html" class="text-dark small font-weight-bold text-decoration-none">
-             <p class="h4 m-0"><i class="feather-home"></i></p>
-             Home
-          </a>
-       </div>
-       <div class="col selected">
-          <a href="trending.html" class="text-danger small font-weight-bold text-decoration-none">
-             <p class="h4 m-0"><i class="feather-map-pin text-danger"></i></p>
-             Trending
-          </a>
-       </div>
-       <div class="col bg-white rounded-circle mt-n4 px-3 py-2">
-          <div class="bg-danger rounded-circle mt-n0 shadow">
-             <a href="/checkout" class="text-white small font-weight-bold text-decoration-none">
-                <i class="feather-shopping-cart"></i>
-             </a>
-          </div>
-       </div>
-       <div class="col">
-          <a href="/wishlist" class="text-dark small font-weight-bold text-decoration-none">
-             <p class="h4 m-0"><i class="feather-heart"></i></p>
-             Favorites
-          </a>
-       </div>
-       <div class="col">
-          <a href="profile.html" class="text-dark small font-weight-bold text-decoration-none">
-             <p class="h4 m-0"><i class="feather-user"></i></p>
-             Profile
-          </a>
-       </div>
-    </div>
- </div>
+
 </div>
 <nav id="main-nav">
     <ul class="second-nav">
@@ -55,7 +20,7 @@
         <li><a href="most_popular.html"><i class="feather-award mr-2"></i> Most Popular</a>
         <li><a href="restaurant.html"><i class="feather-paperclip mr-2"></i> Restaurant Detail</a>
         <li><a href="recipe.html"><i class="feather-file-text mr-2"></i> Recipe</a>
-        <li><a href="/checkout"><i class="feather-list mr-2"></i> Checkout</a>
+        <li><a href="checkout.html"><i class="feather-list mr-2"></i> Checkout</a>
         <li><a href="map.html"><i class="feather-map-pin mr-2"></i> Live Map</a>
         <li><a href="payment.html"><i class="feather-credit-card mr-2"></i> Payment</a>
         <li>
@@ -145,81 +110,220 @@
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header align-items-center">
                 <h5 class="modal-title" id="exampleModalLabel">Filter</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <i class="feather-x float-right"></i>
                 </button>
             </div>
             <div class="modal-body p-0">
                 <div class="osahan-filter">
                     <div class="filter">
-                        <!-- SORT BY -->
-                        <div class="p-3 bg-light border-bottom">
-                            <h6 class="m-0">SORT BY</h6>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-radio">
-                            <input type="radio" id="customRadio1" name="location" class="custom-control-input" checked>
-                            <label class="custom-control-label py-3 w-100 px-3" for="customRadio1">Top Rated</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-radio">
-                            <input type="radio" id="customRadio2" name="location" class="custom-control-input">
-                            <label class="custom-control-label py-3 w-100 px-3" for="customRadio2">Nearest Me</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-radio">
-                            <input type="radio" id="customRadio3" name="location" class="custom-control-input">
-                            <label class="custom-control-label py-3 w-100 px-3" for="customRadio3">Cost High to Low</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-radio">
-                            <input type="radio" id="customRadio4" name="location" class="custom-control-input">
-                            <label class="custom-control-label py-3 w-100 px-3" for="customRadio4">Cost Low to High</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-radio">
-                            <input type="radio" id="customRadio5" name="location" class="custom-control-input">
-                            <label class="custom-control-label py-3 w-100 px-3" for="customRadio5">Most Popular</label>
-                        </div>
-                        <!-- Filter -->
-                        <div class="p-3 bg-light border-bottom">
-                            <h6 class="m-0">FILTER</h6>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="defaultCheck1" checked>
-                            <label class="custom-control-label py-3 w-100 px-3" for="defaultCheck1">Open Now</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="defaultCheck2">
-                            <label class="custom-control-label py-3 w-100 px-3" for="defaultCheck2">Credit Cards</label>
-                        </div>
-                        <div class="custom-control border-bottom px-0  custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="defaultCheck3">
-                            <label class="custom-control-label py-3 w-100 px-3" for="defaultCheck3">Alcohol Served</label>
-                        </div>
-                        <!-- Filter -->
-                        <div class="p-3 bg-light border-bottom">
-                            <h6 class="m-0">ADDITIONAL FILTERS</h6>
-                        </div>
-                        <div class="px-3 pt-3">
-                            <input type="range" class="custom-range" min="0" max="100" name="">
-                            <div class="form-row">
-                                <div class="form-group col-6">
-                                    <label>Min</label>
-                                    <input class="form-control" placeholder="$0" type="number">
+                        <div class="filters-body">
+                            <div id="accordion">
+                                <div class="filters-card border-bottom">
+                                    <div class="filters-card-header" id="headingOne">
+                                        <h6 class="mb-0">
+                                            <a href="#" class="btn-link p-3" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                Location <i class="feather-chevron-down float-right"></i>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                        <div class="filters-card-body pb-3 card-shop-filters">
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb1">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb1">Apollo Bandar <small class="text-black-50">230</small>
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb2">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb2">Bahadur Bapat Road <small class="text-black-50">95</small>
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb3">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb3">Colaba Mumbai <small class="text-black-50">35</small>
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb4">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb4">College Road <small class="text-black-50">46</small>
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb5">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb5">Mathuradas Mills <small class="text-black-50">20</small></label>
+                                            </div>
+                                            <div class="mt-1 px-3"><a href="#" class="link">See all</a></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group text-right col-6">
-                                    <label>Max</label>
-                                    <input class="form-control" placeholder="$1,0000" type="number">
+                                <div class="filters-card border-bottom">
+                                    <div class="filters-card-header" id="headingTwo">
+                                        <h6 class="mb-0">
+                                            <a href="#" class="btn-link p-3" data-toggle="collapse" data-target="#collapsetwo" aria-expanded="true" aria-controls="collapsetwo">
+                                                All cuisines
+                                                <i class="feather-chevron-down float-right"></i>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div id="collapsetwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordion">
+                                        <div class="filters-card-body pb-3 card-shop-filters">
+                                            <form class="filters-search px-3">
+                                                <div class="form-group mb-2 position-relative">
+                                                    <i class="feather-search"></i>
+                                                    <input type="text" class="form-control" placeholder="Start typing to search...">
+                                                </div>
+                                            </form>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb6">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb6">American <small class="text-black-50">156</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb7">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb7">Pizza <small class="text-black-50">120</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb8">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb8">Healthy <small class="text-black-50">130</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb9">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb9">Vegetarian <small class="text-black-50">120</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb10">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb10"> Chinese <small class="text-black-50">111</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb11">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb11"> Hamburgers <small class="text-black-50">95</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb12">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb12"> Dessert <small class="text-black-50">50</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb13">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb13"> Chicken <small class="text-black-50">32</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb14">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb14"> Indian <small class="text-black-50">156</small></label>
+                                            </div>
+                                            <div class="mt-1 px-3"><a href="#" class="link">See all</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filters-card border-bottom">
+                                    <div class="filters-card-header" id="headingCategory">
+                                        <h6 class="mb-0">
+                                            <a href="#" class="btn-link p-3" data-toggle="collapse" data-target="#collapseFeature" aria-expanded="true" aria-controls="collapseFeature">
+                                                Feature <i class="feather-chevron-down float-right"></i>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div id="collapseFeature" class="collapse" aria-labelledby="headingCategory" data-parent="#accordion">
+                                        <div class="filters-card-body pb-3 card-shop-filters">
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb15">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb15">Free Delivery <small class="text-black-50">156</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb26">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb26">Coupons <small class="text-black-50">120</small></label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb37">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb37">Open Now [1:31am] <small class="text-black-50">85</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filters-card border-bottom">
+                                    <div class="filters-card-header" id="headingOffer">
+                                        <h6 class="mb-0">
+                                            <a href="#" class="btn-link p-3" data-toggle="collapse" data-target="#collapseOffer" aria-expanded="true" aria-controls="collapseOffer">
+                                                Delivery time <i class="feather-chevron-down float-right"></i>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div id="collapseOffer" class="collapse" aria-labelledby="headingOffer" data-parent="#accordion">
+                                        <div class="filters-card-body pb-3 card-shop-filters">
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb19">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb19">Any Time </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb20">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb20">25 min
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb36">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb36">30 min
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb47">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb47">40 min
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox p-0">
+                                                <input type="checkbox" class="custom-control-input" id="cb58">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="cb58">50 min
+                                                </label>
+                                            </div>
+                                            <div class="mt-1 px-3"><a href="#" class="link">See all</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filters-card border-bottom">
+                                    <div class="filters-card-header" id="headingCategory">
+                                        <h6 class="mb-0">
+                                            <a href="#" class="btn-link p-3" data-toggle="collapse" data-target="#collapseCategory" aria-expanded="true" aria-controls="collapseCategory">
+                                                Sort By <i class="feather-chevron-down float-right"></i>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div id="collapseCategory" class="collapse" aria-labelledby="headingCategory" data-parent="#accordion">
+                                        <div class="filters-card-body pb-3 card-shop-filters">
+                                            <div class="custom-control px-0 custom-radio">
+                                                <input type="radio" id="customRadio1" name="location" class="custom-control-input" checked>
+                                                <label class="custom-control-label py-1 w-100 px-3" for="customRadio1">Top Rated</label>
+                                            </div>
+                                            <div class="custom-control px-0 custom-radio">
+                                                <input type="radio" id="customRadio2" name="location" class="custom-control-input">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="customRadio2">Nearest Me</label>
+                                            </div>
+                                            <div class="custom-control px-0 custom-radio">
+                                                <input type="radio" id="customRadio3" name="location" class="custom-control-input">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="customRadio3">Cost High to Low</label>
+                                            </div>
+                                            <div class="custom-control px-0 custom-radio">
+                                                <input type="radio" id="customRadio4" name="location" class="custom-control-input">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="customRadio4">Cost Low to High</label>
+                                            </div>
+                                            <div class="custom-control px-0 custom-radio">
+                                                <input type="radio" id="customRadio5" name="location" class="custom-control-input">
+                                                <label class="custom-control-label py-1 w-100 px-3" for="customRadio5">Most Popular</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer p-0 border-0">
-                <div class="col-6 m-0 p-0">
-                    <button type="button" class="btn border-top btn-lg btn-block" data-dismiss="modal">Close</button>
+            <div class="modal-footer p-0 border-0 p-3">
+                <div class="col-6 m-0 pl-0 pr-1">
+                    <button type="button" class="btn border btn-lg btn-block" data-dismiss="modal">Clear</button>
                 </div>
-                <div class="col-6 m-0 p-0">
-                    <button type="button" class="btn btn-primary btn-lg btn-block">Apply</button>
+                <div class="col-6 m-0 pr-0 pl-1">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" data-dismiss="modal">Apply</button>
                 </div>
             </div>
         </div>
@@ -234,11 +338,17 @@
 <!-- Sidebar JS-->
 <script type="text/javascript" src="/modules/vendor/sidebar/hc-offcanvas-nav.js"></script>
 <!-- Custom scripts for all pages-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"-->
+<!--        integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ=="-->
+<!--        crossorigin="anonymous" referrerpolicy="no-referrer"></script>-->
+<!-- Custom scripts for all pages-->
+<script src="/js/osahan.js"></script>
 <script>
-    
     const baseURL = '<%= process.env.BASE_URL %>';
 </script>
 <script src="/js/custom.js"></script>
+<% if (url === "/home") { %>
+    <script src="/js/client/home.js"></script>
+<% } %>
 </body>
 </html>

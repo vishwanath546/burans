@@ -15,8 +15,9 @@ function getSubCategory() {
       var Subcategory_list = "";
       if (response.status) {
         $("#Subcategory_list").slick({
-          centerMode: true,
+
           centerPadding: "30px",
+          variableWidth: true,
           slidesToShow: 4,
           arrows: false,
           dots: false,
@@ -47,7 +48,7 @@ function getSubCategory() {
         response.body.forEach((item, value) => {
           Subcategory_list = `<div class="cat-item px-1 py-3">
                 <a class="bg-white rounded d-block p-2 text-center shadow" onclick="getSubCategoryProduct(${item.id})" >
-                   <img src="${item.photo}" class="img-fluid mb-2">
+                   <img src="${baseURL + item.photo.replace("public", "")}" class="img-fluid mb-2">
                    <p class="m-0 small">${item.name}</p>
                 </a>
              </div>`;
@@ -90,7 +91,7 @@ function getSubCategoryProduct(Subcat_id = "", page = "1") {
 
           product_list += `<div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
                 <a href="restaurant.html">
-                <img src="${item.image}" class="img-fluid item-img w-100">
+                <img src="${item.image ? baseURL + item.image.replace("public", ""):'img/trending1.png'}" class="img-fluid item-img w-100">
                 </a>
              </div>
              <div class="p-3 position-relative">
