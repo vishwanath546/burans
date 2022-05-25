@@ -1,0 +1,25 @@
+<!-- Bootstrap core JavaScript -->
+<script src="/modules/vendor/jquery/jquery.min.js"></script>
+<script src="/modules/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- slick Slider JS-->
+<script src="/modules/izitoast/js/iziToast.js"></script>
+<script type="text/javascript" src="/modules/vendor/slick/slick.min.js"></script>
+<!-- Sidebar JS-->
+<script type="text/javascript" src="/modules/vendor/sidebar/hc-offcanvas-nav.js"></script>
+
+<script>
+    const baseURL = '<%= process.env.BASE_URL %>';
+</script>
+
+<!-- Custom scripts for all pages-->
+<script src="/js/osahan.js"></script>
+<script src="/js/custom.js"></script>
+
+<% if(url =="/login") { %>
+<!-- Flag Number-->
+<script src="/modules/vendor/build/js/intlTelInput.js"></script>
+<% } %>
+
+<% if (url === "/home") { %>
+    <script src="/js/client/home.js"></script>
+<% } %>

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Askbootstrap">
     <meta name="author" content="Askbootstrap">
-    <link rel="icon" type="image/png" href="img/fav.png">
-    <title>Swiggi - Online Food Ordering Website Mobile Template</title>
+    <link rel="icon" type="image/png" href="/img/fav.png">
+    <title><%= title %></title>
     <!-- Slick Slider -->
     <link rel="stylesheet" href="/modules/izitoast/css/iziToast.css">
     <link rel="stylesheet" type="text/css" href="/modules/vendor/slick/slick.min.css"/>
@@ -19,6 +19,11 @@
     <link href="/css/client/style.css" rel="stylesheet">
     <!-- Sidebar CSS -->
     <link href="/modules/vendor/sidebar/demo.css" rel="stylesheet">
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />-->
+    <% if(url =="/login") { %>
+    <!-- Flag Mobile Number -->
+    <link rel="stylesheet" href="/modules/vendor/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="/modules/vendor/build/css/demo.css">
+    <% } %>
 </head>
-<body class="fixed-bottom-bar">
+<body class="<% (url =="/login" || url=="location" || url=="locationSelection")
+        ? "":"fixed-bottom-bar" %>">

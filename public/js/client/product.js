@@ -73,12 +73,13 @@ function getSubCategoryProduct(Subcat_id = "", page = "1") {
     .then((response) => {
       $("#product_list").empty();
       $("#pagination").empty();
-      var product_list = "";
+
       var paginationlist = "";
       console.log(response.body);
       if (response.status) {
         var paginate = response.pagination;
         response.body.forEach((item, value) => {
+          var product_list = "";
           product_list += `<div class="col-6 pr-2" style="margin-bottom: 20px;">
           <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm grid-card">
              <div class="list-card-image">
@@ -158,7 +159,7 @@ const addtocart = (product_id, qty = 1, type = "addtocart") => {
       var product_list = "";
       if (response.status) {
         if (type == "buy_now") {
-          window.location.href = "/checkout";
+          window.location.href = "client/checkout";
         } else {
           app.successToast("Successfully Product added in Cart");
         }

@@ -52,7 +52,7 @@ function getCategory() {
 `;
           $("#category_list").slick("slickAdd", category_list);
         });
-        trendingList();
+        // trendingList();
         offerList();
       }
     })
@@ -191,7 +191,7 @@ function getSubCategoryProduct() {
         $("#trending-list").slick({
           centerMode: true,
           centerPadding: "30px",
-          slidesToShow: 2,
+          slidesToShow: 1,
           arrows: false,
           autoplay: true,
           responsive: [
@@ -210,13 +210,14 @@ function getSubCategoryProduct() {
                 arrows: false,
                 centerMode: true,
                 centerPadding: "40px",
-                slidesToShow: 2,
+                slidesToShow: 1,
               },
             },
           ],
         });
 
         response.body.forEach((item, value) => {
+
           let template = ` <div class="osahan-slider-item py-3 px-1">
        <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
            <div class="list-card-image">
@@ -229,7 +230,7 @@ function getSubCategoryProduct() {
           }
           template += `<div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
                <a href="restaurant.html">
-                   <img src="${item.image}" class="img-fluid item-img w-100">
+                   <img src="${baseURL+item.image.replace("public", "").split("\\").join("/")}" class="img-fluid item-img w-100" style="width: 194px">
                </a>
            </div>
            <div class="p-3 position-relative">
@@ -269,7 +270,7 @@ const addtocart = (product_id, qty = 1, type = "addtocart") => {
       var product_list = "";
       if (response.status) {
         if (type == "buy_now") {
-          window.location.href = "/checkout";
+          window.location.href = "/client/checkout";
         } else {
           app.successToast("Successfully Product added in Cart");
         }

@@ -92,13 +92,13 @@ Version: 1.0
   // });
   //
   //
-  // // Osahan Slider
-  // $('.osahan-slider').slick({
-  //     centerMode: false,
-  //     slidesToShow: 1,
-  //     arrows: false,
-  //     dots: true
-  // });
+  // Osahan Slider
+  $('.osahan-slider').slick({
+      centerMode: false,
+      slidesToShow: 1,
+      arrows: false,
+      dots: true
+  });
   // // osahan-slider-map
   // $('.osahan-slider-map').slick({
   //     centerMode: true,

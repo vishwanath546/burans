@@ -17,8 +17,8 @@ function getwishList() {
                 <div class="star position-absolute"><span class="badge badge-success"><i class="feather-star"></i> 3.1 (300+)</span></div>
                 <div class="favourite-heart text-danger position-absolute"><a href="#" onclick="addtowishlist(${item.id})"><i class="feather-heart text-danger""></i></a></div>
                 <div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
-                <a href="restaurant.html">
-                <img src="${item.path}" class="img-fluid item-img w-100">
+                <a href="restaurant.html">                
+                 <img src="${baseURL+item.path.replace("public", "").split("\\").join("/")}" class="img-fluid item-img w-100" style="width: 194px">
                 </a>
              </div>
              <div class="p-3 position-relative">
@@ -56,7 +56,7 @@ const addtocart = (product_id, qty = 1, type = "addtocart") => {
       var product_list = "";
       if (response.status) {
         if (type == "buy_now") {
-          window.location.href = "/checkout";
+          window.location.href = "/client/checkout";
         } else {
           app.successToast("Successfully Product added in Cart");
         }
