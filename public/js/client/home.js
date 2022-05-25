@@ -1,5 +1,6 @@
 $(document).ready(function () {
   getCategory();
+  getSubCategoryProduct();
 });
 
 function getCategory() {
@@ -176,3 +177,125 @@ function offerList() {
         console.log(error);
       });
 }
+
+
+function getSubCategoryProduct() {
+  let data = new FormData();
+  data.set("page", "1");
+  app
+    .request("client/getSubCategoryProduct", data, "POST")
+    .then((response) => {
+      $("#product_list").empty();
+      var product_list = "";
+      if (response.status) {
+        $("#trending-list").slick({
+          centerMode: true,
+          centerPadding: "30px",
+          slidesToShow: 2,
+          arrows: false,
+          autoplay: true,
+          responsive: [
+            {
+              breakpoint: 768,
+              settings: {
+                arrows: false,
+                centerMode: true,
+                centerPadding: "40px",
+                slidesToShow: 2,
+              },
+            },
+            {
+              breakpoint: 480,
+              settings: {
+                arrows: false,
+                centerMode: true,
+                centerPadding: "40px",
+                slidesToShow: 2,
+              },
+            },
+          ],
+        });
+
+        response.body.forEach((item, value) => {
+          let template = ` <div class="osahan-slider-item py-3 px-1">
+       <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
+           <div class="list-card-image">
+               <div class="star position-absolute"><span class="badge badge-success"><i class="feather-star"></i> 3.1 (300+)</span></div>`;
+
+          if (item.wishlisid != null) {
+            template += `<div class="favourite-heart text-danger position-absolute"><a href="#" onclick="addtowishlist(${item.id},${item.subcategoryId})"><i class="feather-heart text-danger" ></i></a></div>`;
+          } else {
+            template += `<div class="favourite-heart text-danger position-absolute"><a href="#" onclick="addtowishlist(${item.id},${item.subcategoryId})"><i class="feather-heart text-muted"></i></a></div>`;
+          }
+          template += `<div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
+               <a href="restaurant.html">
+                   <img src="${item.image}" class="img-fluid item-img w-100">
+               </a>
+           </div>
+           <div class="p-3 position-relative">
+               <div class="list-card-body">
+                   <h6 class="mb-1"><a href="restaurant.html" class="text-black">${item.name} </a>
+                   </h6>
+                   <p class="text-gray mb-3">${item.description}</p>
+                   <p class="text-gray mb-3 time"><span class="bg-light text-dark rounded-sm pl-2 pb-1 pt-1 pr-2"><i class="feather-clock"></i> ${item.duration} min</span> 
+                   <span bg-light text-dark rounded-sm pl-2 pb-1 pt-1 pr-2"> Rs.${item.price} </span> <strike>${item.salePrice} </strike>
+                   </p>
+               </div>
+               <div class="list-card-badge">
+               <button class="btn btn-danger" onclick="addtocart(${item.id})">Add to cart</button>
+               <button class="btn btn-success" onclick="addtocart(${item.id},1,'buy_now')">Buy Now</button>
+                   <span class="badge badge-danger">OFFER</span> <small>65% OSAHAN50</small>
+                </div>
+           </div>
+       </div>
+   </div>`;
+
+          $("#trending-list").slick("slickAdd", template);
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+const addtocart = (product_id, qty = 1, type = "addtocart") => {
+  let data = new FormData();
+  data.set("ProductId", product_id);
+  data.set("qty", qty);
+  app
+    .request("client/add_to_cart", data, "POST")
+    .then((response) => {
+      var product_list = "";
+      if (response.status) {
+        if (type == "buy_now") {
+          window.location.href = "/checkout";
+        } else {
+          app.successToast("Successfully Product added in Cart");
+        }
+        return;
+      }
+      app.errorToast(response.message);
+    })
+    .catch((error) => {
+      app.errorToast("something went wrong");
+    });
+};
+const addtowishlist = (product_id, subcategoryId = "") => {
+  let data = new FormData();
+  data.set("ProductId", product_id);
+  app
+    .request("client/addtowishlist", data, "POST")
+    .then((response) => {
+      var product_list = "";
+      if (response.status) {
+        app.successToast(response.body);
+        getSubCategoryProduct(subcategoryId);
+        return;
+      }
+      app.errorToast(response.message);
+    })
+    .catch((error) => {
+      app.errorToast("something went wrong");
+    });
+};

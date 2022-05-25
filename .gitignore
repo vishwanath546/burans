@@ -75,5 +75,5 @@ typings/
 # FuseBox cache
 .fusebox/
 
-# assets
-public/images/
+# # assets
+# public/images/

@@ -10,6 +10,7 @@ const session = require("express-session");
 const app = express();
 const { createDatabase } = require("./sequlizerModel/CreateStructure");
 // view engine setup
+app.set(express.static("public"));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
