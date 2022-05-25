@@ -8,6 +8,8 @@ function getCartList() {
     .then((response) => {
       $("#cart_list").empty();
       $("#total_pay").empty();
+      $("#final_pay").empty();
+
       var cart_list = "";
       var suggested_list = "";
       if (response.status) {
@@ -48,6 +50,7 @@ function getCartList() {
           $("#cart_list").append(cart_list);
         });
         $("#total_pay").append(`Rs.${response.totalPrice}`);
+        $("#final_pay").append(`Pay Rs.${response.totalPrice}`);
       }
     })
     .catch((error) => {
@@ -81,6 +84,23 @@ const addtocart = (product_id, type = "add", qty = 1) => {
   data.set("type", type);
   app
     .request("client/add_to_cart", data, "POST")
+    .then((response) => {
+      var product_list = "";
+      if (response.status) {
+        getCartList();
+        app.successToast(response.body);
+        return;
+      }
+      app.errorToast(response.message);
+    })
+    .catch((error) => {
+      app.errorToast("something went wrong");
+    });
+};
+
+const inserOrder = () => {
+  app
+    .request("client/insertOrder", data, "POST")
     .then((response) => {
       var product_list = "";
       if (response.status) {
