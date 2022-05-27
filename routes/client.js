@@ -14,6 +14,8 @@ Router.get("/login", function (req, res) {
     res.render("client/pages/login", {title: "login", url: req.url});
 });
 
+Router.post('/loginVerification',UserController.mobileVerification);
+
 Router.get("/signUp", function (req, res) {
     res.render("client/pages/signUp", {title: "Sign Up", url: req.url});
 });
@@ -49,7 +51,9 @@ Router.get("/otpVerification/:userId", function (req, res, next) {
         url: "/" + segments[1],
     });
 });
+
 Router.post("/signUp", UserController.signUp);
+
 Router.get("/home", function (req, res, next) {
     res.render("client/pages/Home", {title: "Home", url: req.url});
 });

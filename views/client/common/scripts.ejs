@@ -6,20 +6,23 @@
 <script type="text/javascript" src="/modules/vendor/slick/slick.min.js"></script>
 <!-- Sidebar JS-->
 <script type="text/javascript" src="/modules/vendor/sidebar/hc-offcanvas-nav.js"></script>
-
+<script type="text/javascript" src="/modules/jquery-validation/js/jquery.validate.js"></script>
 <script>
     const baseURL = '<%= process.env.BASE_URL %>';
-</script>
-
+</script>x
 <!-- Custom scripts for all pages-->
 <script src="/js/osahan.js"></script>
 <script src="/js/custom.js"></script>
 
-<% if(url =="/login") { %>
-<!-- Flag Number-->
-<script src="/modules/vendor/build/js/intlTelInput.js"></script>
+<% if(url == "/login") { %>
+    <!-- Flag Number-->
+    <script src="/modules/vendor/build/js/intlTelInput.js"></script>
 <% } %>
 
 <% if (url === "/home") { %>
     <script src="/js/client/home.js"></script>
+<% } %>
+
+<% if (url === "/otpVerification") { %>
+    <script src="/js/client/login.js"></script>
 <% } %>

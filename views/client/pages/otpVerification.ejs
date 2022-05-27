@@ -17,20 +17,21 @@
             <input type="hidden" name="mobileNumber" id="mobileNumber" value="<%= userId %>" />
             <div class="row my-5 mx-0">
                 <div class="col pr-1 pl-0">
-                    <input type="number" value="4" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" value="0" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" value="8" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col pl-1 pr-0">
-                    <input type="number" value="0" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
             </div>
-            <button class="btn btn-lg btn-primary btn-block">Verify Now</button>
+            <a class="btn btn-lg btn-primary btn-block" href="/client/location">Verify Now</a>
         </form>
     </div>
 </div>
 <%- include("../common/footer") %>
+
