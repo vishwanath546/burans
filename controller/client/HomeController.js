@@ -12,7 +12,11 @@ const wish_listtable = "wish_list";
 const addonProductMappingTable = "addon_product_mapping";
 const addonsProductsTable = "addons_products";
 const suggestedItemMapping = "suggested_item_mapping";
-
+const settingTable = `setting`;
+const couponcodeTable = "coupon_code";
+const paymentdetailsTable = "payment_details";
+const ordersTable = "orders";
+const ordersitemsTable = "order_items";
 const adminTable = "admin_user";
 const { clearImage } = require("../../util/helpers");
 
@@ -123,11 +127,6 @@ exports.delete_product_from_cart = (request, response, next) => {
     });
 };
 exports.add_to_cart = (request, response, next) => {
-  response.status(200).json({
-    status: true,
-    body: request.session.user,
-  });
-
   var { ProductId, qty, type, menutype } = request.body;
   let cust_id = 1;
   database
@@ -294,24 +293,26 @@ exports.getCartList = (request, response, next) => {
 
       database
         .query(query, {})
-        .then((addonlist) => {
+        .then(async (addonlist) => {
           if (addonlist.length == 0) {
             return 0;
           }
           return 0;
-          response.status(200).json(get_new_cart_list(cartlist, addonlist));
+          response
+            .status(200)
+            .json(await get_new_cart_list(cartlist, addonlist));
         })
         .then(() => {
           query = `select p.*,si.ProductId,pi.path as photo from ${suggestedItemMapping} as si join ${productTable} as p on p.id=si.SuggestedProductId Left join ${productImageTable} as  pi on p.id=pi.ProductId where si.ProductId in (${productIds})`;
           database
             .query(query, {})
-            .then((suggestedlist) => {
+            .then(async (suggestedlist) => {
               if (suggestedlist.length == 0) {
                 return 0;
               }
               response
                 .status(200)
-                .json(get_new_cart_list(cartlist, suggestedlist));
+                .json(await get_new_cart_list(cartlist, suggestedlist));
             })
             .catch((error) => {
               next(error);
@@ -321,13 +322,13 @@ exports.getCartList = (request, response, next) => {
           query = `select p.*,si.ProductId,pi.path as photo from ${suggestedItemMapping} as si join ${productTable} as p on p.categoryId=si.CategoryId Left join ${productImageTable} as  pi on p.id=pi.ProductId  where si.ProductId in (${productIds}) limit 5`;
           database
             .query(query, {})
-            .then((categorylist) => {
+            .then(async (categorylist) => {
               if (categorylist.length == 0) {
                 return 0;
               }
               response
                 .status(200)
-                .json(get_new_cart_list(cartlist, categorylist));
+                .json(await get_new_cart_list(cartlist, categorylist));
             })
             .catch((error) => {
               next(error);
@@ -348,27 +349,77 @@ exports.getCartList = (request, response, next) => {
     });
 };
 
-function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
-  var total = 0;
-  var addonlistdata = [];
-  var cartlistdata = [];
+async function get_delivery_charges() {
+  try {
+    var delivery_charge = 0;
+    var query = `select * from ${settingTable} where status=1`;
+    var delivery_charges = await database.query(query, {});
+    if (delivery_charges.length > 0) {
+      delivery_charges.forEach((v) => {
+        delivery_charge = +v.value;
+      });
+    }
+    return delivery_charge;
+  } catch (err) {
+    throw err;
+  }
+}
 
-  cartlist.forEach((item, value) => {
-    total += item.price;
-    addonlist.forEach((item2, value) => {
-      if (item.id == item2.ProductId) {
-        addonlistdata.push(item2);
-      }
+async function get_discount_charges() {
+  try {
+    var discountamt = 0;
+    var query = `select discountAmount,discountType,applyTo from ${couponcodeTable} where status=1`;
+    var result = await database.query(query, {});
+    if (result.length > 0) {
+      result.forEach((v) => {
+        if (v.discountType == 2) {
+          discountamt = +v.discountAmount;
+        }
+      });
+    }
+
+    return discountamt;
+  } catch (err) {
+    throw err;
+  }
+}
+async function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
+  try {
+    var total = 0;
+    var restaurant_charges = 0;
+    var addonlistdata = [];
+    var cartlistdata = [];
+    cartlist.forEach((item, value) => {
+      total += item.price * item.qty;
+      restaurant_charges += +item.specialDeliveryCharges * item.qty;
+      addonlist.forEach((item2, value) => {
+        if (item.id == item2.ProductId) {
+          addonlistdata.push(item2);
+        }
+      });
+      item[type] = addonlistdata;
+      addonlistdata = [];
+      cartlistdata.push(item);
     });
-    item[type] = addonlistdata;
-    addonlistdata = [];
-    cartlistdata.push(item);
-  });
-  return {
-    status: true,
-    body: cartlistdata,
-    totalPrice: total,
-  };
+    var delivery_charge = await get_delivery_charges();
+    let discountamt = await get_discount_charges();
+
+    var finalPrice = 0;
+    finalPrice = restaurant_charges + total + delivery_charge;
+    discountamt = (finalPrice / 100) * discountamt;
+    finalPrice = finalPrice - discountamt;
+    return {
+      status: true,
+      body: cartlistdata,
+      totalPrice: total,
+      finalPrice: Math.round(finalPrice),
+      restaurant_charges: restaurant_charges,
+      delivery_charge: delivery_charge,
+      discount_value: discountamt,
+    };
+  } catch (err) {
+    throw err;
+  }
 }
 
 exports.getwishList = (request, response, next) => {
@@ -394,19 +445,113 @@ exports.getwishList = (request, response, next) => {
 
 exports.insertOrder = (request, response, next) => {
   var cust_id = 1;
-  var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${wish_listtable} as ac join ${productTable} as p  on ac.Product_Id=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
+  var query = `select ac.qty,p.*,pi.path as photo,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
     .query(query, {})
-    .then((wishlust) => {
-      if (wishlust.length == 0) {
-        let error = new Error("Empty Wish List");
+    .then(async (cartlist) => {
+      if (cartlist.length == 0) {
+        let error = new Error("Empty Cart List");
         error.statusCode = 200;
         throw error;
       }
-      response.status(200).json({
-        status: true,
-        body: wishlust,
+      var productIds = cartlist.map((item) => {
+        return item.id;
       });
+      var amountlist = await get_new_cart_list(cartlist, []);
+      finalPrice = amountlist.finalPrice;
+      database
+        .insert(paymentdetailsTable, {
+          cust_id: cust_id,
+          final_amount: finalPrice,
+          payment_mode: request.body.payment_mode,
+          payment_date: database.currentTimeStamp(),
+          status: 1,
+        })
+        .then((payment_details) => {
+          if (!payment_details.status) {
+            let error = new Error("Payment Faild");
+            error.statusCode = 200;
+            throw error;
+          }
+          return payment_details;
+        })
+        .then((payment_result) => {
+          database
+            .insert(ordersTable, {
+              amount: finalPrice,
+              paymentMethod: request.body.payment_mode,
+              preparationTime: "00:30:00",
+              createdAt: database.currentTimeStamp(),
+              UserAddressId: 1,
+              discountAmount: amountlist.discount_value,
+              status: 1,
+            })
+            .then((order_result) => {
+              if (!order_result.status) {
+                let error = new Error("Faild To add order");
+                error.statusCode = 200;
+                throw error;
+              }
+              return order_result;
+            })
+            .then((order_result) => {
+              let orderdata = cartlist.map((v, index) => {
+                return [
+                  v.qty,
+                  v.price,
+                  v.salePrice,
+                  v.ProductId,
+                  order_result.insertId,
+                ];
+              });
+
+              database
+                .query(
+                  "insert into ?? (quantity,amount,saleAmount,ProductId,OrderId) values ?",
+                  [ordersitemsTable, orderdata]
+                )
+                .then((result) => {
+                  if (!result) {
+                    let error = new Error("Failed To insert Order");
+                    error.statusCode = 404;
+                    throw error;
+                  }
+                  return result;
+                })
+                .then((final_result) => {
+                  database
+                    ._delete(addtocarttable, {
+                      cust_id: cust_id,
+                    })
+                    .then((cartdata) => {
+                      if (!cartdata.status) {
+                        let error = new Error("Faild To delete cart list");
+                        error.statusCode = 200;
+                        throw error;
+                      }
+                      return cartdata;
+                    })
+                    .then((cartdata) => {
+                      response.status(200).json({
+                        status: true,
+                        body: "Order Successfully",
+                      });
+                    })
+                    .catch((error) => {
+                      next(error);
+                    });
+                })
+                .catch((error) => {
+                  next(error);
+                });
+            })
+            .catch((error) => {
+              next(error);
+            });
+        })
+        .catch((error) => {
+          next(error);
+        });
     })
     .catch((error) => {
       next(error);

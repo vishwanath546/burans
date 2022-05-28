@@ -9,12 +9,16 @@ function getCartList() {
       $("#cart_list").empty();
       $("#total_pay").empty();
       $("#final_pay").empty();
+      $("#restaurant_charges").empty();
+      $("#delivery_charge").empty();
+      $("#item_total").empty();
+      $("#discount_value").empty();
 
       var cart_list = "";
       var suggested_list = "";
-        $("#payment_view").addClass('d-none');
+      $("#payment_view").addClass("d-none");
       if (response.status) {
-          $("#payment_view").removeClass('d-none');
+        $("#payment_view").removeClass("d-none");
         response.body.forEach((item, value) => {
           cart_list = `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
           <div class="media align-items-center">
@@ -48,11 +52,14 @@ function getCartList() {
           });
           cart_list += `</div>
        </div>`;
-          console.log(`cart_list_${value}`, cart_list);
           $("#cart_list").append(cart_list);
         });
-        $("#total_pay").append(`Rs.${response.totalPrice}`);
-        $("#final_pay").append(`Pay Rs.${response.totalPrice}`);
+        $("#restaurant_charges").append(`Rs.${response.restaurant_charges}`);
+        $("#delivery_charge").append(`Rs.${response.delivery_charge}`);
+        $("#item_total").append(`Rs.${response.totalPrice}`);
+        $("#discount_value").append(`Rs.${response.discount_value}`);
+        $("#total_pay").append(`Rs.${response.finalPrice}`);
+        $("#final_pay").append(`Pay Rs.${response.finalPrice}`);
       }
     })
     .catch((error) => {
