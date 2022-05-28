@@ -110,12 +110,15 @@
             </div>
             <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
                 <div class="card-body border-top">
-                    <h6 class="mb-3 mt-0 mb-3 font-weight-bold">Cash</h6>
-                    <p class="m-0">Please keep exact change handy to help us serve you better</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="payment_type" value="cod" />
+                        <label class="form-check-label" for="payment_type">Cash on Delivery</label>
+                      </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="fixed-bottom p-3"><a class="btn btn-success btn-lg btn-block" href="profile.html">PAY $1329<i class="feather-arrow-right"></i></a></div>
+    <div class="fixed-bottom p-3 d-none" id="payment_div"><a class="btn btn-success btn-lg btn-block" href="#" onclick="insert_order()" id="final_pay">0<i class="feather-arrow-right"></i></a></div>
 </div>
 <%- include("../common/footer") %>
+<script src="/js/client/payment.js"></script>
