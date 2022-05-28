@@ -34,4 +34,11 @@ router.post("/getVendorDetails", vendorController.getVendor);
 
 router.delete("/deleteVendor/:vendorId", vendorController.deleteVendor);
 
+router.get("/login",(request,response)=>{
+   response.render("/vendor/pages/login",{ title: "View product",
+       url: request.url})
+});
+
+
+
 module.exports = router;

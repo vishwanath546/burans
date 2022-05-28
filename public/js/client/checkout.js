@@ -12,9 +12,11 @@ function getCartList() {
 
       var cart_list = "";
       var suggested_list = "";
+        $("#payment_view").addClass('d-none');
       if (response.status) {
+          $("#payment_view").removeClass('d-none');
         response.body.forEach((item, value) => {
-          cart_list += `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+          cart_list = `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
           <div class="media align-items-center">
              <div class="mr-2 text-danger">&middot;</div>
              <div class="media-body">

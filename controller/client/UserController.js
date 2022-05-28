@@ -54,7 +54,7 @@ exports.signUp = (request, response, next) => {
                 connection.release()
                 response.status(200).json({
                     body: "Registration of user successfully",
-                    data:result.insertId
+                    data: result.insertId
                 })
             } catch (error) {
                 next(error);
@@ -67,10 +67,10 @@ exports.signUp = (request, response, next) => {
 }
 
 exports.otpVerification = (request, response, next) => {
-    const { mobileNumber, otp } = request.body;
+    const {mobileNumber, otp} = request.body;
     database
         .query("select UserId from ?? where activeStatus=1 and mobileNumber=? and otpToken=? and otpExpiredAt < ?",
-            [tableName, mobileNumber, otp,database.currentTimeStamp()]
+            [tableName, mobileNumber, otp, database.currentTimeStamp()]
         )
         .then(user => {
             if (user.length === 0) {
@@ -81,8 +81,8 @@ exports.otpVerification = (request, response, next) => {
             return user[0];
         })
         .then(userAuth => {
-           return database
-                .select(userTable, { id: userAuth[0].UserId })
+            return database
+                .select(userTable, {id: userAuth[0].UserId})
 
         })
         .then(user => {
@@ -93,19 +93,19 @@ exports.otpVerification = (request, response, next) => {
             }
             return user[0];
         })
-        .then( async user => {
+        .then(async user => {
             request.session.user = {
                 authId: user.id,
                 mobileNumber: user.mobileNumber,
                 email: user.email,
                 avatar: user.avatar,
-                gender:user.gender
+                gender: user.gender
             };
             let UserAuthObject = {
                 loginAt: database.currentTimeStamp(),
             };
             let UserVerifyObject = {
-                verified:1,
+                verified: 1,
                 emailVerifiedAt: database.currentTimeStamp(),
             };
             try {
@@ -113,7 +113,7 @@ exports.otpVerification = (request, response, next) => {
                 const connection = await database.transaction();
                 await connection.beginTransaction();
                 const [result, error] = await connection.query("update ?? set ? where ?",
-                    [userTable, UserVerifyObject,{id:user.id}]);
+                    [userTable, UserVerifyObject, {id: user.id}]);
                 if (error) {
                     await connection.rollback();
                     connection.release();
@@ -121,7 +121,7 @@ exports.otpVerification = (request, response, next) => {
                 }
 
                 const [authResult, authError] = await connection.query("update ?? set ? where ?",
-                    [tableName, UserAuthObject,{UserId:user.id}]);
+                    [tableName, UserAuthObject, {UserId: user.id}]);
                 if (authError) {
                     await connection.rollback();
                     connection.release();
@@ -141,3 +141,37 @@ exports.otpVerification = (request, response, next) => {
         });
 };
 
+exports.mobileVerification = (request, response, next) => {
+
+    let {mobileNumber} = request.body;
+
+    database.select(tableName, {mobileNumber: mobileNumber, userType: 1},
+        ["id", "UserId", "userType"])
+        .then(User => {
+            if (User.length === 0) {
+                let error = new Error('Mobile number not register with us');
+                error.statusCode = 404;
+                throw error;
+            } else {
+                let OTP = Math.floor(1000 + Math.random() * 9000);
+                database.update(tableName, {otpToken: OTP}, {id: User[0].id})
+                    .then(resultObject => {
+                        if (!resultObject) {
+                            throw new Error('Failed To Send OTP');
+                        } else {
+                            response.status(200).json({
+                                id:User[0].UserId,
+                                type:User[0].userType
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        next(error)
+                    })
+            }
+        })
+        .catch(error => {
+            next(error)
+        })
+
+}
