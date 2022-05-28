@@ -1,20 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Burans OTP Verification">
-    <meta name="author" content="Burans OTP Verification">
-    <link rel="icon" type="image/png" href="img/logo.png">
-    <title>Burans OTP Verification</title>
-    <!-- Bootstrap core CSS -->
-    <link href="/modules/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="/modules/izitoast/css/iziToast.css">
-    <!-- Custom styles for this template -->
-    <link href="/css/client/style.css" rel="stylesheet">
-</head>
-<body>
+<%- include("../common/header") %>
 <div class="osahan-verification">
     <div class="p-3 osahan-inner-header bg-white shadow-sm">
         <div class="d-flex align-items-center">
@@ -33,25 +17,21 @@
             <input type="hidden" name="mobileNumber" id="mobileNumber" value="<%= userId %>" />
             <div class="row my-5 mx-0">
                 <div class="col pr-1 pl-0">
-                    <input type="number" value="4" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" value="0" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" value="8" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
                 <div class="col pl-1 pr-0">
-                    <input type="number" value="0" class="form-control form-control-lg">
+                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
                 </div>
             </div>
-            <button class="btn btn-lg btn-primary btn-block">Verify Now</button>
+            <a class="btn btn-lg btn-primary btn-block" href="/client/location">Verify Now</a>
         </form>
     </div>
 </div>
-<!-- Bootstrap core JavaScript -->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<%- include("../common/footer") %>
 
-</body>
-</html>

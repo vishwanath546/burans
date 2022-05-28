@@ -1,0 +1,34 @@
+<!-- Footer -->
+<div class="osahan-menu-fotter border rounded shadow fixed-bottom bg-white m-3 px-3 py-2 text-center">
+    <div class="row">
+        <div class="col  <%= url=="/home"? 'selected':''%>">
+            <a href="/client/home" class="<%= url=="/home"? 'text-danger':'text-dark'%> small font-weight-bold text-decoration-none">
+                <p class="h4 m-0"><i class="feather-home text-danger"></i></p>
+                Home
+            </a>
+        </div>
+        <div class="col <%= url=="/trending"? 'selected':''%>">
+            <a href="/client/trending" class="<%= url=="/trending"? 'text-danger':'text-dark'%> small font-weight-bold text-decoration-none">
+                <p class="h4 m-0"><i class="feather-map-pin"></i></p>
+                Trending
+            </a>
+        </div>
+        <div class="col osahan-menu-logo">
+            <a href="/client/checkout" class="text-white small font-weight-bold text-decoration-none">
+                <img src="/img/nav-logo.png" class="img-fluid" />
+            </a>
+        </div>
+        <div class="col <%= url=="/wishlist"? 'selected':''%>">
+            <a href="/client/wishlist" class="<%= url=="/wishlist"? 'text-danger':'text-dark'%> small font-weight-bold text-decoration-none">
+                <p class="h4 m-0"><i class="feather-heart"></i></p>
+                Favorites
+            </a>
+        </div>
+        <div class="col <%= url=="/profile"? 'selected':''%>">
+            <a href="/client/profile" class="<%= url=="/profile"? 'text-danger':'text-dark'%> small font-weight-bold text-decoration-none">
+                <p class="h4 m-0"><i class="feather-user"></i></p>
+                Profile
+            </a>
+        </div>
+    </div>
+</div>

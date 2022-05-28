@@ -1,0 +1,52 @@
+<%- include("../common/header") %>
+
+<div class="login-page vh-100">
+    <video loop autoplay muted id="vid">
+        <source src="/img/bg.mp4" type="video/mp4">
+        <source src="/img/bg.mp4" type="video/ogg">
+        Your browser does not support the video tag.
+    </video>
+    <div class="p-4 login-page-form">
+        <h2 class="text-white my-0">Welcome Back</h2>
+        <p class="text-white text-50">Sign in to continue</p>
+        <form class="mt-5 mb-4" id="clientLoginForm" method="post" data-form-valid="loginVerification">
+            <div class="form-group phone-z mb-3 position-relative">
+                <div class="iti iti--allow-dropdown">
+                    <div class="iti__flag-container">
+                        <div class="iti__selected-flag" role="combobox"
+                             aria-controls="iti-0__country-listbox"
+                             aria-owns="iti-0__country-listbox" aria-expanded="false"
+                             tabindex="0"
+                             title="India (भारत): +91"
+                             aria-activedescendant="iti-0__item-in-preferred">
+                            <div class="iti__flag iti__in"></div>
+                            <div class="iti__arrow"></div>
+                        </div>
+                    </div>
+                    <input id="mobileNumber" class="form-control-flag-osahan"
+                           name="mobileNumber" placeholder="Phone Number"
+                           data-valid="required" data-msg="Please Phone Number"
+                           data-error="#mobileNumber-error"
+                           type="tel" autocomplete="off" data-intl-tel-input-id="0">
+                </div>
+                <div id="mobileNumber-error"></div>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block">
+                <a class="font-decoration-none">Send OTP</a>
+            </button>
+        </form>
+    </div>
+    <div class="fixed-bottom text-center p-3">
+        <p class="text-white mb-1">By continuing, you agree to our</p>
+        <p class="small">
+            <a class="text-white-50 border-bottom" href="terms.html">Terms of Service</a>
+            <a class="text-white-50 border-bottom mx-3" href="privacy.html">Privacy Policy</a>
+            <a class="text-white-50 border-bottom" href="terms.html">Content Policies</a>
+        </p>
+    </div>
+</div>
+<%- include("../common/scripts") %>
+<script src="/js/client/login.js"></script>
+
+</body>
+</html>

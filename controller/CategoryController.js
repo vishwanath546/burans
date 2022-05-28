@@ -179,7 +179,7 @@ exports.getCategoryById = (request, response, next) => {
                            photo,
                            sequenceNumber,
                            (select CategoryId from subcategory_mapping where subcategoryId = s.id) as category_id
-                    from ? ? s
+                    from ?? s
                     where id=?`, [tableName, categoryId])
         .then(category => {
             if (category.length > 0) {

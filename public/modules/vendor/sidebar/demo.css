@@ -2,10 +2,10 @@ html.hc-nav-yscroll {
 	overflow-y: scroll
 }
 li.nav-close {
-    display: none !important;
+	display: none !important;
 }
 li.nav-close .nav-item-wrapper {
-    display: none;
+	display: none;
 }
 
 body.hc-nav-open {
@@ -273,17 +273,12 @@ body.hc-nav-open {
 	display: none;
 }
 .hc-nav-trigger {
-	position: absolute;
 	cursor: pointer;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
 	display: none;
-	top: 18px;
-    width: 30px;
-    min-height: 24px;
-    left: 17px;
 }
 
 .hc-nav-trigger span {
@@ -344,18 +339,18 @@ body.hc-nav-open {
 }
 
 .hc-offcanvas-nav h2 {
-	font-size: 19px;
+	font-size: 17px;
 	font-weight: normal;
 	text-align: left;
 	margin-bottom: 0px;
-	padding: 20px 17px;
-	background: #343a40;
-    color: #fff;
+	padding: 15px 15px;
+	background: #212121;
+	color: #fff;
 }
 
 .hc-offcanvas-nav .nav-item {
-	padding: 14px 17px;
-	font-size: 15px;
+	padding: 14px 15px;
+	font-size: 12px;
 	color: #343a40;
 	z-index: 1;
 	background: rgba(0, 0, 0, 0);
@@ -378,8 +373,8 @@ body.hc-nav-open {
 }
 
 .hc-offcanvas-nav li:not(.custom-content) a {
-	padding: 14px 17px;
-	font-size: 13px;
+	padding: 14px 15px;
+	font-size: 12px;
 	color: #343a40;
 	z-index: 1;
 	background: rgba(0, 0, 0, 0);
@@ -707,15 +702,15 @@ main .button.active {
 
 .hc-offcanvas-nav li.search input[type="text"] {
 	width: 100%;
-    box-sizing: border-box;
-    border: none;
-    border-radius: 3px;
-    font-size: 14px;
-    color: #343a40;
-    background: rgb(255, 255, 255);
-    padding: 5px 10px;
-    box-shadow: none;
-    border: 1px solid rgb(237, 241, 244);
+	box-sizing: border-box;
+	border: none;
+	border-radius: 3px;
+	font-size: 14px;
+	color: #343a40;
+	background: rgb(255, 255, 255);
+	padding: 5px 10px;
+	box-shadow: none;
+	border: 1px solid rgb(237, 241, 244);
 }
 
 

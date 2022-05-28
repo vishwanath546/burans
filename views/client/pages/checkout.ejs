@@ -26,17 +26,19 @@
              <textarea placeholder="Any suggestions? We will pass it on..." aria-label="With textarea" class="form-control"></textarea>
           </div>
        </div> -->
-       <div class="shadow bg-white rounded p-3 clearfix">
-          <p class="mb-1">Item Total <span class="float-right text-dark">$3140</span></p>
-          <p class="mb-1">Restaurant Charges <span class="float-right text-dark">$62.8</span></p>
+       <div class="shadow bg-white rounded p-3 clearfix d-none" id="payment_view">
+<!--          <p class="mb-1">Item Total <span class="float-right text-dark">$3140</span></p>-->
+          <p class="mb-1">Restaurant Charges <span class="float-right text-dark">0</span></p>
           <p class="mb-1">Delivery Fee<span class="text-info ml-1"><i class="icofont-info-circle"></i></span><span class="float-right text-dark">$10</span></p>
-          <p class="mb-1 text-success">Total Discount<span class="float-right text-success">$1884</span></p>
+          <p class="mb-1 text-success">Total Discount<span class="float-right text-success">0</span></p>
           <hr>
           <h6 class="font-weight-bold mb-0">TO PAY  <span class="float-right" id="total_pay">Rs.0</span></h6>
           <a class="btn btn-success btn-block btn-lg mt-2" href="payment.html" id="final_pay"><i class="icofont-long-arrow-right"></i></a>
-         </div>
-       
+       </div>
+
     </div>
+    <!-- Footer -->
+    <%- include("../common/bottom-nav-bar") %>
  </div>
  <%- include("../common/footer") %>
  <script src="/js/client/checkout.js"></script>
