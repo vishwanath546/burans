@@ -18,6 +18,7 @@ const paymentdetailsTable = "payment_details";
 const ordersTable = "orders";
 const ordersitemsTable = "order_items";
 const adminTable = "admin_user";
+const useraddressTable = "user_address";
 const { clearImage } = require("../../util/helpers");
 
 exports.getCategory = (request, response, next) => {
@@ -555,5 +556,112 @@ exports.insertOrder = (request, response, next) => {
     })
     .catch((error) => {
       next(error);
+    });
+};
+
+exports.insert_address = (request, response, next) => {
+  request.body.UserId = cust_id = 1;
+  request.body.status = 1;
+  database
+    .insert(useraddressTable, request.body)
+    .then((result) => {
+      if (!result.status) {
+        let error = new Error("Faild to insert address");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: "Address Successfully inserted",
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.update_address = (request, response, next) => {
+  let {
+    id,
+    addressLineOne,
+    addressLineTwo,
+    city,
+    state,
+    pinCode,
+    contactNumber,
+    address_type,
+  } = request.body;
+  let UserId = request.body.UserId;
+  let status = request.body.status;
+  database
+    .update(
+      useraddressTable,
+      { id: id },
+      {
+        addressLineOne: addressLineOne,
+        addressLineTwo: addressLineTwo,
+        city: city,
+        state: state,
+        pinCode: pinCode,
+        contactNumber: contactNumber,
+        address_type: address_type,
+        UserId: UserId,
+        status: status,
+      }
+    )
+    .then((result) => {
+      if (!result.status) {
+        let error = new Error("Faild to update address");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: "Address Successfully updateed",
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.view_address = (request, response, next) => {
+  let cust_id = 1;
+  database
+    .select(useraddressTable, { status: 1, UserId: cust_id })
+    .then((address) => {
+      if (address.length == 0) {
+        let error = new Error("Address Not Found");
+        error.statusCode = 404;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: address,
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.delete_address = (request, response, next) => {
+  var { id } = request.body;
+  let cust_id = 1;
+  database
+    ._deleteall(useraddressTable, {
+      id: +id,
+      cust_id: cust_id,
+    })
+    .then((deletadress) => {
+      if (deletadress.affectedRows == 0) {
+        let error = new Error("Faild to delete Address");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: "Successfully Address deleted",
+      });
     });
 };
