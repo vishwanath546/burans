@@ -22,20 +22,25 @@ function getCartList() {
         response.body.forEach((item, value) => {
           cart_list = `  <div class="gold-members d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
           <div class="media align-items-center">
-             <div class="mr-2 text-danger">&middot;</div>
+             <div class="mr-2 text-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                           <circle cx="8" cy="8" r="8"/>
+                        </svg>
+                     </div>
              <div class="media-body">
                 <p class="m-0">${item.name}</p>
              </div>
           </div>
           <div class="d-flex align-items-center">
-          <span class="count-number float-right">
-          <button type="button" class="btn-sm left dec btn btn-outline-secondary" onclick="addtocart(${item.id},'sub')"> <i class="feather-minus"></i> </button>
-          <input class="count-number-input" type="text" readonly="" value="${item.qty}">
-          <button type="button" class="btn-sm right inc btn btn-outline-secondary" onclick="addtocart(${item.id})"> <i class="feather-plus"></i> </button></span>
-               <p class="text-gray mb-0 float-right ml-2 text-muted small">Rs.${item.price}</p>
-          <button type="button" class="btn btn-danger ml-2" onclick="delete_product_from_cart(${item.id})">
-          <i class='fa fa-remove'></i></button>
-          </span>
+             <div class="osahan-quantity">
+                <input type="button" value="-" class="minus"  onclick="addtocart(${item.id},'sub')">
+                <input type="text" name="quantity" value="${item.qty}" title="Qty" class="qty" size="4">
+                <input type="button" value="+" class="plus" onclick="addtocart(${item.id})">
+             </div>
+             <p class="text-gray mb-0 float-right ml-2 text-muted small">Rs.${item.price}</p>
+             <button type="button" class="btn btn-danger ml-2" onclick="delete_product_from_cart(${item.id})">
+                <i class='feather-trash-2'></i>
+             </button>
           </div>
        </div>`;
           cart_list += `<div class="bg-light">
@@ -43,7 +48,7 @@ function getCartList() {
           item.addonlist.forEach((item2, value2) => {
             cart_list += `<div class="cat-item px-1 py-3">
         <a class="bg-white rounded d-block p-2 text-center shadow" >
-           <img src="${item2.photo}" class="img-fluid mb-2">
+           <img src="${baseURL+item2.photo.replace("public", "").split("\\").join("/")}" class="img-fluid mb-2">
            <p class="m-0 small">${item2.name}</p>
            <button class="btn btn-danger" onclick="addtocart(${item2.id})">Add to cart</button>
         </a>

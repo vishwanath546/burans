@@ -36,12 +36,12 @@ Router.get("/payment", function (req, res) {
     res.render("client/pages/payment", {title: "Payment", url: req.url,screenTitle:'Payment',cartCount:0});
 });
 
-Router.get("/otpVerification/:userId", function (req, res, next) {
+Router.get("/otp/:userId", function (req, res, next) {
     let userId = req.params.userId;
     if (!userId) {
         let error = new Error("Not Found");
         error.statusCode = 404;
-        throw error;
+        next(error);
     }
     let segments = req.url.split("/");
     res.render("client/pages/otpVerification", {
@@ -51,6 +51,7 @@ Router.get("/otpVerification/:userId", function (req, res, next) {
         url: "/" + segments[1],
     });
 });
+Router.post("/otpVerification",UserController.otpVerification);
 
 Router.post("/signUp", UserController.signUp);
 

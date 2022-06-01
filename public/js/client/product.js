@@ -28,7 +28,7 @@ function getSubCategory() {
               breakpoint: 768,
               settings: {
                 arrows: false,
-                centerMode: true,
+                centerMode: false,
                 centerPadding: "40px",
                 slidesToShow: 4,
               },
@@ -102,12 +102,15 @@ function getSubCategoryProduct(Subcat_id = "", page = "1") {
                    </h6>
                    <p class="text-gray mb-3">${item.description}</p>
                    <p class="text-gray mb-3 time"><span class="bg-light text-dark rounded-sm pl-2 pb-1 pt-1 pr-2"><i class="feather-clock"></i> ${item.duration} min</span> 
-                   <span bg-light text-dark rounded-sm pl-2 pb-1 pt-1 pr-2"> Rs.${item.price} </span> <strike>${item.salePrice} </strike></p>
+                   <span bg-light text-dark rounded-sm pl-2 pb-1 pt-1 pr-2"> Rs.${item.price} </span> 
+                   <strike>${item.salePrice} </strike>
+                   <span class="badge badge-danger">OFFER</span> <small>65%</small>
+                   </p>
                 </div>
                <div class="list-card-badge">
-               <button class="btn btn-danger" onclick="addtocart(${item.id})">Add to cart</button>
-               <button class="btn btn-success" onclick="addtocart(${item.id},1,'buy_now')">Buy Now</button>
-                   <span class="badge badge-danger">OFFER</span> <small>65% OSAHAN50</small>
+               <button class="btn btn-outline-secondary btn-sm add-sm-btn" onclick="addtocart(${item.id})">Add to cart</button>
+<!--               <button class="btn btn-success" onclick="addtocart(${item.id},1,'buy_now')">Buy Now</button>-->
+<!--                   <span class="badge badge-danger">OFFER</span> <small>65%</small>-->
                 </div>
              </div>
           </div>

@@ -67,10 +67,12 @@ exports.signUp = (request, response, next) => {
 }
 
 exports.otpVerification = (request, response, next) => {
-    const {mobileNumber, otp} = request.body;
+    const {userId, otpNumberOne,otpNumberSecond,otpNumberThree,otpNumberFour} = request.body;
+    let otp = [otpNumberOne,otpNumberSecond,otpNumberThree,otpNumberFour].join("");
+    console.log(otp,userId)
     database
-        .query("select UserId from ?? where activeStatus=1 and mobileNumber=? and otpToken=? and otpExpiredAt < ?",
-            [tableName, mobileNumber, otp, database.currentTimeStamp()]
+        .query("select UserId from ?? where activeStatus=1 and UserId=? and otpToken=? and otpExpiredAt > ?",
+            [tableName, userId, otp, database.currentTimeStamp()]
         )
         .then(user => {
             if (user.length === 0) {
@@ -82,7 +84,7 @@ exports.otpVerification = (request, response, next) => {
         })
         .then(userAuth => {
             return database
-                .select(userTable, {id: userAuth[0].UserId})
+                .select(userTable, {id: userAuth.UserId})
 
         })
         .then(user => {
@@ -154,7 +156,8 @@ exports.mobileVerification = (request, response, next) => {
                 throw error;
             } else {
                 let OTP = Math.floor(1000 + Math.random() * 9000);
-                database.update(tableName, {otpToken: OTP}, {id: User[0].id})
+                let expiredAt = database.futureDateTime(15);
+                database.update(tableName, {otpToken: OTP,otpExpiredAt:expiredAt,updatedAt:database.currentTimeStamp()}, {id: User[0].id})
                     .then(resultObject => {
                         if (!resultObject) {
                             throw new Error('Failed To Send OTP');
