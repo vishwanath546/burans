@@ -121,16 +121,6 @@ async function insert(tableName, values) {
     error: error,
   };
 }
-async function bulkinsert(tableName, values, callback) {
-  let keys = Object.keys(values[0]);
-  let objvalues = values.map((obj) => keys.map((key) => obj[key]));
-  let sql = "INSERT INTO " + tableName + " (" + keys.join(",") + ") VALUES ?";
-  console.log(sql);
-  // const [results, error] = await pool.query(sql);
-  pool.query(sql, [objvalues], function (err, results) {
-    callback(null, results);
-  });
-}
 
 async function update(tableName, data, where) {
   let sql = mysql.format("update ?? set ? where ?", [tableName, data, where]);
@@ -223,7 +213,6 @@ module.exports = {
   query,
   select,
   insert,
-  bulkinsert,
   update,
   updateall,
   _delete,
