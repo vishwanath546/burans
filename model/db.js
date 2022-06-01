@@ -124,7 +124,6 @@ async function insert(tableName, values) {
         error: error,
     };
 }
-
 async function bulkinsert(tableName, values, callback) {
     let keys = Object.keys(values[0]);
     let objvalues = values.map((obj) => keys.map((key) => obj[key]));
@@ -135,7 +134,6 @@ async function bulkinsert(tableName, values, callback) {
         callback(null, results);
     });
 }
-
 async function update(tableName, data, where) {
     let sql = mysql.format("update ?? set ? where ?", [tableName, data, where]);
     console.log(sql);

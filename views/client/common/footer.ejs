@@ -173,7 +173,7 @@
                                             <form class="filters-search px-3">
                                                 <div class="form-group mb-2 position-relative">
                                                     <i class="feather-search"></i>
-                                                    <input type="text" class="form-control" placeholder="Start typing to search...">
+                                                    <input type="text" class="form-control" placeholder=" eg:- Start typing to search...">
                                                 </div>
                                             </form>
                                             <div class="custom-control custom-checkbox p-0">
@@ -347,13 +347,13 @@
                         <div class="col-md-12 form-group">
                             <label class="form-label font-weight-bold small">Card number</label>
                             <div class="input-group">
-                                <input placeholder="Card number" type="number" class="form-control">
+                                <input placeholder=" eg:- Card number" type="number" class="form-control">
                                 <div class="input-group-append"><button id="button-addon2" type="button" class="btn btn-outline-secondary"><i class="feather-credit-card"></i></button></div>
                             </div>
                         </div>
-                        <div class="col-md-8 form-group"><label class="form-label font-weight-bold small">Valid through(MM/YY)</label><input placeholder="Enter Valid through(MM/YY)" type="number" class="form-control"></div>
-                        <div class="col-md-4 form-group"><label class="form-label font-weight-bold small">CVV</label><input placeholder="Enter CVV Number" type="number" class="form-control"></div>
-                        <div class="col-md-12 form-group"><label class="form-label font-weight-bold small">Name on card</label><input placeholder="Enter Card number" type="text" class="form-control"></div>
+                        <div class="col-md-8 form-group"><label class="form-label font-weight-bold small">Valid through(MM/YY)</label><input placeholder=" eg:- Enter Valid through(MM/YY)" type="number" class="form-control"></div>
+                        <div class="col-md-4 form-group"><label class="form-label font-weight-bold small">CVV</label><input placeholder=" eg:- Enter CVV Number" type="number" class="form-control"></div>
+                        <div class="col-md-12 form-group"><label class="form-label font-weight-bold small">Name on card</label><input placeholder=" eg:- Enter Card number" type="text" class="form-control"></div>
                         <div class="col-md-12 form-group mb-0">
                             <div class="custom-control custom-checkbox"><input type="checkbox" id="custom-checkbox1" class="custom-control-input"><label title="" type="checkbox" for="custom-checkbox1" class="custom-control-label small pt-1">Securely save this card for a faster checkout next time.</label></div>
                         </div>
@@ -381,46 +381,74 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form class="">
+                <form class="" id="insert_address" name="insert_address" method="post" data-form-valid="InsertAddress">
                     <div class="form-row">
+                       
                         <div class="col-md-12 form-group">
-                            <label class="form-label">Delivery Area</label>
-                            <div class="input-group">
-                                <input placeholder="Delivery Area" type="text" class="form-control">
-                                <div class="input-group-append"><button id="button-addon2" type="button" class="btn btn-outline-secondary"><i class="feather-map-pin"></i></button></div>
-                            </div>
+                            <label class="form-label">Address 1</label>
+                            <input id="addressLineOne" name="addressLineOne" data-valid="required" data-msg="Please enter address1"
+                            data-error="#addressLineOne-error" placeholder=" eg:- Complete Address e.g. house number, street name, landmark" type="text" class="form-control">
+                            <div id="addressLineOne-error"></div></div>
+                        <div class="col-md-12 form-group">
+                            <label class="form-label">Address 2</label>
+                            <input id="addressLineTwo" name="addressLineTwo" data-valid="required" data-msg="Please enter address2"
+                            data-error="#addressLineTwo-error" placeholder=" eg:- Delivery Instructions e.g. Opposite Gold Souk Mall" type="text" class="form-control">
+                            <div id="addressLineTwo-error"></div>
                         </div>
-                        <div class="col-md-12 form-group"><label class="form-label">Complete Address</label><input placeholder="Complete Address e.g. house number, street name, landmark" type="text" class="form-control"></div>
-                        <div class="col-md-12 form-group"><label class="form-label">Delivery Instructions</label><input placeholder="Delivery Instructions e.g. Opposite Gold Souk Mall" type="text" class="form-control"></div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">City</label>
+                            <input placeholder=" eg:- Mumbai" data-valid="required" data-msg="Please enter city"
+                            data-error="#city-error" type="text" id="city" name="city" class="form-control">
+                            <div id="city-error"></div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">state</label>
+                            <input placeholder=" eg:- Maharashtra" data-valid="required" data-msg="Please enter state"
+                            data-error="#state-error" type="text" id="state" name="state" class="form-control">
+                            <div id="state-error"></div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pincode</label>
+                            <input placeholder=" eg:- 411106" data-valid="required" data-msg="Please enter pincode"
+                            data-error="#pinCode-error" type="number"  min="6" max="6" id="pinCode" name="pinCode" class="form-control">
+                            <div id="pinCode-error"></div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Contact No</label>
+                            <input placeholder=" eg:- 9856547854" data-valid="required" data-msg="Please enter contactno"
+                            data-error="#contactNumber-error" type="number"  min="10" max="10" id="contactNumber" name="contactNumber" class="form-control">
+                            <div id="contactNumber-error"></div>
+                        </div>
                         <div class="mb-0 col-md-12 form-group">
                             <label class="form-label">Nickname</label>
 
 
                             <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
                                 <label class="btn btn-outline-secondary active">
-                                    <input type="radio" name="options" id="option1" checked> Home
+                                    <input type="radio" name="address_type" id="address_type1" value="1" checked> Home
                                 </label>
                                 <label class="btn btn-outline-secondary">
-                                    <input type="radio" name="options" id="option2"> Work
+                                    <input type="radio" name="address_type" id="address_type2" value="2"> Work
                                 </label>
                                 <label class="btn btn-outline-secondary">
-                                    <input type="radio" name="options" id="option3"> Other
+                                    <input type="radio" name="address_type" id="address_type3" value="3"> Other
                                 </label>
                             </div>
 
 
                         </div>
                     </div>
+                    <div class="modal-footer p-0 border-0 mt-5">
+                        <div class="col-6 m-0 p-0">
+                            <button type="button" class="btn border-top btn-lg btn-block" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="col-6 m-0 p-0">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">Save changes</button>
+                        </div>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer p-0 border-0">
-                <div class="col-6 m-0 p-0">
-                    <button type="button" class="btn border-top btn-lg btn-block" data-dismiss="modal">Close</button>
-                </div>
-                <div class="col-6 m-0 p-0">
-                    <button type="button" class="btn btn-primary btn-lg btn-block">Save changes</button>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
