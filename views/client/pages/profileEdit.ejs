@@ -1,0 +1,45 @@
+<%- include("../common/header") %>
+
+<div class="osahan-forgot">
+    <%- include("../common/second-header") %>
+    <div class="p-4">
+
+        <form class="mt-3 mb-4">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Profile Image</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile">
+                    <label class="custom-file-label" for="customFile">Choose profile image</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Name</label>
+                <input type="email" class="form-control form-control-lg"
+                       id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Mobile Number</label>
+                <input type="email" class="form-control form-control-lg"
+                       id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email</label>
+                <input type="email" class="form-control form-control-lg"
+                       id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">Gender</label>
+                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                    <label class="btn btn-outline-secondary ">
+                        <input type="radio" name="options" id="option1" checked> Male
+                    </label>
+                    <label class="btn btn-outline-secondary">
+                        <input type="radio" name="options" id="option2"> Female
+                    </label>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block">save</button>
+        </form>
+    </div>
+</div>

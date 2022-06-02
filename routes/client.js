@@ -43,6 +43,24 @@ Router.get("/profile", function (req, res) {
   });
 });
 
+Router.get("/profileUpdate/:userId",function (req,res,next) {
+    let userId = req.params.userId;
+    if (!userId) {
+        let error = new Error("Not Found");
+        error.statusCode = 404;
+        next(error);
+    }
+    let segments = req.url.split("/");
+    res.render("client/pages/profileEdit", {
+        title: "Profile update",
+        session: req.session,
+        screenTitle: "Update Profile",
+        cartCount: 0,
+        userId: userId,
+        url: "/" + segments[1],
+    });
+})
+
 Router.get("/payment", function (req, res) {
   res.render("client/pages/payment", {
     title: "Payment",
