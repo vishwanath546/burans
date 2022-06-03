@@ -13,23 +13,32 @@
     <div class="verify_number p-4">
         <h2 class="mb-3">Verify your<br>phone number</h2>
         <h6 class="text-black-50">Enter your OTP code here</h6>
-        <form id="otpVerification" method="post" data-form-valid="otpVerification">
-            <input type="hidden" name="mobileNumber" id="mobileNumber" value="<%= userId %>" />
+        <form id="otpVerification" method="post" >
+            <input type="hidden" name="userId" id="userId" value="<%= userId %>" />
             <div class="row my-5 mx-0">
                 <div class="col pr-1 pl-0">
-                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
+                    <input type="number" maxlength="1" name="otpNumberOne" id="otpNumberOne" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
+                    <input type="number" maxlength="1" name="otpNumberSecond" id="otpNumberSecond"  class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
                 </div>
                 <div class="col px-2">
-                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
+                    <input type="number" maxlength="1" name="otpNumberThree" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
                 </div>
                 <div class="col pl-1 pr-0">
-                    <input type="number" maxlength="1" class="form-control form-control-lg inputs"/>
+                    <input type="number" maxlength="1" name="otpNumberFour" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
                 </div>
             </div>
-            <a class="btn btn-lg btn-primary btn-block" href="/client/location">Verify Now</a>
+            <div id="otp-error"></div>
+            <button class="btn btn-lg btn-primary btn-block" id="verifyNow">Verify Now</button>
         </form>
     </div>
 </div>
