@@ -20,7 +20,6 @@ const ordersitemsTable = "order_items";
 const adminTable = "admin_user";
 const useraddressTable = "user_address";
 const { clearImage } = require("../../util/helpers");
-
 exports.getCategory = (request, response, next) => {
   database
     .select(CategoryTable, { status: 1, activeStatus: 1, isSubcategory: 0 })
@@ -63,7 +62,10 @@ exports.getSubCategory = (request, response, next) => {
 };
 
 exports.getSubCategoryProduct = (request, response, next) => {
-  let cust_id = 1;
+  let cust_id = "";
+  if ("user" in request.cookies) {
+    cust_id = request.cookies.user.authId;
+  }
   var searchbyid = "";
   var getwishlistid = "";
   if (request.body.Subcat_id != "") {
@@ -76,10 +78,10 @@ exports.getSubCategoryProduct = (request, response, next) => {
     searchbyid = "";
   }
   if (cust_id != "") {
-    getwishlistid = `(select id from ${wish_listtable} where cust_id=${cust_id} and product_id=${productTable}.id) as wishlisid`;
+    getwishlistid = `,(select id from ${wish_listtable} where cust_id=${cust_id} and product_id=${productTable}.id) as wishlisid`;
   }
 
-  let query = `select *,${getwishlistid},(select path from ${productImageTable} where ProductId=${productTable}.id) image from ${productTable} where status=1 and activeStatus=1  ${searchbyid} order by sequenceNumber asc`;
+  let query = `select *${getwishlistid},(select path from ${productImageTable} where ProductId=${productTable}.id) image from ${productTable} where status=1 and activeStatus=1  ${searchbyid} order by sequenceNumber asc`;
 
   database
     .query(query, {})
@@ -108,7 +110,7 @@ exports.getSubCategoryProduct = (request, response, next) => {
 };
 exports.delete_product_from_cart = (request, response, next) => {
   var { ProductId } = request.body;
-  let cust_id = 1;
+  let cust_id = request.cust_id;
   database
     ._deleteall(addtocarttable, {
       ProductId: +ProductId,
@@ -128,97 +130,104 @@ exports.delete_product_from_cart = (request, response, next) => {
     });
 };
 exports.add_to_cart = (request, response, next) => {
-  var { ProductId, qty, type, menutype } = request.body;
-  let cust_id = 1;
-  database
-    .query(
-      `select * from ${addtocarttable} where cust_id=${cust_id} and ProductId=${+ProductId}`,
-      {}
-    )
-    .then((addtocartdata) => {
-      if (addtocartdata.length > 0) {
-        if (type == "sub") {
-          qty = --addtocartdata[0].qty;
-        } else {
-          qty = ++addtocartdata[0].qty;
-        }
-        if (qty > 0) {
-          database
-            .updateall(
-              addtocarttable,
-              {
-                qty: qty,
-              },
-              {
+  try {
+    var { ProductId, qty, type, menutype } = request.body;
+    let cust_id = "";
+    if ("cust_id" in request) {
+      cust_id = request.cust_id;
+    }
+    database
+      .query(
+        `select * from ${addtocarttable} where cust_id=${cust_id} and ProductId=${+ProductId}`,
+        {}
+      )
+      .then((addtocartdata) => {
+        if (addtocartdata.length > 0) {
+          if (type == "sub") {
+            qty = --addtocartdata[0].qty;
+          } else {
+            qty = ++addtocartdata[0].qty;
+          }
+          if (qty > 0) {
+            database
+              .updateall(
+                addtocarttable,
+                {
+                  qty: qty,
+                },
+                {
+                  ProductId: +ProductId,
+                  cust_id: cust_id,
+                }
+              )
+              .then((addtocart) => {
+                console.log(addtocart);
+                if (addtocart.affectedRows == 0) {
+                  let error = new Error("Faild to update cart");
+                  error.statusCode = 200;
+                  throw error;
+                }
+                response.status(200).json({
+                  status: true,
+                  body: "Successfully product updated",
+                });
+              })
+              .catch((error) => {
+                next(error);
+              });
+          } else {
+            database
+              ._deleteall(addtocarttable, {
                 ProductId: +ProductId,
                 cust_id: cust_id,
-              }
-            )
+              })
+              .then((addtocart) => {
+                console.log(addtocart);
+                if (addtocart.affectedRows == 0) {
+                  let error = new Error("Faild to Remove product");
+                  error.statusCode = 200;
+                  throw error;
+                }
+                response.status(200).json({
+                  status: true,
+                  body: "Successfully product Removed",
+                });
+              });
+          }
+        } else {
+          database
+            .insert(addtocarttable, {
+              ProductId: ProductId,
+              cust_id: cust_id,
+              qty: qty,
+              status: 1,
+            })
             .then((addtocart) => {
-              console.log(addtocart);
-              if (addtocart.affectedRows == 0) {
-                let error = new Error("Faild to update cart");
+              if (!addtocart.status) {
+                let error = new Error("Faild to add cart");
                 error.statusCode = 200;
                 throw error;
               }
               response.status(200).json({
                 status: true,
-                body: "Successfully product updated",
+                body: "Successfully product added",
               });
             })
             .catch((error) => {
               next(error);
             });
-        } else {
-          database
-            ._deleteall(addtocarttable, {
-              ProductId: +ProductId,
-              cust_id: cust_id,
-            })
-            .then((addtocart) => {
-              console.log(addtocart);
-              if (addtocart.affectedRows == 0) {
-                let error = new Error("Faild to Remove product");
-                error.statusCode = 200;
-                throw error;
-              }
-              response.status(200).json({
-                status: true,
-                body: "Successfully product Removed",
-              });
-            });
         }
-      } else {
-        database
-          .insert(addtocarttable, {
-            ProductId: ProductId,
-            cust_id: cust_id,
-            qty: qty,
-            status: 1,
-          })
-          .then((addtocart) => {
-            if (!addtocart.status) {
-              let error = new Error("Faild to add cart");
-              error.statusCode = 200;
-              throw error;
-            }
-            response.status(200).json({
-              status: true,
-              body: "Successfully product added",
-            });
-          })
-          .catch((error) => {
-            next(error);
-          });
-      }
-    })
-    .catch((error) => {
-      next(error);
-    });
+      })
+      .catch((error) => {
+        next(error);
+      });
+  } catch (err) {
+    next(error);
+  }
 };
 exports.addtowishlist = (request, response, next) => {
   var { ProductId, qty, type, menutype } = request.body;
-  let cust_id = 1;
+  let cust_id = request.cust_id;
   database
     .query(
       `select * from ${wish_listtable} where cust_id=${cust_id} and Product_Id=${+ProductId}`,
@@ -276,7 +285,7 @@ exports.addtowishlist = (request, response, next) => {
 };
 
 exports.getCartList = (request, response, next) => {
-  var cust_id = 1;
+  let cust_id = request.cust_id;
   var query = `select ac.qty,p.*,pi.path as photo,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
     .query(query, {})
@@ -424,7 +433,7 @@ async function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
 }
 
 exports.getwishList = (request, response, next) => {
-  var cust_id = 1;
+  let cust_id = request.cust_id;
   var query = `select ac.qty,p.*,pi.path,pi.ProductId from ${wish_listtable} as ac join ${productTable} as p  on ac.Product_Id=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
     .query(query, {})
@@ -445,7 +454,7 @@ exports.getwishList = (request, response, next) => {
 };
 
 exports.insertOrder = (request, response, next) => {
-  var cust_id = 1;
+  let cust_id = request.cust_id;
   var query = `select ac.qty,p.*,pi.path as photo,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
     .query(query, {})
@@ -560,7 +569,8 @@ exports.insertOrder = (request, response, next) => {
 };
 
 exports.insert_address = (request, response, next) => {
-  request.body.UserId = cust_id = 1;
+  let cust_id = request.cust_id;
+  request.body.UserId = cust_id;
   request.body.status = 1;
   database
     .insert(useraddressTable, request.body)
@@ -626,7 +636,7 @@ exports.update_address = (request, response, next) => {
 };
 
 exports.view_address = (request, response, next) => {
-  let cust_id = 1;
+  let cust_id = request.cust_id;
   database
     .select(useraddressTable, { status: 1, UserId: cust_id })
     .then((address) => {
@@ -647,7 +657,7 @@ exports.view_address = (request, response, next) => {
 
 exports.delete_address = (request, response, next) => {
   var { id } = request.body;
-  let cust_id = 1;
+  let cust_id = request.cust_id;
   database
     ._deleteall(useraddressTable, {
       id: +id,

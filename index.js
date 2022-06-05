@@ -4,7 +4,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const multer = require("multer");
-const session = require("express-session");
+// const session = require("express-session");
 // const db = require('./model/db')
 
 const app = express();
@@ -13,18 +13,18 @@ const { createDatabase } = require("./sequlizerModel/CreateStructure");
 app.set(express.static("public"));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
+app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(
-  session({
-    secret: "burans",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 3600000 },
-  })
-);
+// app.use(
+//   session({
+//     secret: "burans",
+//     resave: true,
+//     saveUninitialized: true,
+//     cookie: { maxAge: 3600000 },
+//   })
+// );
 const diskStorage = multer.diskStorage({
   destination: (request, file, callback) => {
     let destinationPath = "public/";
@@ -91,7 +91,6 @@ app.use(
   ])
 );
 
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 const adminRouter = require("./routes/admin");

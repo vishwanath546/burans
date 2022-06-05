@@ -2,6 +2,11 @@ $(document).ready(function () {
   getCartList();
 });
 
+function applycoupon() {
+  var couponCode = $("#couponCode").val();
+  alert(couponCode);
+}
+
 function getCartList() {
   app
     .request("client/getCartList", "", "POST")
@@ -48,9 +53,13 @@ function getCartList() {
           item.addonlist.forEach((item2, value2) => {
             cart_list += `<div class="cat-item px-1 py-3">
         <a class="bg-white rounded d-block p-2 text-center shadow" >
-           <img src="${baseURL+item2.photo.replace("public", "").split("\\").join("/")}" class="img-fluid mb-2">
+           <img src="${
+             baseURL + item2.photo.replace("public", "").split("\\").join("/")
+           }" class="img-fluid mb-2">
            <p class="m-0 small">${item2.name}</p>
-           <button class="btn btn-danger" onclick="addtocart(${item2.id})">Add to cart</button>
+           <button class="btn btn-danger" onclick="addtocart(${
+             item2.id
+           })">Add to cart</button>
         </a>
     
      </div>`;
