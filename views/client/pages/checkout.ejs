@@ -21,10 +21,11 @@
              <input placeholder="Enter promo code" type="text" id="couponCode" class="form-control">
              <div class="input-group-append"><button id="button-addon2" type="button" class="btn btn-primary" onclick="applycoupon()"><i class="feather-percent"></i> APPLY</button></div>
           </div>
-          <!-- <div class="mb-0 input-group">
+          <div class="mb-0 input-group">
              <div class="input-group-prepend"><span class="input-group-text"><i class="feather-message-square"></i></span></div>
-             <textarea placeholder="Any suggestions? We will pass it on..." aria-label="With textarea" class="form-control"></textarea>
-          </div> -->
+             <textarea placeholder="Any suggestions? We will pass it on..." aria-label="With textarea" id="Note" class="form-control"></textarea>
+             
+          </div>
        </div>
        <div class="shadow bg-white rounded p-3 clearfix d-none" id="payment_view">
          <p class="mb-1">Item Total <span class="float-right text-dark" id="item_total">0</span></p>
@@ -33,7 +34,7 @@
           <p class="mb-1 text-success">Total Discount<span class="float-right text-success" id="discount_value">0</span></p>
           <hr>
           <h6 class="font-weight-bold mb-0">TO PAY  <span class="float-right" id="total_pay">Rs.0</span></h6>
-          <a class="btn btn-success btn-block btn-lg mt-2" href="/client/payment" id="final_pay"><i class="icofont-long-arrow-right"></i></a>
+          <a class="btn btn-success btn-block btn-lg mt-2" href="#" onclick="redirectpayment()" id="final_pay"><i class="icofont-long-arrow-right"></i></a>
        </div>
 
     </div>

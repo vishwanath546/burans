@@ -20,6 +20,7 @@ const ordersitemsTable = "order_items";
 const adminTable = "admin_user";
 const useraddressTable = "user_address";
 const { clearImage } = require("../../util/helpers");
+const storage = require("node-sessionstorage");
 exports.getCategory = (request, response, next) => {
   database
     .select(CategoryTable, { status: 1, activeStatus: 1, isSubcategory: 0 })
@@ -283,8 +284,18 @@ exports.addtowishlist = (request, response, next) => {
       next(error);
     });
 };
-
+exports.redirectpayment = (request, response, next) => {
+  let couponCode = request.body.couponCode;
+  let Note = request.body.Note;
+  let couponsData = { couponCode: couponCode, Note: Note };
+  storage.setItem("couponsData", couponsData);
+  response.status(200).json({
+    status: true,
+  });
+};
 exports.getCartList = (request, response, next) => {
+  let couponCode = request.body.couponCode ?? "";
+  let Note = request.body.Note ?? "";
   let cust_id = request.cust_id;
   var query = `select ac.qty,p.*,pi.path as photo,pi.ProductId from ${addtocarttable} as ac join ${productTable} as p  on ac.ProductId=p.id Left join ${productImageTable} as  pi on p.id=pi.ProductId where ac.cust_id=${cust_id} and ac.status=1 and p.status=1 and p.activeStatus=1`;
   database
@@ -310,7 +321,7 @@ exports.getCartList = (request, response, next) => {
           return 0;
           response
             .status(200)
-            .json(await get_new_cart_list(cartlist, addonlist));
+            .json(await get_new_cart_list(cartlist, addonlist, couponCode));
         })
         .then(() => {
           query = `select p.*,si.ProductId,pi.path as photo from ${suggestedItemMapping} as si join ${productTable} as p on p.id=si.SuggestedProductId Left join ${productImageTable} as  pi on p.id=pi.ProductId where si.ProductId in (${productIds})`;
@@ -322,7 +333,9 @@ exports.getCartList = (request, response, next) => {
               }
               response
                 .status(200)
-                .json(await get_new_cart_list(cartlist, suggestedlist));
+                .json(
+                  await get_new_cart_list(cartlist, suggestedlist, couponCode)
+                );
             })
             .catch((error) => {
               next(error);
@@ -338,7 +351,9 @@ exports.getCartList = (request, response, next) => {
               }
               response
                 .status(200)
-                .json(await get_new_cart_list(cartlist, categorylist));
+                .json(
+                  await get_new_cart_list(cartlist, categorylist, couponCode)
+                );
             })
             .catch((error) => {
               next(error);
@@ -375,25 +390,41 @@ async function get_delivery_charges() {
   }
 }
 
-async function get_discount_charges() {
+async function get_discount_charges(couponCode = "") {
   try {
+    let couponCodequery = "";
     var discountamt = 0;
-    var query = `select discountAmount,discountType,applyTo from ${couponcodeTable} where status=1`;
-    var result = await database.query(query, {});
-    if (result.length > 0) {
-      result.forEach((v) => {
-        if (v.discountType == 2) {
-          discountamt = +v.discountAmount;
-        }
-      });
+    if (couponCode != "") {
+      couponCodequery = `code=${couponCode} and `;
+    } else {
+      if (storage.getItem("couponsData") !== undefined) {
+        let codedata = storage.getItem("couponsData");
+        couponCodequery = `code=${codedata.couponCode} and `;
+      }
     }
-
-    return discountamt;
+    if (couponCodequery != "") {
+      var query = `select discountAmount,discountType,applyTo from ${couponcodeTable} where ${couponCodequery} status=1`;
+      var result = await database.query(query, {});
+      if (result.length > 0) {
+        result.forEach((v) => {
+          if (v.discountType == 2) {
+            discountamt = +v.discountAmount;
+          }
+        });
+      }
+    }
+    return Math.round(discountamt);
   } catch (err) {
+    console.log(err);
     throw err;
   }
 }
-async function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
+async function get_new_cart_list(
+  cartlist,
+  addonlist,
+  couponCode = "",
+  type = "addonlist"
+) {
   try {
     var total = 0;
     var restaurant_charges = 0;
@@ -412,8 +443,7 @@ async function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
       cartlistdata.push(item);
     });
     var delivery_charge = await get_delivery_charges();
-    let discountamt = await get_discount_charges();
-
+    let discountamt = await get_discount_charges(couponCode);
     var finalPrice = 0;
     finalPrice = restaurant_charges + total + delivery_charge;
     discountamt = (finalPrice / 100) * discountamt;
@@ -425,7 +455,7 @@ async function get_new_cart_list(cartlist, addonlist, type = "addonlist") {
       finalPrice: Math.round(finalPrice),
       restaurant_charges: restaurant_charges,
       delivery_charge: delivery_charge,
-      discount_value: discountamt,
+      discount_value: Math.round(discountamt),
     };
   } catch (err) {
     throw err;
@@ -486,6 +516,10 @@ exports.insertOrder = (request, response, next) => {
           return payment_details;
         })
         .then((payment_result) => {
+          var codedata = {};
+          if (storage.getItem("couponsData") !== undefined) {
+            codedata = storage.getItem("couponsData");
+          }
           database
             .insert(ordersTable, {
               amount: finalPrice,
@@ -495,6 +529,8 @@ exports.insertOrder = (request, response, next) => {
               UserAddressId: 1,
               discountAmount: amountlist.discount_value,
               status: 1,
+              CouponCode: codedata.couponCode || "",
+              Note: codedata.Note || "",
             })
             .then((order_result) => {
               if (!order_result.status) {

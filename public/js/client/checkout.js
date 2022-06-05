@@ -4,12 +4,30 @@ $(document).ready(function () {
 
 function applycoupon() {
   var couponCode = $("#couponCode").val();
-  alert(couponCode);
+  var Note = $("#Note").val();
+  getCartList(couponCode, Note);
 }
-
-function getCartList() {
+function redirectpayment() {
+  var couponCode = $("#couponCode").val();
+  var Note = $("#Note").val();
+  let data = new FormData();
+  data.set("couponCode", couponCode);
+  data.set("Note", Note);
   app
-    .request("client/getCartList", "", "POST")
+    .request("client/redirectpayment", data, "POST")
+    .then((response) => {
+      window.location.href = baseURL + "client/payment";
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+function getCartList(couponCode = "", Note = "") {
+  let data = new FormData();
+  data.set("couponCode", couponCode);
+  data.set("Note", Note);
+  app
+    .request("client/getCartList", data, "POST")
     .then((response) => {
       $("#cart_list").empty();
       $("#total_pay").empty();
