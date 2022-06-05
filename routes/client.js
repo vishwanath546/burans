@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 const Router = express.Router();
 const isAuth = require("../middleware/is-auth");
 const { check_session } = require("../middleware/check-session");
@@ -6,6 +7,7 @@ const Validator = require("../validator/Validation");
 const Schemas = require("../validator/Schemas");
 const UserController = require("../controller/client/UserController");
 const Homecontroller = require("../controller/client/HomeController");
+const GoogleController = require("../controller/client/GoogleController");
 
 Router.get("/", function (req, res) {
   res.render("client/pages/index", { title: "Burans", url: req.url });
@@ -97,6 +99,7 @@ Router.get("/product", function (req, res, next) {
   res.render("client/pages/product", { title: "Product", url: req.url });
 });
 Router.get("/getCategory", Homecontroller.getCategory);
+
 Router.post("/getSubCategory", Homecontroller.getSubCategory);
 Router.post("/getSubCategoryProduct", Homecontroller.getSubCategoryProduct);
 Router.post("/add_to_cart", check_session, Homecontroller.add_to_cart);
@@ -128,4 +131,17 @@ Router.post("/update_address", check_session, Homecontroller.update_address);
 Router.post("/view_address", check_session, Homecontroller.view_address);
 Router.post("/delete_address", check_session, Homecontroller.delete_address);
 
+//Google Calender
+Router.get("/loginGoogleCalender", function (req, res, next) {
+  if (fs.existsSync("./token.json")) {
+    fs.unlinkSync("./token.json");
+  }
+
+  res.render("client/pages/loginGoogleCalender", {
+    title: "loginGoogleCalender",
+    url: req.url,
+  });
+});
+Router.get("/googleCalender", GoogleController.googleCalender);
+Router.post("/get_events", GoogleController.get_events);
 module.exports = Router;
