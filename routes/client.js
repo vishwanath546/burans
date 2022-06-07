@@ -72,6 +72,7 @@ Router.get("/payment", check_session, function (req, res) {
     cartCount: 0,
   });
 });
+Router.post("/redirectpayment", check_session, Homecontroller.redirectpayment);
 
 Router.get("/otp/:userId", function (req, res, next) {
   let userId = req.params.userId;
