@@ -4,7 +4,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const multer = require("multer");
-// const session = require("express-session");
+const session = require("express-session");
 // const db = require('./model/db')
 
 const app = express();
@@ -17,14 +17,14 @@ app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(
-//   session({
-//     secret: "burans",
-//     resave: true,
-//     saveUninitialized: true,
-//     cookie: { maxAge: 3600000 },
-//   })
-// );
+app.use(
+  session({
+    secret: "burans",
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 3600000 },
+  })
+);
 const diskStorage = multer.diskStorage({
   destination: (request, file, callback) => {
     let destinationPath = "public/";
@@ -97,16 +97,19 @@ const adminRouter = require("./routes/admin");
 const vendorRouter = require("./routes/vendor");
 const webRouter = require("./routes/index");
 const clientRouter = require("./routes/client");
+const deliveryRouter = require("./routes/delivery-boy");
 
 app.use(webRouter);
 app.use("/admin", adminRouter);
 app.use("/vendor", vendorRouter);
 app.use("/client", clientRouter);
+app.use("/delivery-boy",deliveryRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
+
 
 // error handler
 app.use(function (err, req, res, next) {

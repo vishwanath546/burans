@@ -1,0 +1,68 @@
+<%- include("../common/header") %>
+
+<div class="osahan-forgot">
+    <%- include("../common/second-header") %>
+    <div class="p-4">
+
+        <form class="mb-4">
+            <h6 class="text-black-50 small">Updated value will be display after verification</h6>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="shopName" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">Shop Name</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <input type="text" class="form-control form-control-lg"
+                       id="shopName" name="shopName" >
+            </div>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="ownerName" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">Owner Name</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <input type="text" class="form-control form-control-lg"
+                       id="ownerName" name="ownerName">
+            </div>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="mobileNumber" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">Mobile Number</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <input type="email" class="form-control form-control-lg"
+                       id="mobileNumber" name="mobileNumber">
+            </div>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="gstNumber" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">GST Number</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <input type="email" class="form-control form-control-lg"
+                       id="gstNumber" name="gstNumber">
+            </div>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="foodNumber" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">FSSAI</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <input type="email" class="form-control form-control-lg"
+                       id="foodNumber" name="foodNumber">
+            </div>
+            <div class="form-group">
+                <div class="align-items-baseline d-flex justify-content-between">
+                    <label for="areas" class="form-label font-weight-bold small"
+                           style="margin-bottom: 0 !important;">Area</label>
+                    <button class="btn btn-link" type="button">edit</button>
+                </div>
+                <select class="form-control "
+                        id="areas" multiple name="areas">
+                </select>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block">save</button>
+        </form>
+    </div>
+</div>
+<%- include("../common/footer") %>

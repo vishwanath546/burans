@@ -28,7 +28,6 @@ function loadCategoryOptions() {
         app.selectOption('category_id', 'Select Category', null, response.results);
         return Promise.resolve();
     })
-
 }
 
 function isSubcategory(element) {

@@ -110,18 +110,18 @@ const app = (function () {
     $(`#${element}`).select2(options);
   };
 
-  const successToast = (message) => {
+  const successToast = (message,position="topRight") => {
     iziToast.success({
-      position: "topRight",
+      position: position,
       message: message,
       transitionIn: "flipInX",
       transitionOut: "flipOutX",
     });
   };
 
-  const errorToast = (message) => {
+  const errorToast = (message,position="topRight") => {
     iziToast.error({
-      position: "topRight",
+      position: position,
       message: message,
       transitionIn: "flipInX",
       transitionOut: "flipOutX",
@@ -203,7 +203,6 @@ const app = (function () {
             let rules = elements[e].getAttribute("data-valid");
             let messages = elements[e].getAttribute("data-msg");
             let validationsRules = rules.split("|");
-            console.log(validationsRules);
             let validationsMessages = messages.split("|");
             validationsRules.forEach((prop, index) => {
               if (!prop.includes("=")) {
@@ -320,8 +319,8 @@ const app = (function () {
         templateResult,
         templateSelection
       ),
-    successToast: (message) => successToast(message),
-    errorToast: (message) => errorToast(message),
+    successToast: (message,position) => successToast(message,position),
+    errorToast: (message,position) => errorToast(message,position),
     confirmationBox: () => confirmationBox(),
     formValidation: () => formValidation(),
     catchHandler: (error) => catchHandler(error),
