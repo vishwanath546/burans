@@ -1,0 +1,46 @@
+<%- include("../common/header") %>
+<div class="osahan-verification">
+    <div class="p-3 osahan-inner-header bg-white shadow-sm">
+        <div class="d-flex align-items-center">
+            <a class="font-weight-bold text-dark text-back text-decoration-none d-flex" href="/client/login">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="back-page bi bi-chevron-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+                </svg>
+                <span class="pl-2">Back to login</span>
+            </a>
+        </div>
+    </div>
+    <div class="verify_number p-4">
+        <h2 class="mb-3">Verify your<br>phone number</h2>
+        <h6 class="text-black-50">Enter your OTP code here</h6>
+        <form id="otpVerification" method="post" >
+            <input type="hidden" name="userId" id="userId" value="<%= userId %>" />
+            <div class="row my-5 mx-0">
+                <div class="col pr-1 pl-0">
+                    <input type="number" maxlength="1" name="otpNumberOne" id="otpNumberOne" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
+                </div>
+                <div class="col px-2">
+                    <input type="number" maxlength="1" name="otpNumberSecond" id="otpNumberSecond"  class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
+                </div>
+                <div class="col px-2">
+                    <input type="number" maxlength="1" name="otpNumberThree" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
+                </div>
+                <div class="col pl-1 pr-0">
+                    <input type="number" maxlength="1" name="otpNumberFour" class="form-control form-control-lg inputs"
+                           data-valid="required" data-msg="Please Enter Valid OTP"
+                           data-error="#otp-error"/>
+                </div>
+            </div>
+            <div id="otp-error"></div>
+            <button class="btn btn-lg btn-primary btn-block" id="verifyNow" type="button"><a class="text-decoration-none text-white" href="/vendor/orders">Verify Now</a></button>
+        </form>
+    </div>
+</div>
+<%- include("../common/footer") %>
+

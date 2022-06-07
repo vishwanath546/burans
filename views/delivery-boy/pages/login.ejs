@@ -9,8 +9,7 @@
     <div class="p-4 login-page-form">
         <h2 class="text-white my-0">Welcome Back</h2>
         <p class="text-white text-50">Sign in to continue</p>
-<!--        method="post" data-form-valid="loginVerification"-->
-        <form class="mt-5 mb-4" id="clientLoginForm">
+        <form class="mt-5 mb-4" id="deliveryBoyLoginForm" method="post" data-form-valid="loginDeliveryBoyVerification">
             <div class="form-group phone-z mb-3 position-relative">
                 <div class="iti iti--allow-dropdown">
                     <div class="iti__flag-container">
@@ -32,8 +31,8 @@
                 </div>
                 <div id="mobileNumber-error"></div>
             </div>
-            <button class="btn btn-primary btn-lg btn-block" type="button">
-                <a class="font-decoration-none text-white" href="/vendor/otp/1">Send OTP</a>
+            <button class="btn btn-primary btn-lg btn-block" >
+                <a class="font-decoration-none text-white">Send OTP</a>
             </button>
         </form>
     </div>
@@ -47,7 +46,11 @@
     </div>
 </div>
 <%- include("../common/scripts") %>
-
+<script>
+    $(document).ready(function(){
+        app.formValidation();
+    })
+</script>
 
 </body>
 </html>

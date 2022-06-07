@@ -50,7 +50,7 @@ function otpVerification(form) {
   app
     .request("client/otpVerification", new FormData(form))
     .then((response) => {
-      //   location.href = baseURL + "client/location";
+        location.href = baseURL + "client/location";
     })
     .catch((error) => {
       if (error.status === 500) {
