@@ -9,6 +9,7 @@
   },
   "author": "Hexaclan",
   "dependencies": {
+    "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "date-and-time": "^2.3.1",

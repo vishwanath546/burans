@@ -1,35 +1,46 @@
 $(document).ready(function () {
+  get_events();
+});
+
+function get_events() {
   let params = new URL(document.location).searchParams;
   let code = params.get("code");
-  console.log("code", code);
+  let data = new FormData();
+  data.set("code", code);
   if (code != null) {
-    get_events((eventlist) => {
+    app.request("client/get_events", data, "POST").then((eventlist) => {
       var calendar = $("#calendar").fullCalendar({
         editable: true,
+        weekends: true,
+        weekNumbers: false,
         header: {
           left: "prev,next today",
           center: "title",
           right: "month,agendaWeek,agendaDay",
         },
-
+        theme: false,
         events: eventlist,
         selectable: true,
         selectHelper: true,
-        select: function (start, end, allDay) {
-          var title = prompt("Enter Event Title");
-          if (title) {
-            var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
-            var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
-            $.ajax({
-              url: "insert.php",
-              type: "POST",
-              data: { title: title, start: start, end: end },
-              success: function () {
-                calendar.fullCalendar("refetchEvents");
-                alert("Added Successfully");
-              },
-            });
-          }
+        select: async function (start, end, allDay) {
+          console.log(moment(start).format("YYYY-MM-DDTh:mm"));
+          $("#startdate").empty();
+          $("#startdate").val(
+            moment(start).format("YYYY-MM-DD") + "T" + moment().format("h:mm")
+          );
+          $("#enddate").empty();
+          $("#enddate").val(
+            moment(end).subtract(1, "days").format("YYYY-MM-DD") +
+              "T" +
+              moment().format("h:mm")
+          );
+          $("#event_create_modal").modal("toggle");
+          // var title = prompt("Enter Event Title");
+          // if (title) {
+          //   var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
+          //   var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
+          //   await insert_events(title, start, end);
+          // }
         },
         editable: true,
         eventResize: function (event) {
@@ -71,12 +82,27 @@ $(document).ready(function () {
         },
 
         eventClick: function (event) {
-          console.log(event);
+          console.log("sdaffa", event);
           $("#eventlist").empty();
-          let eventlis = `<li class="list-group-item">Event From :- ${event.email_from}</li>
-          <li class="list-group-item">Cretaed :- ${event.created} </li>
-          <li class="list-group-item">summary:- ${event.title} </li>
-          <li class="list-group-item"> <a href="${event.htmlLink}" target="_blank">Click To View</a></li>`;
+          let eventlis = ` <li class="list-group-item">Title:- ${event.title} </li>`;
+          if (event.description != "") {
+            eventlis += `<li class="list-group-item">Description:- ${event.description} </li>`;
+          }
+          eventlis += `<li class="list-group-item">Event From :- ${event.email_from}</li>`;
+          if (
+            event.start != null &&
+            event.end != null &&
+            "_i" in event.start &&
+            "_i" in event.end
+          ) {
+            eventlis += `<li class="list-group-item">Time  :- ${moment(
+              event.start._i
+            ).format("YYYY-MM-DD h:mm a")} TO ${moment(event.end._i).format(
+              "YYYY-MM-DD h:mm a"
+            )}</li>`;
+          }
+
+          eventlis += `<li class="list-group-item"> <a href="${event.htmlLink}" target="_blank">Click To View</a></li>`;
           if (event.hangoutLink != "") {
             eventlis += `<li class="list-group-item"> <a href="${event.hangoutLink}" target="_blank">Click To join Meet</a></li>`;
           }
@@ -99,19 +125,29 @@ $(document).ready(function () {
       });
     });
   }
-});
+}
 
-function get_events(cb) {
+function insert_events(title, start, end) {
+  console.log($("#startdate").val());
   let params = new URL(document.location).searchParams;
   let code = params.get("code");
   let data = new FormData();
   data.set("code", code);
-  app
-    .request("client/get_events", data, "POST")
-    .then((response) => {
-      cb(response);
-    })
-    .catch((error) => {
-      app.errorToast("something went wrong");
-    });
+  data.set("title", $("#title").val());
+  data.set("startdate", moment($("#startdate").val()).format());
+  data.set("enddate", moment($("#enddate").val()).format());
+  data.set("starttime", $("#starttime").val());
+  data.set("endtime", $("#endtime").val());
+  data.set("description", $("#description").val());
+  data.set("people", $("#people").val());
+  if (code != null) {
+    // app.request("client/insert_events", data, "POST").then((result) => {
+    //   console.log(result);
+    //   if (result.status) {
+    //     $("#event_create_modal").modal("toggle");
+    //     alert(result.msg);
+    //     get_events();
+    //   }
+    // });
+  }
 }

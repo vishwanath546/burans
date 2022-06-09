@@ -145,4 +145,5 @@ Router.get("/loginGoogleCalender", function (req, res, next) {
 });
 Router.get("/googleCalender", GoogleController.googleCalender);
 Router.post("/get_events", GoogleController.get_events);
+Router.post("/insert_events", GoogleController.insert_events);
 module.exports = Router;

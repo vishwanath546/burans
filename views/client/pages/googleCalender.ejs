@@ -22,12 +22,6 @@
   <br />
   <h2 align="center"><a href="#">Full Calender</a></h2>
   <br />
-  <div class="container">
-    
-      <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.readonly&response_type=code&client_id=402309286447-sv186c4n1sca430n9po3oic8s8tii7p9.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fclient%2FgoogleCalender">
-        <button type="button" class="btn btn-primary">
-        Login</button></a>
-  </div>
   <div class="container mt-5">
    <div id="calendar"></div>
   </div>
@@ -48,6 +42,59 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="event_create_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create Event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Event Title</label>
+            <input class="form-control form-control-sm" name="title"
+                      id="title">
+        </div>
+          <div class="form-group">
+            <label>Event Description</label>
+            <textarea class="form-control form-control-sm" name="description"
+                      id="description"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Start Date</label>
+            <input type="datetime-local" class="form-control" name="startdate"
+                   id="startdate">
+        </div>
+        <!-- <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" class="form-control" name="starttime"
+                 id="starttime">
+      </div> -->
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="datetime-local" class="form-control" name="enddate"
+                 id="enddate">
+      </div>
+      <!-- <div class="form-group">
+        <label>End Time</label>
+        <input type="time" class="form-control" name="endtime"
+               id="endtime">
+    </div> -->
+      <div class="form-group">
+        <label>Add People</label>
+        <input type="text" class="form-control" name="people"
+               id="people">
+    </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" onclick="insert_events()" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>
