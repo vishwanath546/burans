@@ -715,6 +715,7 @@ exports.delete_address = (request, response, next) => {
 
 exports.getOrders = (request, response, next) => {
   let cust_id = request.cust_id;
+  console.log("fdfdsfds");
   var query = `select ord.*,ot.ProductId,ot.quantity as qty,pi.path as photo,p.name,p.description,p.price as p_price from ${ordersTable} as ord Right join ${ordersitemsTable} as ot on ord.id=ot.OrderId
   join ${productTable} as p  on ot.ProductId=p.id  join ${productImageTable} as  pi on p.id=pi.ProductId
    where ord.UserId=${cust_id}`;

@@ -30,7 +30,9 @@
     "node-sessionstorage": "^1.0.0",
     "nodemailer": "^6.7.2",
     "pagination": "^0.4.6",
-    "sequelize": "^6.12.4"
+    "sequelize": "^6.12.4",
+    "swagger-ui-express": "^4.4.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "jest": "^28.1.0",
