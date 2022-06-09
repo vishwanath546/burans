@@ -1,0 +1,360 @@
+<%- include("../common/header") %>
+<style>
+    .osahan-map .member-plan.active {
+        background: #f51042;
+        color: #fff;
+    }
+    .new{
+        background-color: #ffc10780!important;
+    }
+    .deliver{
+        background-color: #24cec8;
+    }
+    .running{
+        background-color: salmon;
+    }
+</style>
+<div class="osahan-home-page">
+    <!-- Top Nav Bar-->
+    <div class="shadow p-3 homepage-osahan-header bg-white">
+        <div class="title d-flex align-items-center">
+
+            <div class=" d-flex align-items-center">
+                <button class="btn btn-outline-dark btn-sm" id="ordersFilterButton" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                         class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mr-auto ml-2">
+                <a class="text-dark d-flex align-items-center" href="/vendor/profile-edit">
+                    <h6 class="m-0 border-dashed-bottom">Mejwani Restaurants</h6>
+                    <span class="small ml-2"><i class="feather-calendar"></i>06 Jun 2022</span>
+                </a>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="custom-control w-100 mt-2 mx-1 px-0">
+                <label class="border p-3 w-100 rounded border-primary">
+                    <b><i class="feather-shopping-cart"></i> 200</b> <br>
+                    <p class="small mb-0 font-weight-bold">Orders</p>
+                </label>
+            </div>
+            <div class="custom-control w-100 mt-2 mx-1 px-0">
+                <label class="border p-3 w-100 rounded border-primary">
+                    <b><i class="feather-shopping-bag"></i> 600</b> <br>
+                    <p class="small mb-0 font-weight-bold">Amount</p>
+                </label>
+            </div>
+            <div class="custom-control w-100 mt-2 mx-1 px-0">
+                <label class="border p-3 w-100 rounded border-primary">
+                    <b><i class="feather-minus-circle"></i> 40</b> <br>
+                    <p class="small mb-0 font-weight-bold">Penalty</p>
+                </label>
+            </div>
+        </div>
+        <div class="osahan-map">
+            <div class="osahan-slider-map">
+                <div class="osahan-slider-item">
+                    <div>
+                        <div class="member-plan">All</div>
+                    </div>
+                </div>
+                <div class="osahan-slider-item">
+                    <div>
+                        <div class="member-plan">Pending</div>
+                    </div>
+                </div>
+                <div class="osahan-slider-item">
+                    <div>
+                        <div class="member-plan">Deliver</div>
+                    </div>
+                </div>
+                <div class="osahan-slider-item">
+                    <div>
+                        <div class="member-plan">Cancel</div>
+                    </div>
+                </div>
+                <div class="osahan-slider-item">
+                    <div>
+                        <div class="member-plan">Return</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="osahan-main">
+        <!-- checkout -->
+        <div class="bg-light p-3 osahan-faq-item">
+            <div class="osahan-cart-item-profile">
+                <div class="shadow-sm rounded " id="basicsAccordion">
+                    <div class="box border-bottom mt-2">
+                        <div id="basicsHeadingOne" class="new">
+                            <div class="pt-2 px-3  d-flex align-items-center">
+                                <div class="border-dashed-bottom ml-3 pb-1">
+                                    <h5 class="align-items-baseline d-flex justify-content-between mb-1 mt-0 text-dark">
+                                        <span>
+                                        <i class="feather-slack h5 my-0"></i>
+                                        10021
+                                        </span>
+                                        <span class="badge badge-dark">200/-Rs</span>
+                                    </h5>
+                                    <small>
+                                        <i class="feather-calendar my-0"></i>
+                                        06 Jun 2022 11:30 PM
+                                    </small>
+                                    <p class="mb-0 text-muted">Find the answer to any question, from the basics
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="shadow-none btn btn-block d-flex justify-content-between card-btn p-3 collapsed"
+                                    data-toggle="collapse" data-target="#basicsCollapseOne" aria-expanded="false"
+                                    aria-controls="basicsCollapseOne">
+                                <a class="ml-3 font-weight-bold d-block text-dark" href="#">Set Time</a>
+                                <i class="feather-arrow-right-circle ml-auto"></i>
+                            </button>
+
+                        </div>
+                        <div id="basicsCollapseOne" class="collapse" aria-labelledby="basicsHeadingOne"
+                             data-parent="#basicsAccordion" style="">
+                            <div class="card-body border-top p-3 text-muted"
+                                 style="background-color: #6c757d24!important;">
+                                <div class="input-group-sm mb-2 input-group">
+                                    <input placeholder="Enter Time in min's" type="text" class="form-control">
+                                    <div class="input-group-append">
+                                        <button id="button-addon2" type="button" class="btn btn-primary">
+                                            Set Time</button></div>
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div><h6 class="font-weight-bold mt-2">Extras</h6>
+                                    <div class="border filter radio-btn-list rounded w-100">
+                                        <div class="custom-control border-bottom px-0 custom-checkbox">
+                                            <label class=" py-3 w-100 px-3" for="defaultCheck1">Tuna</label>
+                                        </div>
+                                        <div class="custom-control border-bottom px-0 custom-checkbox">
+                                            <label class=" py-3 w-100 px-3" for="defaultCheck2">class</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box border-bottom mt-2">
+                        <div id="basicsHeadingTwo" class="running" >
+                            <div class="pt-2 px-3 d-flex align-items-center">
+                                <div class="border-dashed-bottom ml-3 pb-1">
+                                    <h5 class="align-items-baseline d-flex justify-content-between mb-1 mt-0 text-dark">
+                                       <span>
+                                           <i class="feather-slack h5 my-0"></i>
+                                        10021
+                                       </span>
+
+
+                                        <span class="badge badge-dark">400/-Rs</span>
+                                    </h5>
+                                    <small>
+                                        <i class="feather-calendar my-0"></i>
+                                        06 Jun 2022 11:30 PM
+                                    </small>
+                                    <p class="mb-0 text-muted">Find the answer to any question, from the basics
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="shadow-none btn btn-block d-flex justify-content-between card-btn p-3 collapsed"
+                                    data-toggle="collapse" data-target="#basicsCollapseTwo" aria-expanded="false"
+                                    aria-controls="basicsCollapseTwo">
+                                <a class="ml-3 font-weight-bold d-block  text-dark" href="#">
+                                    <i class="feather-clock ml-auto text-dark"></i>  30:00 Min remain
+                                </a>
+                                <i class="feather-arrow-right-circle ml-auto text-dark"></i>
+                            </button>
+
+                        </div>
+                        <div id="basicsCollapseTwo" class="collapse" aria-labelledby="basicsCollapseTwo"
+                             data-parent="#basicsAccordion" style="">
+                            <div class="card-body border-top p-3 text-muted"
+                                 style="background-color: #6c757d24!important;">
+                                <div class="input-group-sm mb-2 input-group d-none">
+                                    <input placeholder="Enter Time in min's" type="text" class="form-control">
+                                    <div class="input-group-append">
+                                        <button id="button-addon2" type="button" class="btn btn-primary">
+                                            Set Time</button></div>
+                                </div>
+                                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                    <button class="btn btn-dark"><i class="feather-phone-call mx-2"></i>Call</button>
+
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="border-dashed-bottom pb-2 text-muted">
+                                    <span>Note: </span>Find the answer to any question, from the basics
+                                </p>
+                                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                    <button class="btn btn-warning"><i class="feather-clock mx-2"></i>Extend Time</button>
+                                    <button class="btn btn-success"><i class="feather-check mx-2"></i> Done</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box border-bottom mt-2">
+                        <div id="basicsHeadingThree" class="deliver" >
+                            <div class="pt-2 px-3 d-flex align-items-center">
+                                <div class="border-dashed-bottom ml-3 pb-1">
+                                    <h5 class="align-items-baseline d-flex justify-content-between mb-1 mt-0 text-white">
+                                       <span>
+                                           <i class="feather-slack h5 my-0"></i>
+                                        10021
+                                       </span>
+
+
+                                        <span class="badge badge-dark">250/-Rs</span>
+                                    </h5>
+                                    <small class="text-white">
+                                        <i class="feather-calendar my-0"></i>
+                                        06 Jun 2022 11:30 PM
+                                    </small>
+                                    <p class="mb-0 text-white">Find the answer to any question, from the basics
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="shadow-none btn btn-block d-flex justify-content-between card-btn p-3 collapsed"
+                                    data-toggle="collapse" data-target="#basicsCollapseThree" aria-expanded="false"
+                                    aria-controls="basicsCollapseTwo">
+                                <a class="ml-3 font-weight-bold d-block  text-white" href="#">
+                                    <i class="feather-check-circle ml-auto text-white"></i> Delivered
+                                </a>
+                                <i class="feather-arrow-right-circle ml-auto text-white"></i>
+                            </button>
+
+                        </div>
+                        <div id="basicsCollapseThree" class="collapse" aria-labelledby="basicsCollapseThree"
+                             data-parent="#basicsAccordion" style="">
+                            <div class="card-body border-top p-3 text-muted"
+                                 style="background-color: #6c757d24!important;">
+                                <div class="input-group-sm mb-2 input-group d-none">
+                                    <input placeholder="Enter Time in min's" type="text" class="form-control">
+                                    <div class="input-group-append">
+                                        <button id="button-addon2" type="button" class="btn btn-primary">
+                                            Set Time</button></div>
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gold-members py-2">
+                                    <div class="align-items-center d-flex justify-content-between w-100">
+                                        <div class="media align-items-center">
+                                            <div class="mr-2 text-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8"></circle>
+                                                </svg>
+                                            </div>
+                                            <div class="media-body">
+                                                <p class="m-0">Chicken Tikka Sub</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm add-sm-btn">1</button>
+                                            <p class="text-gray mb-0 float-right ml-2 text-muted small">QTY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="border-dashed-bottom pb-2 text-muted">
+                                    <span>Note: </span>Find the answer to any question, from the basics
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<%- include("../common/footer") %>

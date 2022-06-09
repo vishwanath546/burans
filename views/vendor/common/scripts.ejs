@@ -1,0 +1,65 @@
+<!-- Bootstrap core JavaScript -->
+<script src="/modules/vendor/jquery/jquery.min.js"></script>
+<script src="/modules/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- slick Slider JS-->
+<script src="/modules/izitoast/js/iziToast.js"></script>
+<script type="text/javascript" src="/modules/vendor/slick/slick.min.js"></script>
+<!-- Sidebar JS-->
+<script type="text/javascript" src="/modules/vendor/sidebar/hc-offcanvas-nav.js"></script>
+<script type="text/javascript" src="/modules/jquery-validation/js/jquery.validate.js"></script>
+
+<% if (url === "/profile-edit") { %>
+    <script src="/modules/select2/dist/js/select2.js"></script>
+    <script src="/modules/select2/dist/js/select2.full.js"></script>
+<% } %>
+<% if (url === "/orders") { %>
+    <script type="text/javascript"  src="/modules/moment.min.js"></script>
+    <script type="text/javascript"  src="/modules/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+
+<% } %>
+<script>
+    const baseURL = '<%= process.env.BASE_URL %>';
+</script>
+<!-- Custom scripts for all pages-->
+<script src="/js/osahan.js"></script>
+<script src="/js/custom.js"></script>
+<script src="/js/page/common.js"></script>
+
+<% if(url == "/login") { %>
+    <!-- Flag Number-->
+    <script src="/modules/vendor/build/js/intlTelInput.js"></script>
+<% } %>
+
+<% if (url === "/home") { %>
+    <script src="/js/client/home.js"></script>
+<% } %>
+
+<% if (url === "/otp") { %>
+    <script src="/js/client/login.js"></script>
+<% } %>
+<% if (url === "/profile-edit") { %>
+    <script src="/js/vendor/profile.js"></script>
+<% } %>
+<% if (url === "/orders") { %>
+    <script>
+        $(document).ready(function(){
+            $('#ordersFilterButton').daterangepicker({
+                ranges: {
+                    'Today'       : [moment(), moment()],
+                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                startDate: moment().subtract(29, 'days'),
+                endDate  : moment()
+            }, function (start, end) {
+                $('.daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
+            });
+        })
+
+
+    </script>
+<% } %>
