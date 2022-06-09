@@ -131,6 +131,7 @@ Router.post("/insert_address", check_session, Homecontroller.insert_address);
 Router.post("/update_address", check_session, Homecontroller.update_address);
 Router.post("/view_address", check_session, Homecontroller.view_address);
 Router.post("/delete_address", check_session, Homecontroller.delete_address);
+Router.get("/getOrders", check_session, Homecontroller.getOrders);
 
 //Google Calender
 Router.get("/loginGoogleCalender", function (req, res, next) {
