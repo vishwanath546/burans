@@ -527,6 +527,7 @@ exports.insertOrder = (request, response, next) => {
               preparationTime: "00:30:00",
               createdAt: database.currentTimeStamp(),
               UserAddressId: 1,
+              UserId: cust_id,
               discountAmount: amountlist.discount_value,
               status: 1,
               CouponCode: codedata.couponCode || "",
@@ -709,5 +710,29 @@ exports.delete_address = (request, response, next) => {
         status: true,
         body: "Successfully Address deleted",
       });
+    });
+};
+
+exports.getOrders = (request, response, next) => {
+  let cust_id = request.cust_id;
+  console.log("fdfdsfds");
+  var query = `select ord.*,ot.ProductId,ot.quantity as qty,pi.path as photo,p.name,p.description,p.price as p_price from ${ordersTable} as ord Right join ${ordersitemsTable} as ot on ord.id=ot.OrderId
+  join ${productTable} as p  on ot.ProductId=p.id  join ${productImageTable} as  pi on p.id=pi.ProductId
+   where ord.UserId=${cust_id}`;
+  database
+    .query(query, {})
+    .then(async (orderList) => {
+      if (orderList.length == 0) {
+        let error = new Error("Empty Order");
+        error.statusCode = 200;
+        throw error;
+      }
+      response.status(200).json({
+        status: true,
+        body: orderList,
+      });
+    })
+    .catch((error) => {
+      next(error);
     });
 };

@@ -2,13 +2,69 @@
 
  <h2 align="center"><a href="#">Login To Google</a></h2>
  <br />
- <div class="container">
+ <div class="words" contenteditable>
+  <p id="p"></p>
+  <p id="longtext">hai My name is vishwanath Nijampurkar</p>
+</div>
+<br>
+ <!-- <div class="container">
    
-     <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.readonly&response_type=code&client_id=402309286447-sv186c4n1sca430n9po3oic8s8tii7p9.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fclient%2FgoogleCalender">
+     <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code&client_id=402309286447-sv186c4n1sca430n9po3oic8s8tii7p9.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fclient%2FgoogleCalender">
        <button type="button" class="btn btn-primary">
        Login</button></a>
- </div>
+ </div> -->
+ <section class="vh-100" style="background-color: #508bfc;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card shadow-2-strong" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code&client_id=402309286447-sv186c4n1sca430n9po3oic8s8tii7p9.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fclient%2FgoogleCalender">
+            <button class="btn btn-lg btn-block btn-primary" style="background-color: #dd4b39;"
+              type="submit"><i class="fab fa-google me-2"></i> Sign in with google</button>
+          </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<%- include("../common/footer") %>
+<script>
+  // console.log($("#longtext").text().split(' ')[0].css("background", "green"));
+  var longtext=$("#longtext").text().split(' ');
+  var speech = true;
+  window.SpeechRecognition = window.SpeechRecognition
+                  || window.webkitSpeechRecognition;
 
- <%- include("../common/footer") %>
+  const recognition = new SpeechRecognition();
+  recognition.interimResults = true;
+  const words = document.querySelector('.words');
+  words.appendChild(p);
+
+  recognition.addEventListener('result', e => {
+      const transcript = Array.from(e.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('')
+
+      document.getElementById("p").innerHTML = transcript;
+            longtext.forEach((v)=>{
+           
+                  if(v==transcript){
+                    longtext.splice(longtext.indexOf(transcript), 1);
+                    }
+            })
+            console.log(longtext);
+
+  });
+
+    
+  if (speech == true) {
+      recognition.start();
+      recognition.addEventListener('end', recognition.start);
+  }
+</script>
+
 
 

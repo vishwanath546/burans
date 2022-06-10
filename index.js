@@ -6,8 +6,11 @@ const logger = require("morgan");
 const multer = require("multer");
 const session = require("express-session");
 // const db = require('./model/db')
-
+const swaggerUI = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerJSDocs = YAML.load("./api.yaml");
 const app = express();
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSDocs));
 const { createDatabase } = require("./sequlizerModel/CreateStructure");
 // view engine setup
 app.set(express.static("public"));
@@ -103,13 +106,12 @@ app.use(webRouter);
 app.use("/admin", adminRouter);
 app.use("/vendor", vendorRouter);
 app.use("/client", clientRouter);
-app.use("/delivery-boy",deliveryRouter);
+app.use("/delivery-boy", deliveryRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
 
 // error handler
 app.use(function (err, req, res, next) {
