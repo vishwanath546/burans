@@ -4,7 +4,7 @@
  <br />
  <div class="words" contenteditable>
   <p id="p"></p>
-  <p id="longtext">hai My name is vishwanath Nijampurkar</p>
+  <p id="longtext"></p>
 </div>
 <br>
  <!-- <div class="container">
@@ -31,8 +31,16 @@
 </section>
 <%- include("../common/footer") %>
 <script>
+   $("#longtext").empty();
+  var longtext=`Node is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser. Node.js lets developers use JavaScript to write command line tools and for server-side scripting—running scripts server-side to produce dynamic web page content before the page is sent to the user's web browser. Consequently, `;
   // console.log($("#longtext").text().split(' ')[0].css("background", "green"));
-  var longtext=$("#longtext").text().split(' ');
+  longtext=longtext.split(' ');
+
+longtext.forEach((value)=>{
+if(value!=''){
+  $("#longtext").append(`<span id="${value.toLowerCase()}_chap1">${value}</span> `);
+}
+})
   var speech = true;
   window.SpeechRecognition = window.SpeechRecognition
                   || window.webkitSpeechRecognition;
@@ -51,11 +59,13 @@
       document.getElementById("p").innerHTML = transcript;
             longtext.forEach((v)=>{
            
-                  if(v==transcript){
+                  // if(v==transcript){
                     longtext.splice(longtext.indexOf(transcript), 1);
-                    }
+                    console.log(`#${transcript}_chap1`);
+                    $(`#${transcript}_chap1`).css("background", "green")
+                    // }
             })
-            console.log(longtext);
+           
 
   });
 
