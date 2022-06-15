@@ -5,6 +5,7 @@ const app = (function () {
   };
 
   const request = (url, formData, type = "POST") => {
+    console.log(baseURL, url);
     return new Promise((resolve, reject) => {
       $.ajax({
         type: type,
@@ -110,7 +111,7 @@ const app = (function () {
     $(`#${element}`).select2(options);
   };
 
-  const successToast = (message,position="topRight") => {
+  const successToast = (message, position = "topRight") => {
     iziToast.success({
       position: position,
       message: message,
@@ -119,7 +120,7 @@ const app = (function () {
     });
   };
 
-  const errorToast = (message,position="topRight") => {
+  const errorToast = (message, position = "topRight") => {
     iziToast.error({
       position: position,
       message: message,
@@ -319,8 +320,8 @@ const app = (function () {
         templateResult,
         templateSelection
       ),
-    successToast: (message,position) => successToast(message,position),
-    errorToast: (message,position) => errorToast(message,position),
+    successToast: (message, position) => successToast(message, position),
+    errorToast: (message, position) => errorToast(message, position),
     confirmationBox: () => confirmationBox(),
     formValidation: () => formValidation(),
     catchHandler: (error) => catchHandler(error),
