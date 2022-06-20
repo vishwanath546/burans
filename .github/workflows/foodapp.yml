@@ -28,7 +28,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
 
           script: |
-            cd /home/ubuntu/burans
+            cd /home/ubuntu/sandip
             git pull origin vishu
             npm i
             pm2 stop app.js
