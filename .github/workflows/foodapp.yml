@@ -2,9 +2,9 @@ name: foodapp
 
 on:
   push:
-    branches: ["vishu"]
+    branches: [Vishu]
   pull_request:
-    branches: ["vishu"]
+    branches: [Vishu]
 
 jobs:
   laravel-tests:
