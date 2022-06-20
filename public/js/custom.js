@@ -5,7 +5,7 @@ const app = (function () {
   };
 
   const request = (url, formData, type = "POST") => {
-    console.log("baseurl" + baseURL, url);
+    console.log("baseurl" + baseURL + " url=" + url);
     return new Promise((resolve, reject) => {
       $.ajax({
         type: type,

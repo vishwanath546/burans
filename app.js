@@ -1,5 +1,5 @@
 const app = require("./index");
-
+console.log("ci/cd foodapp");
 //
 // createDatabase(false, () => {
 app.listen(3000, () => console.log("Burans http://localhost:3000/"));
